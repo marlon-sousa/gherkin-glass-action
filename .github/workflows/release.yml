@@ -75,7 +75,7 @@ jobs:
           persist-credentials: false
       # create-release attaches every file of a folder, and refuses an empty one
       # (create-release/main.py, lines 41 to 43, at v1.11.0): the release carries
-      # the action's bundle.
+      # the files of dist/, the action's bundle and its licences.
       - uses: itinera-dev/actions/create-release@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
         with:
           assets: dist/
