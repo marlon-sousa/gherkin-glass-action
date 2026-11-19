@@ -1,0 +1,4 @@
+# Every text file is checked out with LF endings, as it is committed, on every system: the
+# bundled action in dist/ is compared byte for byte with a fresh build, which CRLF endings
+# on Windows would break.
+* text=auto eol=lf

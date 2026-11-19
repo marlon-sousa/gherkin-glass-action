@@ -1,0 +1,57 @@
+name: Pull request
+
+# The checks of the process: every pull request names an issue, closes none
+# of another repository, and has no unticked checkbox in its description, and
+# every commit message keeps the convention. They run on every pull request,
+# whatever its base, so each layer of a stack is checked.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: pull-request-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  has-issue:
+    name: names an open issue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: itinera-dev/actions/pr-has-issue@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
+
+  commit-messages:
+    name: commit messages keep the convention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: itinera-dev/actions/commit-messages@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
+
+  no-cross-repo-closing:
+    name: closes no issue of another repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: itinera-dev/actions/no-cross-repo-closing@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
+
+  checkboxes:
+    # A manual check is a list of checkboxes in the description, so the pull
+    # request cannot merge while one is unticked. "edited" runs it again when a
+    # box is ticked; the other workflows leave "edited" out, so that a tick runs
+    # again only this one.
+    name: no unticked checkbox in the description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail on an unticked checkbox
+        env:
+          # Passed in the environment, never written into the script, so that
+          # the description cannot run as shell.
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if printf '%s\n' "$BODY" | grep -En '^[[:space:]]*[-*+] \[ \]'; then
+            echo "Tick every checkbox of the description before merging."
+            exit 1
+          fi

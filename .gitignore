@@ -1,0 +1,3 @@
+/node_modules
+# The site the action's own checks build from the fixture.
+/test/fixtures/site/site/
