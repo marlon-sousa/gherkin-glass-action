@@ -1,0 +1,29 @@
+{
+  "name": "gherkin-glass-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The GitHub Action that installs ghg, the accessible static viewer for Gherkin feature files, and builds a site with it.",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "bundle": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=cjs --charset=utf8 --legal-comments=none --outfile=dist/index.cjs \"--banner:js=// Bundled from src/ by npm run bundle. Do not edit: change src/ and bundle again.\"",
+    "check-dist": "npm run bundle && git diff --exit-code -- dist/"
+  },
+  "dependencies": {
+    "@actions/core": "3.0.1",
+    "@actions/exec": "3.0.0",
+    "@actions/http-client": "4.0.1",
+    "@actions/tool-cache": "4.0.0",
+    "smol-toml": "1.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}
