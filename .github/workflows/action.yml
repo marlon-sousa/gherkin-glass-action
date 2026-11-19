@@ -1,0 +1,37 @@
+name: Action
+
+# AGENTS.md, "Building and testing": the action's own checks, on every pull
+# request and every push to main, and again on a release's tag through
+# release.yml.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # Not on "edited": ticking a checkbox runs again only pull-request.yml.
+    types: [opened, synchronize, reopened]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: action-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: types, unit tests and the bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Check dist/ is the bundle of the sources
+        run: npm run check-dist
