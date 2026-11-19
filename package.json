@@ -11,8 +11,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node --test \"test/**/*.test.ts\"",
-    "bundle": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=cjs --charset=utf8 --legal-comments=none --outfile=dist/index.cjs \"--banner:js=// Bundled from src/ by npm run bundle. Do not edit: change src/ and bundle again.\"",
-    "check-dist": "npm run bundle && git diff --exit-code -- dist/"
+    "bundle": "node tools/bundle.ts",
+    "check-dist": "npm run bundle && git add --intent-to-add --ignore-removal dist/ && git diff --exit-code -- dist/"
   },
   "dependencies": {
     "@actions/core": "3.0.1",

@@ -49,4 +49,4 @@ The action shares its major version with `ghg`: action v1 installs `ghg` 1.x, an
 
 ## Licence
 
-Licensed under either of the [Apache License, Version 2.0](LICENSE-APACHE) or the [MIT licence](LICENSE-MIT), at your option.
+Licensed under either of the [Apache License, Version 2.0](LICENSE-APACHE) or the [MIT licence](LICENSE-MIT), at your option. The action's bundle, `dist/index.cjs`, also holds the packages that [dist/licenses.txt](dist/licenses.txt) lists, each under its own licence.
