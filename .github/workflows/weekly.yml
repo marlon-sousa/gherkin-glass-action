@@ -1,0 +1,50 @@
+name: Weekly
+
+# docs/BEHAVIOUR.md, rule 12: fails while a newer stable ghg of the action's
+# major version than the paired one has been released, and runs the action's
+# checks, on every platform, with that newest ghg.
+
+on:
+  schedule:
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  newest:
+    name: the paired ghg is the newest
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.newest.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Without ghg-version, the action installs the newest stable ghg of its major version.
+      - uses: ./
+      - id: newest
+        run: echo "version=$(ghg --version | sed 's/^ghg //')" >> "$GITHUB_OUTPUT"
+      - name: Compare it with the paired ghg
+        env:
+          NEWEST: ${{ steps.newest.outputs.version }}
+        run: |
+          paired=$(jq -r .version paired-ghg.json)
+          # sort -V orders plain versions as Semantic Versioning does; both are
+          # plain unless paired-ghg.json names a pre-release, which it never should.
+          newer=$(printf '%s\n%s\n' "$paired" "$NEWEST" | sort -V | tail -n 1)
+          if [ "$NEWEST" != "$paired" ] && [ "$newer" = "$NEWEST" ]; then
+            echo "::error::ghg $NEWEST is out, and the action is paired with ghg $paired. Pair it with ghg $NEWEST in paired-ghg.json, add an input for each option it adds, and release the action."
+            exit 1
+          fi
+          echo "The action is paired with ghg $paired, and the newest stable ghg is $NEWEST."
+
+  with-newest:
+    name: the action's checks with the newest ghg
+    needs: newest
+    # Run even when the paired ghg is not the newest, which is when they matter.
+    if: ${{ !cancelled() && needs.newest.outputs.version != '' }}
+    uses: ./.github/workflows/action.yml
+    with:
+      ghg-version: ${{ needs.newest.outputs.version }}

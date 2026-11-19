@@ -1,8 +1,9 @@
 name: Action
 
-# AGENTS.md, "Building and testing": the action's own checks, on every pull
-# request and every push to main, and again on a release's tag through
-# release.yml.
+# AGENTS.md, "Building and testing": the action's own checks, and the action
+# itself on each platform, as docs/BEHAVIOUR.md names these jobs, on every pull
+# request and every push to main, again on a release's tag through release.yml,
+# and each week with the newest ghg through weekly.yml.
 
 on:
   push:
@@ -11,6 +12,11 @@ on:
     # Not on "edited": ticking a checkbox runs again only pull-request.yml.
     types: [opened, synchronize, reopened]
   workflow_call:
+    inputs:
+      ghg-version:
+        description: The ghg to run the action with, instead of the paired one.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -35,3 +41,95 @@ jobs:
       - run: npm test
       - name: Check dist/ is the bundle of the sources
         run: npm run check-dist
+
+  paired:
+    name: the ghg to check with
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: version
+        env:
+          # Given by weekly.yml; empty on a pull request.
+          GHG_VERSION: ${{ inputs.ghg-version }}
+        run: echo "version=${GHG_VERSION:-$(jq -r .version paired-ghg.json)}" >> "$GITHUB_OUTPUT"
+
+  platforms:
+    # docs/BEHAVIOUR.md, rules 1, 4 and 7.
+    name: the action on each platform (${{ matrix.runner }})
+    needs: paired
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel, windows-latest]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./
+        with:
+          ghg-version: ${{ needs.paired.outputs.version }}
+          build: true
+          config: test/fixtures/site/ghg.toml
+      - name: Check ghg is on the PATH of the next step
+        env:
+          EXPECTED: ghg ${{ needs.paired.outputs.version }}
+        run: |
+          actual=$(ghg --version)
+          echo "$actual"
+          test "$actual" = "$EXPECTED"
+      - name: Check the site was written
+        run: test -f test/fixtures/site/site/index.html && test -f test/fixtures/site/site/shop/basket.html
+
+  without-build:
+    # docs/BEHAVIOUR.md, rule 4.
+    name: the action on a platform without a build
+    runs-on: windows-11-arm
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: action
+        uses: ./
+        continue-on-error: true
+      - name: Check the action stopped
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: test "$OUTCOME" = failure
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Check it says why
+        run: |
+          # @actions/core ends its commands with the system's line ending.
+          said=$( (node dist/index.cjs || true) | tr -d '\r')
+          # Shown without its leading ::, so that the passing job shows no error.
+          echo "The action said: ${said#::}"
+          grep -Fx "::error::ghg has no build for Windows on ARM64." <<< "$said"
+
+  inputs:
+    # docs/BEHAVIOUR.md, rule 9.
+    name: the inputs against ghg build
+    needs: paired
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - uses: ./
+        with:
+          ghg-version: ${{ needs.paired.outputs.version }}
+      - run: ghg build --help | node tools/check_inputs.ts

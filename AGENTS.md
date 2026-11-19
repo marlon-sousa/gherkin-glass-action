@@ -32,7 +32,7 @@ The action is TypeScript, in `src/`, bundled with its dependencies by esbuild in
 - **`src/services/`**: the action's steps, reading the inputs, installing and building, and the service that runs them in order, each calling policies and ports, never an adapter.
 - **`src/action_stop.ts`**: `ActionStop`, the error a service throws when the action cannot go on, with the sentence a person reads, and `orStop`, which turns a policy's problem into one.
 - **`src/main.ts`**: the composition root, which makes the adapters and runs the services.
-- **`tools/`**: scripts the checks run, which are not part of the action, such as `tools/bundle.ts`, which bundles the action and writes the licences of the packages it holds. Node runs them as TypeScript, as it is.
+- **`tools/`**: scripts the checks run, which are not part of the action, such as `tools/bundle.ts`, which bundles the action and writes the licences of the packages it holds, and `tools/check_inputs.ts`, which compares the inputs with the options of `ghg build`. Node runs them as TypeScript, as it is.
 
 These hold the code to that shape:
 
