@@ -75,7 +75,7 @@ Node is pinned in `.node-version`, to the major version the runner runs the acti
 - `npm run typecheck`, the TypeScript type-checked with `tsc --noEmit`;
 - `npm test`, the unit tests, with `node --test`;
 - `npm run check-dist`, which bundles the action again and fails when `dist/` differs from the committed one;
-- the release tools' own tests, `.github/release/test-gate.sh` and `.github/release/test-action-tag.sh`, and `.github/release/test-notes.sh`, which needs git-cliff 2.14.2.
+- the release tools' own tests, `.github/release/test-gate.sh`, `.github/release/test-action-tag.sh` and `.github/release/test-publish.sh`, and `.github/release/test-notes.sh`, which needs git-cliff 2.14.2.
 
 `npm run bundle` writes `dist/` from the sources: `dist/index.cjs`, and `dist/licenses.txt`, with the name, version and licence of each package esbuild bundles, its licence files, the notices of code it embeds without one, which `tools/licenses/` keeps, and the notices in the bundled code's comments; commit it with them. The checks that run the action itself, on each platform, run only on GitHub, in `.github/workflows/action.yml`.
 
