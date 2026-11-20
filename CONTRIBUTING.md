@@ -96,8 +96,8 @@ Once the pull request has merged, a maintainer tags the commit the merge put on 
 The release workflow, `.github/workflows/release.yml`, then:
 
 1. refuses the tag unless it is `v` and the version in `package.json`, its commit is on `main`, and `CHANGELOG.md` has notes for the version;
-2. runs every check of `.github/workflows/action.yml` again on the tagged commit, the bundle in `dist/` against a fresh build among them, since their run on `main` after a merge blocks nothing;
-3. creates the GitHub release with the `create-release` action of itinera-dev/actions, with the version's section of `CHANGELOG.md` as its notes;
+2. runs every check of `.github/workflows/action.yml` again on the tagged commit, the files of `dist/`, the bundle and its licences, against a fresh build among them, since their run on `main` after a merge blocks nothing;
+3. creates the GitHub release with `.github/release/publish.sh`, titled with the tag and with the version's section of `CHANGELOG.md` as its notes, and no files, since a workflow runs the action from the tagged commit;
 4. moves the major version's tag, such as `v1`, to the release, when it is the newest release of that major version, as docs/BEHAVIOUR.md, "Versions", says.
 
 ### Publishing to the Marketplace
