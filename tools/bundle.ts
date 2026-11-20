@@ -1,8 +1,8 @@
-// Tool: bundles the action into dist/index.cjs, and writes dist/licenses.txt with the licences of the packages it holds (issue #1, decision 15).
+// Tool: bundles the actions into dist/index.cjs, dist/publish/index.cjs and dist/preview/index.cjs, and writes dist/licenses.txt with the licences of the packages it holds (issue #1, decision 15).
 // Usage: npm run bundle
 
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import path, { join } from "node:path";
 import { build } from "esbuild";
 import {
   embeddedCodeOf,
@@ -14,26 +14,37 @@ import {
   type BundledPackage,
 } from "./bundled_licenses.ts";
 
-const BUNDLE = "dist/index.cjs";
+// The root action's bundle, and those of the publish and preview actions, which their own
+// action.yml files name.
+const ENTRY_POINTS = {
+  index: "src/main.ts",
+  "publish/index": "src/publish_main.ts",
+  "preview/index": "src/preview_main.ts",
+};
 
 const bundleResult = await build({
-  entryPoints: ["src/main.ts"],
+  entryPoints: ENTRY_POINTS,
   bundle: true,
   platform: "node",
   target: "node24",
   format: "cjs",
   charset: "utf8",
-  // The notices in the code's comments go to dist/licenses.txt, not into the bundle.
+  // The notices in the code's comments go to dist/licenses.txt, not into the bundles.
   legalComments: "external",
-  outfile: BUNDLE,
+  outdir: "dist",
+  outExtension: { ".js": ".cjs" },
   banner: { js: "// Bundled from src/ by npm run bundle. Do not edit: change src/ and bundle again." },
   metafile: true,
   write: false,
 });
 
-const bundle = bundleResult.outputFiles.find((outputFile) => outputFile.path.endsWith(BUNDLE));
-if (bundle === undefined) throw new Error(`esbuild wrote no ${BUNDLE}.`);
-const legalComments = bundleResult.outputFiles.find((outputFile) => outputFile !== bundle)?.text ?? "";
+const bundles = bundleResult.outputFiles.filter((outputFile) => outputFile.path.endsWith(".cjs"));
+if (bundles.length !== Object.keys(ENTRY_POINTS).length) throw new Error("esbuild did not write every bundle.");
+// Each bundle has its own file of legal comments; the bundles share their packages, so a file
+// that holds the same as another's is kept once.
+const legalComments = [
+  ...new Set(bundleResult.outputFiles.filter((outputFile) => !bundles.includes(outputFile)).map((outputFile) => outputFile.text)),
+].join("\n");
 
 const inputPaths = Object.keys(bundleResult.metafile.inputs);
 const bundledPackages: BundledPackage[] = packageFoldersOf(inputPaths).map((packageFolder) => {
@@ -61,7 +72,9 @@ const embeddedNotices = embeddedCodeOf(inputPaths).map((code) => {
 
 // dist/ is emptied first, so that a file the bundle no longer writes shows as deleted to the dist check.
 rmSync("dist", { recursive: true, force: true });
-mkdirSync("dist");
-writeFileSync(BUNDLE, bundle.contents);
+for (const bundle of bundles) {
+  mkdirSync(path.dirname(bundle.path), { recursive: true });
+  writeFileSync(bundle.path, bundle.contents);
+}
 writeFileSync("dist/licenses.txt", licensesText(bundledPackages, embeddedNotices, legalComments));
-console.log(`${BUNDLE} bundled, with the licences of ${bundledPackages.map((bundledPackage) => bundledPackage.name).join(", ")}.`);
+console.log(`dist/ bundled, with the licences of ${bundledPackages.map((bundledPackage) => bundledPackage.name).join(", ")}.`);

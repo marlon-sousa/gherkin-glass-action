@@ -1,4 +1,4 @@
-// Composition root: the action, wired to the runner.
+// Composition root: the root action, wired to the runner.
 
 import pairedGhg from "../paired-ghg.json" with { type: "json" };
 import { ActionsRunner } from "./adapters/actions_runner.ts";

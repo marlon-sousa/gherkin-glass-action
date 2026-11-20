@@ -1069,14 +1069,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path11 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path13 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path11 && path11[0] !== "/") {
-          path11 = `/${path11}`;
+        if (path13 && path13[0] !== "/") {
+          path13 = `/${path13}`;
         }
-        return new URL(`${origin}${path11}`);
+        return new URL(`${origin}${path13}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1527,39 +1527,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin }
+          request: { method, path: path13, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method, origin, path11);
+        debuglog("sending request to %s %s/%s", method, origin, path13);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin },
+          request: { method, path: path13, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method,
           origin,
-          path11,
+          path13,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin }
+          request: { method, path: path13, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method, origin, path11);
+        debuglog("trailers received from %s %s/%s", method, origin, path13);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin },
+          request: { method, path: path13, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
-          path11,
+          path13,
           error2.message
         );
       });
@@ -1608,9 +1608,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method, path: path11, origin }
+            request: { method, path: path13, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method, origin, path11);
+          debuglog("sending request to %s %s/%s", method, origin, path13);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1673,7 +1673,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path11,
+        path: path13,
         method,
         body,
         headers,
@@ -1688,11 +1688,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path11 !== "string") {
+        if (typeof path13 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path11[0] !== "/" && !(path11.startsWith("http://") || path11.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path13[0] !== "/" && !(path13.startsWith("http://") || path13.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path11)) {
+        } else if (invalidPathRegex.test(path13)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -1758,7 +1758,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path11, query) : path11;
+        this.path = query ? buildURL(path13, query) : path13;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -4082,11 +4082,11 @@ var require_util2 = __commonJS({
     var { isUint8Array } = require("node:util/types");
     var { webidl } = require_webidl();
     var supportedHashes = [];
-    var crypto2;
+    var crypto3;
     try {
-      crypto2 = require("node:crypto");
+      crypto3 = require("node:crypto");
       const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-      supportedHashes = crypto2.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
+      supportedHashes = crypto3.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
     } catch {
     }
     function responseURL(response) {
@@ -4359,7 +4359,7 @@ var require_util2 = __commonJS({
       }
     }
     function bytesMatch(bytes, metadataList) {
-      if (crypto2 === void 0) {
+      if (crypto3 === void 0) {
         return true;
       }
       const parsedMetadata = parseMetadata(metadataList);
@@ -4374,7 +4374,7 @@ var require_util2 = __commonJS({
       for (const item of metadata) {
         const algorithm = item.algo;
         const expectedValue = item.hash;
-        let actualValue = crypto2.createHash(algorithm).update(bytes).digest("base64");
+        let actualValue = crypto3.createHash(algorithm).update(bytes).digest("base64");
         if (actualValue[actualValue.length - 1] === "=") {
           if (actualValue[actualValue.length - 2] === "=") {
             actualValue = actualValue.slice(0, -2);
@@ -5438,8 +5438,8 @@ var require_body = __commonJS({
     var { multipartFormDataParser } = require_formdata_parser();
     var random;
     try {
-      const crypto2 = require("node:crypto");
-      random = (max) => crypto2.randomInt(0, max);
+      const crypto3 = require("node:crypto");
+      random = (max) => crypto3.randomInt(0, max);
     } catch {
       random = (max) => Math.floor(Math.random(max));
     }
@@ -6451,7 +6451,7 @@ var require_client_h1 = __commonJS({
       return method !== "GET" && method !== "HEAD" && method !== "OPTIONS" && method !== "TRACE" && method !== "CONNECT";
     }
     function writeH1(client, request) {
-      const { method, path: path11, host, upgrade, blocking, reset } = request;
+      const { method, path: path13, host, upgrade, blocking, reset } = request;
       let { body, headers, contentLength } = request;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util2.isFormDataLike(body)) {
@@ -6532,7 +6532,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path11} HTTP/1.1\r
+      let header = `${method} ${path13} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -7061,7 +7061,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request) {
       const session = client[kHTTP2Session];
-      const { method, path: path11, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
+      const { method, path: path13, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
       let { body } = request;
       if (upgrade) {
         util2.errorRequest(client, request, new Error("Upgrade not supported for H2"));
@@ -7158,7 +7158,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path11;
+      headers[HTTP2_HEADER_PATH] = path13;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7511,9 +7511,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util2.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path11 = search ? `${pathname}${search}` : pathname;
+        const path13 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path11;
+        this.opts.path = path13;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8752,10 +8752,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path11 = "/",
+          path: path13 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path11;
+        opts.path = origin + path13;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10727,20 +10727,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path11) {
-      if (typeof path11 !== "string") {
-        return path11;
+    function safeUrl(path13) {
+      if (typeof path13 !== "string") {
+        return path13;
       }
-      const pathSegments = path11.split("?");
+      const pathSegments = path13.split("?");
       if (pathSegments.length !== 2) {
-        return path11;
+        return path13;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path11, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path11);
+    function matchKey(mockDispatch2, { path: path13, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path13);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10762,7 +10762,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path11 }) => matchValue(safeUrl(path11), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path13 }) => matchValue(safeUrl(path13), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10800,9 +10800,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path11, method, body, headers, query } = opts;
+      const { path: path13, method, body, headers, query } = opts;
       return {
-        path: path11,
+        path: path13,
         method,
         body,
         headers,
@@ -11265,10 +11265,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path11, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path13, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path11,
+            Path: path13,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -16147,9 +16147,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path11) {
-      for (let i = 0; i < path11.length; ++i) {
-        const code = path11.charCodeAt(i);
+    function validateCookiePath(path13) {
+      for (let i = 0; i < path13.length; ++i) {
+        const code = path13.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude DEL and non-ascii
         code === 59) {
@@ -17078,13 +17078,13 @@ var require_frame = __commonJS({
     "use strict";
     var { maxUnsigned16Bit } = require_constants5();
     var BUFFER_SIZE = 16386;
-    var crypto2;
+    var crypto3;
     var buffer = null;
     var bufIdx = BUFFER_SIZE;
     try {
-      crypto2 = require("node:crypto");
+      crypto3 = require("node:crypto");
     } catch {
-      crypto2 = {
+      crypto3 = {
         // not full compatibility, but minimum.
         randomFillSync: function randomFillSync(buffer2, _offset, _size) {
           for (let i = 0; i < buffer2.length; ++i) {
@@ -17097,7 +17097,7 @@ var require_frame = __commonJS({
     function generateMask() {
       if (bufIdx === BUFFER_SIZE) {
         bufIdx = 0;
-        crypto2.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
+        crypto3.randomFillSync(buffer ??= Buffer.allocUnsafe(BUFFER_SIZE), 0, BUFFER_SIZE);
       }
       return [buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++], buffer[bufIdx++]];
     }
@@ -17169,9 +17169,9 @@ var require_connection = __commonJS({
     var { Headers: Headers2, getHeadersList } = require_headers();
     var { getDecodeSplit } = require_util2();
     var { WebsocketFrameSend } = require_frame();
-    var crypto2;
+    var crypto3;
     try {
-      crypto2 = require("node:crypto");
+      crypto3 = require("node:crypto");
     } catch {
     }
     function establishWebSocketConnection(url, protocols, client, ws, onEstablish, options) {
@@ -17191,7 +17191,7 @@ var require_connection = __commonJS({
         const headersList = getHeadersList(new Headers2(options.headers));
         request.headersList = headersList;
       }
-      const keyValue = crypto2.randomBytes(16).toString("base64");
+      const keyValue = crypto3.randomBytes(16).toString("base64");
       request.headersList.append("sec-websocket-key", keyValue);
       request.headersList.append("sec-websocket-version", "13");
       for (const protocol of protocols) {
@@ -17221,7 +17221,7 @@ var require_connection = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest = crypto2.createHash("sha1").update(keyValue + uid).digest("base64");
+          const digest = crypto3.createHash("sha1").update(keyValue + uid).digest("base64");
           if (secWSAccept !== digest) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
@@ -19069,11 +19069,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path11 = opts.path;
+          let path13 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path11 = `/${path11}`;
+            path13 = `/${path13}`;
           }
-          url = new URL(util2.parseOrigin(url).origin + path11);
+          url = new URL(util2.parseOrigin(url).origin + path13);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -21361,6 +21361,7 @@ var require_semver2 = __commonJS({
 var paired_ghg_default = { version: "1.0.0" };
 
 // src/adapters/actions_runner.ts
+var import_node_fs = require("node:fs");
 var import_promises = require("node:fs/promises");
 var import_node_os = __toESM(require("node:os"), 1);
 var import_node_path = __toESM(require("node:path"), 1);
@@ -21437,6 +21438,7 @@ function escapeProperty(s) {
 }
 
 // node_modules/@actions/core/lib/file-command.js
+var crypto = __toESM(require("crypto"), 1);
 var fs = __toESM(require("fs"), 1);
 var os2 = __toESM(require("os"), 1);
 function issueFileCommand(command, message) {
@@ -21450,6 +21452,17 @@ function issueFileCommand(command, message) {
   fs.appendFileSync(filePath, `${toCommandValue(message)}${os2.EOL}`, {
     encoding: "utf8"
   });
+}
+function prepareKeyValueMessage(key, value) {
+  const delimiter3 = `ghadelimiter_${crypto.randomUUID()}`;
+  const convertedValue = toCommandValue(value);
+  if (key.includes(delimiter3)) {
+    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter3}"`);
+  }
+  if (convertedValue.includes(delimiter3)) {
+    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter3}"`);
+  }
+  return `${key}<<${delimiter3}${os2.EOL}${convertedValue}${os2.EOL}${delimiter3}`;
 }
 
 // node_modules/@actions/core/lib/core.js
@@ -23301,6 +23314,14 @@ function getInput(name, options) {
   }
   return val.trim();
 }
+function setOutput(name, value) {
+  const filePath = process.env["GITHUB_OUTPUT"] || "";
+  if (filePath) {
+    return issueFileCommand("OUTPUT", prepareKeyValueMessage(name, value));
+  }
+  process.stdout.write(os5.EOL);
+  issueCommand("set-output", { name }, toCommandValue(value));
+}
 function setFailed(message) {
   process.exitCode = ExitCode.Failure;
   error(message);
@@ -23313,6 +23334,9 @@ function debug(message) {
 }
 function error(message, properties = {}) {
   issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+function notice(message, properties = {}) {
+  issueCommand("notice", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 function info(message) {
   process.stdout.write(message + os5.EOL);
@@ -23334,6 +23358,7 @@ var PROBLEM_MATCHER = {
 var ActionsRunner = class {
   system = process.env["RUNNER_OS"] ?? "";
   processor = process.env["RUNNER_ARCH"] ?? "";
+  workspace = process.env["GITHUB_WORKSPACE"] ?? process.cwd();
   onGitHubCom = (process.env["GITHUB_SERVER_URL"] ?? "https://github.com") === "https://github.com";
   input(name) {
     return getInput(name);
@@ -23341,8 +23366,23 @@ var ActionsRunner = class {
   addToPath(folder) {
     addPath(folder);
   }
+  setOutput(name, value) {
+    setOutput(name, value);
+  }
   log(line) {
     info(line);
+  }
+  notice(line) {
+    notice(line);
+  }
+  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
+  workflowEvent() {
+    const payloadFile = process.env["GITHUB_EVENT_PATH"];
+    return {
+      name: process.env["GITHUB_EVENT_NAME"] ?? "",
+      refName: process.env["GITHUB_REF_NAME"] ?? "",
+      payload: payloadFile === void 0 ? void 0 : JSON.parse((0, import_node_fs.readFileSync)(payloadFile, "utf8"))
+    };
   }
   annotate(annotation) {
     error(annotation.message, { file: annotation.file, startLine: annotation.line });
@@ -23360,7 +23400,7 @@ var ActionsRunner = class {
 };
 
 // node_modules/@actions/tool-cache/lib/tool-cache.js
-var crypto = __toESM(require("crypto"), 1);
+var crypto2 = __toESM(require("crypto"), 1);
 var fs3 = __toESM(require("fs"), 1);
 
 // node_modules/@actions/tool-cache/lib/manifest.js
@@ -23484,7 +23524,7 @@ var IS_MAC = process.platform === "darwin";
 var userAgent = "actions/tool-cache";
 function downloadTool(url, dest, auth, headers) {
   return __awaiter8(this, void 0, void 0, function* () {
-    dest = dest || path6.join(_getTempDirectory(), crypto.randomUUID());
+    dest = dest || path6.join(_getTempDirectory(), crypto2.randomUUID());
     yield mkdirP(path6.dirname(dest));
     debug(`Downloading ${url}`);
     debug(`Destination ${dest}`);
@@ -23725,7 +23765,7 @@ function findAllVersions(toolName, arch3) {
 function _createExtractFolder(dest) {
   return __awaiter8(this, void 0, void 0, function* () {
     if (!dest) {
-      dest = path6.join(_getTempDirectory(), crypto.randomUUID());
+      dest = path6.join(_getTempDirectory(), crypto2.randomUUID());
     }
     yield mkdirP(dest);
     return dest;
@@ -23895,8 +23935,10 @@ function releaseListings(page) {
 
 // src/adapters/node_files.ts
 var import_node_crypto = require("node:crypto");
-var import_node_fs = require("node:fs");
+var import_node_fs2 = require("node:fs");
 var import_promises3 = require("node:fs/promises");
+var import_node_os3 = __toESM(require("node:os"), 1);
+var import_node_path3 = __toESM(require("node:path"), 1);
 var NodeFiles = class {
   async readText(file) {
     try {
@@ -23907,8 +23949,14 @@ var NodeFiles = class {
   }
   async sha256Of(file) {
     const hash = (0, import_node_crypto.createHash)("sha256");
-    for await (const chunk of (0, import_node_fs.createReadStream)(file)) hash.update(chunk);
+    for await (const chunk of (0, import_node_fs2.createReadStream)(file)) hash.update(chunk);
     return hash.digest("hex");
+  }
+  async writeTemporary(name, text) {
+    const folder = await (0, import_promises3.mkdtemp)(import_node_path3.default.join(process.env["RUNNER_TEMP"] ?? import_node_os3.default.tmpdir(), "ghg-"));
+    const file = import_node_path3.default.join(folder, name);
+    await (0, import_promises3.writeFile)(file, text);
+    return file;
   }
   async isFile(file) {
     try {
@@ -23935,6 +23983,9 @@ function newestStable(releases, major) {
   return releases.filter((release) => !release.draft && !release.prerelease).map((release) => STABLE_TAG.exec(release.tag)).flatMap((match) => match ? [[match[1], match[2], match[3]].map(Number)] : []).filter(([releaseMajor]) => releaseMajor === major).sort(([, aMinor = 0, aPatch = 0], [, bMinor = 0, bPatch = 0]) => aMinor - bMinor || aPatch - bPatch).map((numbers) => numbers.join(".")).at(-1);
 }
 
+// src/services/running_action.ts
+var import_node_path7 = __toESM(require("node:path"), 1);
+
 // src/action_stop.ts
 var ActionStop = class extends Error {
   name = "ActionStop";
@@ -23942,18 +23993,6 @@ var ActionStop = class extends Error {
 function orStop(result) {
   if (typeof result === "object" && result !== null && "problem" in result) throw new ActionStop(result.problem);
   return result;
-}
-
-// src/policies/report_annotations.ts
-var import_node_path3 = __toESM(require("node:path"), 1);
-var FILE_AND_LINE = /^(.+?):(\d+): (.+)$/;
-function annotationOf(reportLine, paths) {
-  const match = FILE_AND_LINE.exec(reportLine.trimEnd());
-  if (!match) return void 0;
-  const [, reported = "", line = "", message = ""] = match;
-  const fromWorkspace = paths.workspaceFiles.includes(import_node_path3.default.normalize(reported));
-  const file = fromWorkspace ? reported : import_node_path3.default.join(paths.inputFolder, reported);
-  return { file: file.split(import_node_path3.default.sep).join("/"), line: Number(line), message };
 }
 
 // src/policies/report_paths.ts
@@ -24722,20 +24761,32 @@ function configFileOf(configInput) {
   return configInput === "" ? "ghg.toml" : configInput;
 }
 function reportPathsOf(settings) {
-  const configured = settings.configText === void 0 ? {} : configuredPaths(settings.configText);
-  const besideConfig = (key) => import_node_path4.default.isAbsolute(key) ? key : import_node_path4.default.join(import_node_path4.default.dirname(settings.configFile), key);
-  const inputFolder = settings.input !== "" ? settings.input : settings.configText === void 0 ? "features" : besideConfig(configured.input ?? "features");
+  const configured = configuredPaths(settings.configText);
+  const besideConfig = besideConfigOf(settings.configFile);
+  const inputFolder = folderOf(settings.input, configured.input, "features", settings);
   const frontPage = settings.frontPage !== "" ? settings.frontPage : configured.frontPage && besideConfig(configured.frontPage);
   return {
     inputFolder,
     workspaceFiles: [settings.configFile, ...frontPage ? [frontPage] : []].map((file) => import_node_path4.default.normalize(file))
   };
 }
+function outputFolderOf(settings) {
+  return folderOf(settings.output, configuredPaths(settings.configText).output, "site", settings);
+}
+function folderOf(given, key, fallback, settings) {
+  if (given !== "") return given;
+  return settings.configText === void 0 ? fallback : besideConfigOf(settings.configFile)(key ?? fallback);
+}
+function besideConfigOf(configFile) {
+  return (key) => import_node_path4.default.isAbsolute(key) ? key : import_node_path4.default.join(import_node_path4.default.dirname(configFile), key);
+}
 function configuredPaths(configText) {
+  if (configText === void 0) return {};
   try {
-    const { input, front_page: frontPage } = parse(configText);
+    const { input, output, front_page: frontPage } = parse(configText);
     return {
       ...typeof input === "string" && { input },
+      ...typeof output === "string" && { output },
       ...typeof frontPage === "string" && { frontPage }
     };
   } catch {
@@ -24743,14 +24794,21 @@ function configuredPaths(configText) {
   }
 }
 
+// src/policies/report_annotations.ts
+var import_node_path5 = __toESM(require("node:path"), 1);
+var FILE_AND_LINE = /^(.+?):(\d+): (.+)$/;
+function annotationOf(reportLine, paths) {
+  const match = FILE_AND_LINE.exec(reportLine.trimEnd());
+  if (!match) return void 0;
+  const [, reported = "", line = "", message = ""] = match;
+  const fromWorkspace = paths.workspaceFiles.includes(import_node_path5.default.normalize(reported));
+  const file = fromWorkspace ? reported : import_node_path5.default.join(paths.inputFolder, reported);
+  return { file: file.split(import_node_path5.default.sep).join("/"), line: Number(line), message };
+}
+
 // src/services/building.ts
 async function buildSite(ghg, request, ports) {
-  const paths = reportPathsOf({
-    input: request.input,
-    frontPage: request.frontPage,
-    configFile: request.configFile,
-    configText: await ports.files.readText(request.configFile)
-  });
+  const paths = reportPathsOf({ ...request, configText: await ports.files.readText(request.configFile) });
   const status = await ports.process.run(ghg, ["build", ...request.buildArguments], (line) => {
     const annotation = annotationOf(line, paths);
     if (annotation !== void 0) ports.runner.annotate(annotation);
@@ -24759,7 +24817,7 @@ async function buildSite(ghg, request, ports) {
 }
 
 // src/services/installing.ts
-var import_node_path5 = __toESM(require("node:path"), 1);
+var import_node_path6 = __toESM(require("node:path"), 1);
 
 // src/policies/checksums.ts
 function listedChecksum(sums, archive) {
@@ -24789,7 +24847,7 @@ async function installGhg(version, platform2, pairedMajor, ports) {
   const folder = ports.toolCache.find(installedVersion) ?? await downloadGhg(installedVersion, platform2, ports);
   ports.runner.addToPath(folder);
   ports.runner.log(`ghg ${installedVersion} is installed.`);
-  return import_node_path5.default.join(folder, platform2.binary);
+  return { program: import_node_path6.default.join(folder, platform2.binary), version: installedVersion };
 }
 async function newestCompatible(major, releases) {
   const listed = await releases.listReleases();
@@ -24808,7 +24866,7 @@ async function downloadGhg(version, platform2, ports) {
     throw new ActionStop(`${archive} does not match its checksum in SHA256SUMS.`);
   }
   const unpacked = await ports.toolCache.unpack(archiveFile, platform2.packing);
-  if (!await ports.files.isFile(import_node_path5.default.join(unpacked, platform2.binary))) {
+  if (!await ports.files.isFile(import_node_path6.default.join(unpacked, platform2.binary))) {
     throw new ActionStop(`${archive} has no ghg.`);
   }
   return ports.toolCache.keep(unpacked, version);
@@ -24857,35 +24915,45 @@ function trueOrFalse(name, input) {
 
 // src/services/reading_inputs.ts
 function readRequest(runner) {
-  const versionInput = runner.input("ghg-version");
-  const version = versionInput === "" ? void 0 : orStop(namedVersion(versionInput));
+  const install = readInstallRequest(runner);
   const build = orStop(buildAsked(runner.input("build")));
   const passed = orStop(buildArguments((name) => runner.input(name)));
+  return { install, build: build ? buildRequestOf(passed, (name) => runner.input(name)) : void 0 };
+}
+function readInstallRequest(runner) {
+  const versionInput = runner.input("ghg-version");
+  const version = versionInput === "" ? void 0 : orStop(namedVersion(versionInput));
   const platform2 = orStop(platformOf(runner.system, runner.processor));
-  const token = runner.onGitHubCom && runner.input("token") !== "" ? runner.input("token") : void 0;
+  const releasesToken = runner.onGitHubCom && runner.input("token") !== "" ? runner.input("token") : void 0;
+  return { version, platform: platform2, releasesToken };
+}
+function buildRequestOf(passed, inputOf) {
   return {
-    version,
-    platform: platform2,
-    token,
-    build: build ? {
-      buildArguments: passed,
-      input: runner.input("input"),
-      frontPage: runner.input("front-page"),
-      configFile: configFileOf(runner.input("config"))
-    } : void 0
+    buildArguments: passed,
+    input: inputOf("input"),
+    output: inputOf("output"),
+    frontPage: inputOf("front-page"),
+    configFile: configFileOf(inputOf("config"))
   };
 }
 
 // src/services/running_action.ts
 async function runAction(pairedMajor, ports) {
   try {
-    const request = readRequest(ports.runner);
-    const ghg = await installGhg(request.version, request.platform, pairedMajor, {
+    const { install, build } = readRequest(ports.runner);
+    const ghg = await installGhg(install.version, install.platform, pairedMajor, {
       ...ports,
-      releases: ports.releasesWith(request.token)
+      releases: ports.releasesWith(install.releasesToken)
     });
+    ports.runner.setOutput("ghg-version", ghg.version);
     try {
-      if (request.build !== void 0) await buildSite(ghg, request.build, ports);
+      if (build !== void 0) {
+        await buildSite(ghg.program, build, ports);
+        const outputFolder = outputFolderOf({ ...build, configText: await ports.files.readText(build.configFile) });
+        ports.runner.setOutput("site", import_node_path7.default.normalize(outputFolder).split(import_node_path7.default.sep).join("/"));
+      } else {
+        ports.runner.setOutput("site", "");
+      }
     } finally {
       await ports.runner.addProblemMatcher();
     }

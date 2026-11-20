@@ -6,12 +6,14 @@ import type { Files } from "../../src/ports/files.ts";
 import type { GhgProcess } from "../../src/ports/ghg_process.ts";
 import type { GhgReleases } from "../../src/ports/ghg_releases.ts";
 import type { GhgToolCache } from "../../src/ports/ghg_tool_cache.ts";
+import type { WorkflowEvent } from "../../src/policies/workflow_event.ts";
 import type { Runner } from "../../src/ports/runner.ts";
 
 export class FakeRunner implements Runner {
   readonly inputs: Map<string, string>;
   readonly system: string;
   readonly processor: string;
+  readonly workspace = "/work";
   readonly onGitHubCom: boolean;
   readonly path: string[] = [];
   readonly logged: string[] = [];
@@ -19,6 +21,10 @@ export class FakeRunner implements Runner {
   readonly failures: string[] = [];
   /** What the runner was asked, in order: "matcher" for the problem matcher, "fail" for a failure. */
   readonly events: string[] = [];
+  readonly notices: string[] = [];
+  readonly outputs = new Map<string, string>();
+  /** The event that runs the workflow, a push of main unless a test sets another. */
+  event: WorkflowEvent = { name: "push", refName: "main", payload: {} };
 
   constructor(inputs: Record<string, string> = {}, system = "Linux", processor = "X64", onGitHubCom = true) {
     this.inputs = new Map(Object.entries(inputs));
@@ -33,8 +39,17 @@ export class FakeRunner implements Runner {
   addToPath(folder: string): void {
     this.path.push(folder);
   }
+  setOutput(name: string, value: string): void {
+    this.outputs.set(name, value);
+  }
   log(line: string): void {
     this.logged.push(line);
+  }
+  notice(line: string): void {
+    this.notices.push(line);
+  }
+  workflowEvent(): WorkflowEvent {
+    return this.event;
   }
   annotate(annotation: Annotation): void {
     this.annotations.push(annotation);
@@ -87,6 +102,11 @@ export class FakeFiles implements Files {
   }
   async isFile(file: string): Promise<boolean> {
     return this.texts.has(file);
+  }
+  async writeTemporary(name: string, text: string): Promise<string> {
+    const file = `temporary/${name}`;
+    this.texts.set(file, text);
+    return file;
   }
 }
 

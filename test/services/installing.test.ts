@@ -38,14 +38,14 @@ function sound(binary = "ghg", sums = `${SUM}  ${ARCHIVE}\n`, sum = SUM) {
   );
 }
 
-async function stops(install: Promise<string>, message: string) {
+async function stops(install: Promise<unknown>, message: string) {
   await assert.rejects(install, (error) => error instanceof ActionStop && error.message === message);
 }
 
 test("ghg is downloaded, checked, kept in the tool cache and put on the PATH", async () => {
   const used = ports();
   const ghg = await installGhg("1.2.0", platform(LINUX), 1, used);
-  assert.equal(ghg, path.join("cache/1.2.0", "ghg"));
+  assert.deepEqual(ghg, { program: path.join("cache/1.2.0", "ghg"), version: "1.2.0" });
   assert.deepEqual(used.runner.path, ["cache/1.2.0"]);
   assert.deepEqual(used.runner.logged, ["ghg 1.2.0 is installed."]);
   assert.deepEqual(used.releases.downloads, [`v1.2.0/${ARCHIVE}`, "v1.2.0/SHA256SUMS"]);
@@ -81,7 +81,7 @@ test("Windows installs ghg.exe from the zip", async () => {
     { [`downloads/v1.2.0/${zip}`]: SUM },
   );
   const ghg = await installGhg("1.2.0", platform(WINDOWS), 1, ports(release({ [zip]: "", SHA256SUMS: "" }), files));
-  assert.equal(ghg, path.join("cache/1.2.0", "ghg.exe"));
+  assert.equal(ghg.program, path.join("cache/1.2.0", "ghg.exe"));
 });
 
 test("a missing archive or SHA256SUMS stops the action", async () => {

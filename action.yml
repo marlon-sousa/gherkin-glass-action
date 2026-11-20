@@ -59,6 +59,12 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  ghg-version:
+    description: The release of ghg installed, such as 1.2.0.
+  site:
+    description: The folder the build wrote the site into, relative to the workspace. Empty when the action does not build.
+
 runs:
   using: node24
   main: dist/index.cjs

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, "The action": every input is checked before anything is downloaded.
+// Tests docs/BEHAVIOUR.md, "The action": every input of the root action is checked before anything is downloaded.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -12,23 +12,26 @@ function stops(runner: FakeRunner, message: string) {
 
 test("the defaults install the newest ghg and build nothing", () => {
   const request = readRequest(new FakeRunner());
-  assert.equal(request.version, undefined);
+  assert.equal(request.install.version, undefined);
   assert.equal(request.build, undefined);
-  assert.equal(request.platform.target, "x86_64-unknown-linux-musl");
-  assert.equal(request.token, undefined);
+  assert.equal(request.install.platform.target, "x86_64-unknown-linux-musl");
+  assert.equal(request.install.releasesToken, undefined);
 });
 
 test("the token is sent only on github.com", () => {
-  assert.equal(readRequest(new FakeRunner({ token: "a-token" })).token, "a-token");
-  assert.equal(readRequest(new FakeRunner({ token: "a-token" }, "Linux", "X64", false)).token, undefined);
+  assert.equal(readRequest(new FakeRunner({ token: "a-token" })).install.releasesToken, "a-token");
+  assert.equal(readRequest(new FakeRunner({ token: "a-token" }, "Linux", "X64", false)).install.releasesToken, undefined);
 });
 
-test("a build is asked with its arguments, its input and its configuration file", () => {
-  const request = readRequest(new FakeRunner({ "ghg-version": "v1.2.0", build: "true", input: "specs", title: "T" }));
-  assert.equal(request.version, "1.2.0");
+test("a build is asked with its arguments, its folders and its configuration file", () => {
+  const request = readRequest(
+    new FakeRunner({ "ghg-version": "v1.2.0", build: "true", input: "specs", output: "public", title: "T" }),
+  );
+  assert.equal(request.install.version, "1.2.0");
   assert.deepEqual(request.build, {
-    buildArguments: ["--input=specs", "--title=T"],
+    buildArguments: ["--input=specs", "--output=public", "--title=T"],
     input: "specs",
+    output: "public",
     frontPage: "",
     configFile: "ghg.toml",
   });

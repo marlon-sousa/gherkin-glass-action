@@ -1,39 +1,12 @@
-// Tests docs/BEHAVIOUR.md, "The action" and rules 3 and 10: the action from its inputs to its end.
+// Tests docs/BEHAVIOUR.md, "The action" and rules 3, 10 and 18: the root action from its inputs to its end.
 
 import assert from "node:assert/strict";
 import path from "node:path";
 import { test } from "node:test";
 import type { GhgReleases } from "../../src/ports/ghg_releases.ts";
 import { runAction } from "../../src/services/running_action.ts";
-import { FakeFiles, FakeGhgProcess, FakeReleases, FakeRunner, FakeToolCache } from "../support/fakes.ts";
-
-const ARCHIVE = "ghg-v1.2.0-x86_64-unknown-linux-musl.tar.gz";
-const SUM = "e".repeat(64);
-
-function ports(runner: FakeRunner, process = new FakeGhgProcess(), releases: GhgReleases = sound()) {
-  const tokens: (string | undefined)[] = [];
-  return {
-    tokens,
-    runner,
-    process,
-    toolCache: new FakeToolCache(),
-    releasesWith: (token: string | undefined) => {
-      tokens.push(token);
-      return releases;
-    },
-    files: new FakeFiles(
-      { "downloads/v1.2.0/SHA256SUMS": `${SUM}  ${ARCHIVE}\n`, [path.join(`unpacked/downloads/v1.2.0/${ARCHIVE}`, "ghg")]: "" },
-      { [`downloads/v1.2.0/${ARCHIVE}`]: SUM },
-    ),
-  };
-}
-
-function sound() {
-  return new FakeReleases([{ tag: "v1.2.0", draft: false, prerelease: false }], {
-    [`v1.2.0/${ARCHIVE}`]: "",
-    "v1.2.0/SHA256SUMS": "",
-  });
-}
+import { actionPorts as ports } from "../support/action_ports.ts";
+import { FakeGhgProcess, FakeRunner } from "../support/fakes.ts";
 
 test("without build, ghg is installed and the problem matcher registered", async () => {
   const runner = new FakeRunner({ token: "a-token" });
@@ -72,4 +45,15 @@ test("an error the action does not foresee says so", async () => {
   };
   await runAction(1, ports(runner, new FakeGhgProcess(), broken));
   assert.deepEqual(runner.failures, ["The action failed unexpectedly: Error: the network is gone"]);
+});
+
+test("the outputs give the version installed, and the folder the site was written into", async () => {
+  const built = new FakeRunner({ build: "true", config: "docs/ghg.toml" });
+  const used = ports(built);
+  used.files.texts.set("docs/ghg.toml", 'output = "public/site"');
+  await runAction(1, used);
+  assert.deepEqual(Object.fromEntries(built.outputs), { "ghg-version": "1.2.0", site: "docs/public/site" });
+  const installed = new FakeRunner();
+  await runAction(1, ports(installed));
+  assert.deepEqual(Object.fromEntries(installed.outputs), { "ghg-version": "1.2.0", site: "" });
 });

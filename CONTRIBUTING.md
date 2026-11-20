@@ -1,6 +1,6 @@
 # Contributing to gherkin-glass-action
 
-Thank you for your interest. This guide describes how the gherkin-glass GitHub Action is planned, built and released. The action installs `ghg`, the command of [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), on a runner, and builds a site with it when asked. Changes to `ghg` itself belong to gherkin-glass, which has a guide of its own.
+Thank you for your interest. This guide describes how the gherkin-glass GitHub Action is planned, built and released. The action installs `ghg`, the command of [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), on a runner, builds a site with it when asked, and, with its publish and preview actions, publishes that site on GitHub Pages. Changes to `ghg` itself belong to gherkin-glass, which has a guide of its own.
 
 ## How gherkin-glass-action is built
 
@@ -23,9 +23,9 @@ Please do not open a pull request for a feature before its issue is agreed and i
 
 ## The documents
 
-- **[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md)** is what the action promises, in terms a test can observe: its inputs, what it installs and from where, the messages it stops with, its annotations, and how its versions relate to those of `ghg`. A feature is written here, in a pull request of its own, before it is built. When we say "the spec", we mean this document.
+- **[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md)** is what the action promises, in terms a test can observe: its inputs, what it installs and from where, the messages it stops with, its annotations, how it publishes the site on GitHub Pages, and how its versions relate to those of `ghg`. A feature is written here, in a pull request of its own, before it is built. When we say "the spec", we mean this document.
 - **[AGENTS.md](AGENTS.md)** is how the work is done: the rules, how the code is organised and written, how a change is reviewed, and how to build and test it.
-- **[README.md](README.md)** is what a person writing a workflow reads: how to use the action, its inputs and its versions.
+- **[README.md](README.md)** is what a person writing a workflow reads: how to use the three actions, their inputs, how they publish the site, and their versions.
 
 ## Pull requests
 
@@ -68,8 +68,8 @@ Every pull request runs:
 
 - the issue check, the check that no closing keyword names another repository's issue, and the commit message check, from [itinera-dev/actions](https://github.com/itinera-dev/actions);
 - a check that fails while the description has an unticked checkbox, so that a manual check is finished before merging;
-- the action's own checks: the TypeScript type-checked, the unit tests, and the files of `dist/`, the bundle and its licences, built again and compared with the committed ones, which must not differ;
-- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, and on one it is not, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with.
+- the action's own checks: the TypeScript type-checked, the unit tests, and the files of `dist/`, the bundles and their licences, built again and compared with the committed ones, which must not differ;
+- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, and on one it is not, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use, since this repository's own Pages is not one to publish on. Their publishing itself is checked by the unit tests, against a repository on disk.
 
 AGENTS.md, "Building and testing", gives the command of each.
 
