@@ -17,13 +17,7 @@ fi
 if ! git merge-base --is-ancestor "$commit" origin/main; then
     problems+=("The tagged commit $commit is not on main.")
 fi
-# The section runs from its heading to the next heading of level 1 or 2, or
-# to the link definitions that close the file, as create-release reads it.
-notes=$(awk -v heading="## [$version]" '
-    $0 == heading || index($0, heading " ") == 1 { inside = 1; next }
-    inside && (/^##?[ \t]/ || /^\[[^]]+\]:[ \t]/) { exit }
-    inside && NF { print }
-' CHANGELOG.md)
+notes=$("$(dirname "$0")/notes.sh" "$version")
 if [ -z "$notes" ]; then
     problems+=("CHANGELOG.md has no notes for $version, under the heading \"## [$version]\".")
 fi

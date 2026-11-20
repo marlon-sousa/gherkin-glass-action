@@ -60,6 +60,7 @@ jobs:
       - run: .github/release/test-notes.sh
       - run: .github/release/test-gate.sh
       - run: .github/release/test-action-tag.sh
+      - run: .github/release/test-publish.sh
 
   release:
     # docs/BEHAVIOUR.md, rules 15 and 16.
@@ -70,15 +71,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Every tag, so that publish.sh can tell whether this version is the newest.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
-      # create-release attaches every file of a folder, and refuses an empty one
-      # (create-release/main.py, lines 41 to 43, at v1.11.0): the release carries
-      # the files of dist/, the action's bundle and its licences.
-      - uses: itinera-dev/actions/create-release@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
-        with:
-          assets: dist/
+      - name: Make the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: .github/release/publish.sh "$TAG"
 
   major-tag:
     # docs/BEHAVIOUR.md, rule 17: uses: marlon-sousa/gherkin-glass-action@v1
