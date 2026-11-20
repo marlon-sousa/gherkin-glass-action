@@ -1069,14 +1069,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path11 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path15 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path11 && path11[0] !== "/") {
-          path11 = `/${path11}`;
+        if (path15 && path15[0] !== "/") {
+          path15 = `/${path15}`;
         }
-        return new URL(`${origin}${path11}`);
+        return new URL(`${origin}${path15}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1527,39 +1527,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin }
+          request: { method, path: path15, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method, origin, path11);
+        debuglog("sending request to %s %s/%s", method, origin, path15);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin },
+          request: { method, path: path15, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method,
           origin,
-          path11,
+          path15,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin }
+          request: { method, path: path15, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method, origin, path11);
+        debuglog("trailers received from %s %s/%s", method, origin, path15);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method, path: path11, origin },
+          request: { method, path: path15, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
-          path11,
+          path15,
           error2.message
         );
       });
@@ -1608,9 +1608,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method, path: path11, origin }
+            request: { method, path: path15, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method, origin, path11);
+          debuglog("sending request to %s %s/%s", method, origin, path15);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1673,7 +1673,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path11,
+        path: path15,
         method,
         body,
         headers,
@@ -1688,11 +1688,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path11 !== "string") {
+        if (typeof path15 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path11[0] !== "/" && !(path11.startsWith("http://") || path11.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path15[0] !== "/" && !(path15.startsWith("http://") || path15.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path11)) {
+        } else if (invalidPathRegex.test(path15)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -1758,7 +1758,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path11, query) : path11;
+        this.path = query ? buildURL(path15, query) : path15;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -6451,7 +6451,7 @@ var require_client_h1 = __commonJS({
       return method !== "GET" && method !== "HEAD" && method !== "OPTIONS" && method !== "TRACE" && method !== "CONNECT";
     }
     function writeH1(client, request) {
-      const { method, path: path11, host, upgrade, blocking, reset } = request;
+      const { method, path: path15, host, upgrade, blocking, reset } = request;
       let { body, headers, contentLength } = request;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util2.isFormDataLike(body)) {
@@ -6532,7 +6532,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path11} HTTP/1.1\r
+      let header = `${method} ${path15} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -7061,7 +7061,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request) {
       const session = client[kHTTP2Session];
-      const { method, path: path11, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
+      const { method, path: path15, host, upgrade, expectContinue, signal, headers: reqHeaders } = request;
       let { body } = request;
       if (upgrade) {
         util2.errorRequest(client, request, new Error("Upgrade not supported for H2"));
@@ -7158,7 +7158,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path11;
+      headers[HTTP2_HEADER_PATH] = path15;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7511,9 +7511,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util2.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path11 = search ? `${pathname}${search}` : pathname;
+        const path15 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path11;
+        this.opts.path = path15;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8752,10 +8752,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path11 = "/",
+          path: path15 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path11;
+        opts.path = origin + path15;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10727,20 +10727,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path11) {
-      if (typeof path11 !== "string") {
-        return path11;
+    function safeUrl(path15) {
+      if (typeof path15 !== "string") {
+        return path15;
       }
-      const pathSegments = path11.split("?");
+      const pathSegments = path15.split("?");
       if (pathSegments.length !== 2) {
-        return path11;
+        return path15;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path11, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path11);
+    function matchKey(mockDispatch2, { path: path15, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path15);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10762,7 +10762,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path11 }) => matchValue(safeUrl(path11), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path15 }) => matchValue(safeUrl(path15), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10800,9 +10800,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path11, method, body, headers, query } = opts;
+      const { path: path15, method, body, headers, query } = opts;
       return {
-        path: path11,
+        path: path15,
         method,
         body,
         headers,
@@ -11265,10 +11265,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path11, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path15, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path11,
+            Path: path15,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -14949,7 +14949,7 @@ var require_util4 = __commonJS({
     var { getEncoding } = require_encoding();
     var { serializeAMimeType, parseMIMEType } = require_data_url();
     var { types } = require("node:util");
-    var { StringDecoder: StringDecoder2 } = require("string_decoder");
+    var { StringDecoder: StringDecoder3 } = require("string_decoder");
     var { btoa } = require("node:buffer");
     var staticPropertyDescriptors = {
       enumerable: true,
@@ -15040,7 +15040,7 @@ var require_util4 = __commonJS({
             dataURL += serializeAMimeType(parsed);
           }
           dataURL += ";base64,";
-          const decoder = new StringDecoder2("latin1");
+          const decoder = new StringDecoder3("latin1");
           for (const chunk of bytes) {
             dataURL += btoa(decoder.write(chunk));
           }
@@ -15069,7 +15069,7 @@ var require_util4 = __commonJS({
         }
         case "BinaryString": {
           let binaryString = "";
-          const decoder = new StringDecoder2("latin1");
+          const decoder = new StringDecoder3("latin1");
           for (const chunk of bytes) {
             binaryString += decoder.write(chunk);
           }
@@ -16147,9 +16147,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path11) {
-      for (let i = 0; i < path11.length; ++i) {
-        const code = path11.charCodeAt(i);
+    function validateCookiePath(path15) {
+      for (let i = 0; i < path15.length; ++i) {
+        const code = path15.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude DEL and non-ascii
         code === 59) {
@@ -18336,12 +18336,12 @@ var require_eventsource_stream = __commonJS({
       }
       return true;
     }
-    function isFieldName(line, length, field) {
-      if (length !== field.length) {
+    function isFieldName(line, length, field3) {
+      if (length !== field3.length) {
         return false;
       }
       for (let i = 0; i < length; i++) {
-        if (line[i] !== field[i]) {
+        if (line[i] !== field3[i]) {
           return false;
         }
       }
@@ -18542,13 +18542,13 @@ ${value}`;
           }
         }
       }
-      setEventFieldSize(field, size) {
-        const eventSize = this.eventSize - this.eventFieldSizes[field] + size;
+      setEventFieldSize(field3, size) {
+        const eventSize = this.eventSize - this.eventFieldSizes[field3] + size;
         if (this.maxEventSize > 0 && eventSize > this.maxEventSize) {
           throw createMaxEventSizeExceededError();
         }
         this.eventSize = eventSize;
-        this.eventFieldSizes[field] = size;
+        this.eventFieldSizes[field3] = size;
       }
       /**
        * @param {EventSourceStreamEvent} event
@@ -19069,11 +19069,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path11 = opts.path;
+          let path15 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path11 = `/${path11}`;
+            path15 = `/${path15}`;
           }
-          url = new URL(util2.parseOrigin(url).origin + path11);
+          url = new URL(util2.parseOrigin(url).origin + path15);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -21361,6 +21361,7 @@ var require_semver2 = __commonJS({
 var paired_ghg_default = { version: "1.0.0" };
 
 // src/adapters/actions_runner.ts
+var import_node_fs = require("node:fs");
 var import_promises = require("node:fs/promises");
 var import_node_os = __toESM(require("node:os"), 1);
 var import_node_path = __toESM(require("node:path"), 1);
@@ -22451,6 +22452,9 @@ var _summary = new Summary();
 // node_modules/@actions/core/lib/platform.js
 var import_os2 = __toESM(require("os"), 1);
 
+// node_modules/@actions/exec/lib/exec.js
+var import_string_decoder = require("string_decoder");
+
 // node_modules/@actions/exec/lib/toolrunner.js
 var os3 = __toESM(require("os"), 1);
 var events = __toESM(require("events"), 1);
@@ -23271,6 +23275,38 @@ function exec(commandLine, args, options) {
     return runner.exec();
   });
 }
+function getExecOutput(commandLine, args, options) {
+  return __awaiter6(this, void 0, void 0, function* () {
+    var _a, _b;
+    let stdout = "";
+    let stderr = "";
+    const stdoutDecoder = new import_string_decoder.StringDecoder("utf8");
+    const stderrDecoder = new import_string_decoder.StringDecoder("utf8");
+    const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
+    const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+    const stdErrListener = (data) => {
+      stderr += stderrDecoder.write(data);
+      if (originalStdErrListener) {
+        originalStdErrListener(data);
+      }
+    };
+    const stdOutListener = (data) => {
+      stdout += stdoutDecoder.write(data);
+      if (originalStdoutListener) {
+        originalStdoutListener(data);
+      }
+    };
+    const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+    const exitCode = yield exec(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+    stdout += stdoutDecoder.end();
+    stderr += stderrDecoder.end();
+    return {
+      exitCode,
+      stdout,
+      stderr
+    };
+  });
+}
 
 // node_modules/@actions/core/lib/platform.js
 var platform = import_os2.default.platform();
@@ -23282,6 +23318,9 @@ var ExitCode;
   ExitCode2[ExitCode2["Success"] = 0] = "Success";
   ExitCode2[ExitCode2["Failure"] = 1] = "Failure";
 })(ExitCode || (ExitCode = {}));
+function setSecret(secret) {
+  issueCommand("add-mask", {}, secret);
+}
 function addPath(inputPath) {
   const filePath = process.env["GITHUB_PATH"] || "";
   if (filePath) {
@@ -23314,6 +23353,9 @@ function debug(message) {
 function error(message, properties = {}) {
   issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
+function notice(message, properties = {}) {
+  issueCommand("notice", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
 function info(message) {
   process.stdout.write(message + os5.EOL);
 }
@@ -23334,6 +23376,7 @@ var PROBLEM_MATCHER = {
 var ActionsRunner = class {
   system = process.env["RUNNER_OS"] ?? "";
   processor = process.env["RUNNER_ARCH"] ?? "";
+  workspace = process.env["GITHUB_WORKSPACE"] ?? process.cwd();
   onGitHubCom = (process.env["GITHUB_SERVER_URL"] ?? "https://github.com") === "https://github.com";
   input(name) {
     return getInput(name);
@@ -23343,6 +23386,18 @@ var ActionsRunner = class {
   }
   log(line) {
     info(line);
+  }
+  notice(line) {
+    notice(line);
+  }
+  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
+  workflowEvent() {
+    const payloadFile = process.env["GITHUB_EVENT_PATH"];
+    return {
+      name: process.env["GITHUB_EVENT_NAME"] ?? "",
+      refName: process.env["GITHUB_REF_NAME"] ?? "",
+      payload: payloadFile === void 0 ? void 0 : JSON.parse((0, import_node_fs.readFileSync)(payloadFile, "utf8"))
+    };
   }
   annotate(annotation) {
     error(annotation.message, { file: annotation.file, startLine: annotation.line });
@@ -23832,10 +23887,116 @@ var ExecGhgProcess = class {
   }
 };
 
-// src/adapters/github_releases.ts
+// src/adapters/git_site_branch.ts
 var import_promises2 = require("node:fs/promises");
 var import_node_os2 = __toESM(require("node:os"), 1);
 var import_node_path2 = __toESM(require("node:path"), 1);
+var AUTHOR_NAME = "github-actions[bot]";
+var AUTHOR_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com";
+var GitSiteBranch = class {
+  /** Such as https://github.com/owner/repo.git. */
+  remote;
+  /**
+   * Git's configuration for every command: the token, as an extra header for the server, as
+   * actions/checkout sends it (src/git-auth-helper.ts, lines 57 to 64, at v7.0.1).
+   */
+  environment;
+  temporaryRoot;
+  /** The repository of each checkout, kept beside it. */
+  repositories = /* @__PURE__ */ new Map();
+  /** serverAddress is GITHUB_SERVER_URL, such as https://github.com, and repository GITHUB_REPOSITORY, such as owner/repo. */
+  constructor(serverAddress, repository, token, temporaryRoot = import_node_os2.default.tmpdir()) {
+    this.remote = `${serverAddress}/${repository}.git`;
+    this.temporaryRoot = temporaryRoot;
+    const credentials = Buffer.from(`x-access-token:${token}`).toString("base64");
+    setSecret(credentials);
+    const inherited = Object.fromEntries(
+      Object.entries(process.env).flatMap(([name, value]) => value === void 0 ? [] : [[name, value]])
+    );
+    const given = Number.parseInt(inherited["GIT_CONFIG_COUNT"] ?? "", 10);
+    const index = Number.isInteger(given) && given > 0 ? given : 0;
+    this.environment = {
+      ...inherited,
+      GIT_CONFIG_COUNT: String(index + 1),
+      [`GIT_CONFIG_KEY_${index}`]: `http.${serverAddress}/.extraheader`,
+      [`GIT_CONFIG_VALUE_${index}`]: `AUTHORIZATION: basic ${credentials}`,
+      GIT_TERMINAL_PROMPT: "0"
+    };
+  }
+  // Asked from an empty checkout, whose repository is named, rather than from the working folder,
+  // which is the workspace: actions/checkout leaves its own extra header in the workspace's
+  // repository, and git would send both.
+  async exists(branch) {
+    const listed = await this.git(await this.emptyCheckout(), ["ls-remote", "--heads", this.remote, `refs/heads/${branch}`]);
+    return listed.stdout.trim() !== "";
+  }
+  async make(branch) {
+    const checkout = await this.emptyCheckout();
+    await this.git(checkout, ["symbolic-ref", "HEAD", `refs/heads/${branch}`]);
+    await this.git(checkout, ["commit", "--quiet", "--allow-empty", "-m", "Make the branch GitHub Pages serves"]);
+    await this.git(checkout, ["push", "--quiet", this.remote, `HEAD:refs/heads/${branch}`]);
+  }
+  async checkOut(branch) {
+    const checkout = await this.emptyCheckout();
+    await this.git(checkout, ["fetch", "--quiet", "--depth=1", this.remote, `refs/heads/${branch}`]);
+    await this.git(checkout, ["checkout", "--quiet", "--force", "-B", branch, "FETCH_HEAD"]);
+    return checkout;
+  }
+  async removeFolder(checkout, folder) {
+    await (0, import_promises2.rm)(import_node_path2.default.join(checkout, ...folder.split("/")), { recursive: true, force: true });
+  }
+  async commitAndPush(checkout, branch, message) {
+    await this.git(checkout, ["add", "--all"]);
+    const staged = await this.git(checkout, ["diff", "--cached", "--quiet"], true);
+    if (staged.exitCode === 0) return "unchanged";
+    await this.git(checkout, ["commit", "--quiet", "-m", message]);
+    const pushed = await this.git(checkout, ["push", "--quiet", this.remote, `HEAD:refs/heads/${branch}`], true);
+    if (pushed.exitCode === 0) return "pushed";
+    if (/\[rejected\]|fetch first|non-fast-forward/.test(pushed.stderr)) return "behind";
+    info(`git push failed: ${pushed.stderr.trim()}`);
+    return "refused";
+  }
+  // A new work tree, whose repository is kept beside it rather than in a .git inside it, since
+  // ghg refuses an output folder that holds anything it did not write (gherkin-glass's rule 122).
+  async emptyCheckout() {
+    const root = await (0, import_promises2.mkdtemp)(import_node_path2.default.join(this.temporaryRoot, "ghg-pages-"));
+    const checkout = import_node_path2.default.join(root, "site");
+    await (0, import_promises2.mkdir)(checkout);
+    await this.git(void 0, ["init", "--quiet", "--bare", import_node_path2.default.join(root, "repository")]);
+    this.repositories.set(checkout, import_node_path2.default.join(root, "repository"));
+    for (const [key, value] of [
+      ["core.bare", "false"],
+      // The files are published as ghg writes them, whatever the runner's system.
+      ["core.autocrlf", "false"],
+      ["user.name", AUTHOR_NAME],
+      ["user.email", AUTHOR_EMAIL]
+    ]) {
+      await this.git(checkout, ["config", key, value]);
+    }
+    return checkout;
+  }
+  // Runs git on a checkout, or on none, in the temporary folder rather than in the workspace, whose
+  // repository's configuration it would read; a failure throws unless it is allowed.
+  async git(checkout, gitArguments, failureAllowed = false) {
+    const repository = checkout === void 0 ? void 0 : this.repositories.get(checkout);
+    const located = repository === void 0 ? [] : [`--git-dir=${repository}`, `--work-tree=${checkout}`];
+    const result = await getExecOutput("git", [...located, ...gitArguments], {
+      ignoreReturnCode: true,
+      silent: true,
+      env: this.environment,
+      cwd: this.temporaryRoot
+    });
+    if (result.exitCode !== 0 && !failureAllowed) {
+      throw new Error(`git ${gitArguments[0] ?? ""} failed: ${result.stderr.trim()}`);
+    }
+    return result;
+  }
+};
+
+// src/adapters/github_releases.ts
+var import_promises3 = require("node:fs/promises");
+var import_node_os3 = __toESM(require("node:os"), 1);
+var import_node_path3 = __toESM(require("node:path"), 1);
 var GITHUB_RELEASES = {
   api: "https://api.github.com/repos/marlon-sousa/gherkin-glass",
   downloads: "https://github.com/marlon-sousa/gherkin-glass/releases/download"
@@ -23860,9 +24021,9 @@ var GitHubGhgReleases = class {
     }
   }
   async downloadFile(version, fileName) {
-    const folder = await (0, import_promises2.mkdtemp)(import_node_path2.default.join(process.env["RUNNER_TEMP"] ?? import_node_os2.default.tmpdir(), "ghg-"));
+    const folder = await (0, import_promises3.mkdtemp)(import_node_path3.default.join(process.env["RUNNER_TEMP"] ?? import_node_os3.default.tmpdir(), "ghg-"));
     try {
-      return await downloadTool(`${this.addresses.downloads}/v${version}/${fileName}`, import_node_path2.default.join(folder, fileName));
+      return await downloadTool(`${this.addresses.downloads}/v${version}/${fileName}`, import_node_path3.default.join(folder, fileName));
     } catch {
       return void 0;
     }
@@ -23893,26 +24054,127 @@ function releaseListings(page) {
   return listings.length === page.length ? listings : void 0;
 }
 
+// src/adapters/github_repository_api.ts
+var PAGE_SIZE2 = 100;
+var GitHubRepositoryApi = class {
+  httpClient = new HttpClient("gherkin-glass-action");
+  /** Such as https://api.github.com/repos/owner/repo. */
+  repositoryAddress;
+  token;
+  /** apiAddress is GITHUB_API_URL, such as https://api.github.com, and repository GITHUB_REPOSITORY, such as owner/repo. */
+  constructor(apiAddress, repository, token) {
+    this.repositoryAddress = `${apiAddress}/repos/${repository}`;
+    this.token = token;
+  }
+  // GET /repos/{owner}/{repo}/pages answers 404 when Pages is off (github/rest-api-description,
+  // api.github.com.json, the operation "Get a GitHub Pages site").
+  async pagesSettings() {
+    const response = await this.request("GET", "/pages");
+    if (response?.status === 404) return "off";
+    if (response?.status !== 200) return void 0;
+    return pagesSettingsOf(response.body);
+  }
+  async listChangedFiles(pullRequest) {
+    return this.listAll(`/pulls/${pullRequest}/files`, changedFileOf);
+  }
+  async listComments(pullRequest) {
+    return this.listAll(`/issues/${pullRequest}/comments`, commentOf);
+  }
+  // Every item of a listing, page by page, or undefined when a page cannot be read or holds an
+  // item that is not one.
+  async listAll(listing, itemOf) {
+    const listed = [];
+    for (let page = 1; ; page++) {
+      const response = await this.request("GET", `${listing}?per_page=${PAGE_SIZE2}&page=${page}`);
+      if (response?.status !== 200 || !Array.isArray(response.body)) return void 0;
+      const items = response.body.flatMap(itemOf);
+      if (items.length !== response.body.length) return void 0;
+      listed.push(...items);
+      if (items.length < PAGE_SIZE2) return listed;
+    }
+  }
+  async addComment(pullRequest, body) {
+    return (await this.request("POST", `/issues/${pullRequest}/comments`, { body }))?.status === 201;
+  }
+  async editComment(id, body) {
+    return (await this.request("PATCH", `/issues/comments/${id}`, { body }))?.status === 200;
+  }
+  // The status and the parsed body of a request, or undefined when it cannot be made.
+  async request(method, pathOfRepository, sent) {
+    const headers = {
+      accept: "application/vnd.github+json",
+      authorization: `Bearer ${this.token}`,
+      "content-type": "application/json"
+    };
+    try {
+      const response = await this.httpClient.request(
+        method,
+        `${this.repositoryAddress}${pathOfRepository}`,
+        sent === void 0 ? null : JSON.stringify(sent),
+        headers
+      );
+      const text = await response.readBody();
+      return { status: response.message.statusCode, body: text === "" ? void 0 : JSON.parse(text) };
+    } catch {
+      return void 0;
+    }
+  }
+};
+function pagesSettingsOf(body) {
+  const address = field(body, "html_url");
+  if (typeof address !== "string") return void 0;
+  const buildType = field(body, "build_type");
+  const branch = field(field(body, "source"), "branch");
+  const path15 = field(field(body, "source"), "path");
+  return {
+    buildType: typeof buildType === "string" ? buildType : void 0,
+    branch: typeof branch === "string" ? branch : void 0,
+    path: typeof path15 === "string" ? path15 : void 0,
+    address
+  };
+}
+function changedFileOf(file) {
+  const filename = field(file, "filename");
+  const status = field(file, "status");
+  return typeof filename === "string" && typeof status === "string" ? [{ path: filename, removed: status === "removed" }] : [];
+}
+function commentOf(comment2) {
+  const id = field(comment2, "id");
+  const body = field(comment2, "body");
+  return typeof id === "number" && typeof body === "string" ? [{ id, body }] : [];
+}
+function field(value, name) {
+  return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : void 0;
+}
+
 // src/adapters/node_files.ts
 var import_node_crypto = require("node:crypto");
-var import_node_fs = require("node:fs");
-var import_promises3 = require("node:fs/promises");
+var import_node_fs2 = require("node:fs");
+var import_promises4 = require("node:fs/promises");
+var import_node_os4 = __toESM(require("node:os"), 1);
+var import_node_path4 = __toESM(require("node:path"), 1);
 var NodeFiles = class {
   async readText(file) {
     try {
-      return await (0, import_promises3.readFile)(file, "utf8");
+      return await (0, import_promises4.readFile)(file, "utf8");
     } catch {
       return void 0;
     }
   }
   async sha256Of(file) {
     const hash = (0, import_node_crypto.createHash)("sha256");
-    for await (const chunk of (0, import_node_fs.createReadStream)(file)) hash.update(chunk);
+    for await (const chunk of (0, import_node_fs2.createReadStream)(file)) hash.update(chunk);
     return hash.digest("hex");
+  }
+  async writeTemporary(name, text) {
+    const folder = await (0, import_promises4.mkdtemp)(import_node_path4.default.join(process.env["RUNNER_TEMP"] ?? import_node_os4.default.tmpdir(), "ghg-"));
+    const file = import_node_path4.default.join(folder, name);
+    await (0, import_promises4.writeFile)(file, text);
+    return file;
   }
   async isFile(file) {
     try {
-      return (await (0, import_promises3.stat)(file)).isFile();
+      return (await (0, import_promises4.stat)(file)).isFile();
     } catch {
       return false;
     }
@@ -23945,19 +24207,19 @@ function orStop(result) {
 }
 
 // src/policies/report_annotations.ts
-var import_node_path3 = __toESM(require("node:path"), 1);
+var import_node_path5 = __toESM(require("node:path"), 1);
 var FILE_AND_LINE = /^(.+?):(\d+): (.+)$/;
 function annotationOf(reportLine, paths) {
   const match = FILE_AND_LINE.exec(reportLine.trimEnd());
   if (!match) return void 0;
   const [, reported = "", line = "", message = ""] = match;
-  const fromWorkspace = paths.workspaceFiles.includes(import_node_path3.default.normalize(reported));
-  const file = fromWorkspace ? reported : import_node_path3.default.join(paths.inputFolder, reported);
-  return { file: file.split(import_node_path3.default.sep).join("/"), line: Number(line), message };
+  const fromWorkspace = paths.workspaceFiles.includes(import_node_path5.default.normalize(reported));
+  const file = fromWorkspace ? reported : import_node_path5.default.join(paths.inputFolder, reported);
+  return { file: file.split(import_node_path5.default.sep).join("/"), line: Number(line), message };
 }
 
 // src/policies/report_paths.ts
-var import_node_path4 = __toESM(require("node:path"), 1);
+var import_node_path6 = __toESM(require("node:path"), 1);
 
 // node_modules/smol-toml/dist/error.js
 function getLineColFromPtr(string, ptr) {
@@ -24723,12 +24985,12 @@ function configFileOf(configInput) {
 }
 function reportPathsOf(settings) {
   const configured = settings.configText === void 0 ? {} : configuredPaths(settings.configText);
-  const besideConfig = (key) => import_node_path4.default.isAbsolute(key) ? key : import_node_path4.default.join(import_node_path4.default.dirname(settings.configFile), key);
+  const besideConfig = (key) => import_node_path6.default.isAbsolute(key) ? key : import_node_path6.default.join(import_node_path6.default.dirname(settings.configFile), key);
   const inputFolder = settings.input !== "" ? settings.input : settings.configText === void 0 ? "features" : besideConfig(configured.input ?? "features");
   const frontPage = settings.frontPage !== "" ? settings.frontPage : configured.frontPage && besideConfig(configured.frontPage);
   return {
     inputFolder,
-    workspaceFiles: [settings.configFile, ...frontPage ? [frontPage] : []].map((file) => import_node_path4.default.normalize(file))
+    workspaceFiles: [settings.configFile, ...frontPage ? [frontPage] : []].map((file) => import_node_path6.default.normalize(file))
   };
 }
 function configuredPaths(configText) {
@@ -24759,7 +25021,7 @@ async function buildSite(ghg, request, ports) {
 }
 
 // src/services/installing.ts
-var import_node_path5 = __toESM(require("node:path"), 1);
+var import_node_path7 = __toESM(require("node:path"), 1);
 
 // src/policies/checksums.ts
 function listedChecksum(sums, archive) {
@@ -24789,7 +25051,7 @@ async function installGhg(version, platform2, pairedMajor, ports) {
   const folder = ports.toolCache.find(installedVersion) ?? await downloadGhg(installedVersion, platform2, ports);
   ports.runner.addToPath(folder);
   ports.runner.log(`ghg ${installedVersion} is installed.`);
-  return import_node_path5.default.join(folder, platform2.binary);
+  return import_node_path7.default.join(folder, platform2.binary);
 }
 async function newestCompatible(major, releases) {
   const listed = await releases.listReleases();
@@ -24808,7 +25070,7 @@ async function downloadGhg(version, platform2, ports) {
     throw new ActionStop(`${archive} does not match its checksum in SHA256SUMS.`);
   }
   const unpacked = await ports.toolCache.unpack(archiveFile, platform2.packing);
-  if (!await ports.files.isFile(import_node_path5.default.join(unpacked, platform2.binary))) {
+  if (!await ports.files.isFile(import_node_path7.default.join(unpacked, platform2.binary))) {
     throw new ActionStop(`${archive} has no ghg.`);
   }
   return ports.toolCache.keep(unpacked, version);
@@ -24819,6 +25081,136 @@ async function downloadOrStop(version, fileName, releases) {
     throw new ActionStop(`${fileName} cannot be downloaded from the release v${version} of ghg.`);
   }
   return file;
+}
+
+// src/services/publishing.ts
+var import_node_path10 = __toESM(require("node:path"), 1);
+
+// src/policies/pages_source.ts
+var import_node_path8 = require("node:path");
+function pagesReadinessOf(settings, branch, folder) {
+  if (settings === void 0 || settings.buildType !== "legacy" || settings.branch !== branch) {
+    return { kind: "not-from-branch" };
+  }
+  const servedFolder = (settings.path ?? "/").replace(/^\/+|\/+$/g, "");
+  const holds = servedFolder === "" || folder === servedFolder || folder.startsWith(`${servedFolder}/`);
+  return holds ? { kind: "ready", servedFolder, address: settings.address } : { kind: "folder-outside", servedFolder: `/${servedFolder}` };
+}
+function notFromBranchProblem(branch, made) {
+  const setting = `in the repository's Settings, under Pages, set the source to "Deploy from a branch" and choose ${branch}.`;
+  return made ? `The branch ${branch} is made: ${setting}` : `Pages does not deploy from the branch ${branch}: ${setting}`;
+}
+function folderOutsideProblem(servedFolder, branch) {
+  return `Pages serves the folder ${servedFolder} of ${branch}, so publish-folder must be in it.`;
+}
+function addressOf(readiness, folder) {
+  const below = import_node_path8.posix.relative(readiness.servedFolder === "" ? "." : readiness.servedFolder, folder === "" ? "." : folder);
+  const base = readiness.address.endsWith("/") ? readiness.address : `${readiness.address}/`;
+  return below === "" ? base : `${base}${below}/`;
+}
+
+// src/policies/changed_files.ts
+var import_node_path9 = __toESM(require("node:path"), 1);
+function filesToPreview(changed, inputFolder, workspace) {
+  const folder = import_node_path9.default.resolve(workspace, inputFolder);
+  return changed.filter((file) => !file.removed).map((file) => file.path).filter((file) => {
+    const below = import_node_path9.default.relative(folder, import_node_path9.default.resolve(workspace, file));
+    return below !== "" && !below.startsWith("..") && !import_node_path9.default.isAbsolute(below);
+  });
+}
+
+// src/policies/preview_comment.ts
+var PREVIEW_COMMENT_MARKER = "<!-- gherkin-glass-action preview -->";
+function previewCommentOf(address) {
+  return `${PREVIEW_COMMENT_MARKER}
+The preview of this pull request's feature files is at ${address}.`;
+}
+var REMOVED_PREVIEW_COMMENT = `${PREVIEW_COMMENT_MARKER}
+The preview of this pull request was removed when it closed.`;
+function previewCommentAmong(comments) {
+  return comments.find((comment2) => comment2.body.startsWith(PREVIEW_COMMENT_MARKER));
+}
+
+// src/services/publishing.ts
+var ATTEMPTS = 3;
+async function publishSite(ghg, request, ports) {
+  const { target, branch } = request;
+  const only = target.kind === "preview" && request.changedOnly ? await changedOnlyList(target.pullRequest, request, ports) : [];
+  if (only === void 0) {
+    ports.runner.log("This pull request changes no file of the input folder, so no preview is published.");
+    return;
+  }
+  const readiness = await readinessOf(request, ports);
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    const checkout = await ports.siteBranch.checkOut(branch);
+    if (target.kind === "removal") await ports.siteBranch.removeFolder(checkout, target.folder);
+    else await buildSite(ghg, { ...request.build, buildArguments: [...argumentsOf(request, target, checkout), ...only] }, ports);
+    const outcome = await ports.siteBranch.commitAndPush(checkout, branch, messageOf(target));
+    if (outcome === "behind") continue;
+    if (outcome === "refused") {
+      throw new ActionStop(`The site cannot be pushed to ${branch}: the workflow needs the permission contents: write.`);
+    }
+    const folder = target.kind === "version" ? import_node_path10.posix.join(target.folder, target.versionName) : target.folder;
+    const address = addressOf(readiness, folder);
+    ports.runner.log(pushedLine(target, outcome, branch, address));
+    if (target.kind !== "version") await comment(target, address, ports.repository);
+    return;
+  }
+  throw new ActionStop(`The site cannot be pushed to ${branch}.`);
+}
+async function changedOnlyList(pullRequest, request, ports) {
+  const changed = await ports.repository.listChangedFiles(pullRequest);
+  if (changed === void 0) throw new ActionStop("The files the pull request changes cannot be listed.");
+  const { inputFolder } = reportPathsOf({
+    input: request.build.input,
+    frontPage: request.build.frontPage,
+    configFile: request.build.configFile,
+    configText: await ports.files.readText(request.build.configFile)
+  });
+  const files = filesToPreview(changed, inputFolder, ports.runner.workspace);
+  if (files.length === 0) return void 0;
+  return [`--only=${await ports.files.writeTemporary("changed-files.txt", files.map((file) => `${file}
+`).join(""))}`];
+}
+async function readinessOf(request, ports) {
+  const settings = await ports.repository.pagesSettings();
+  if (settings === void 0) {
+    throw new ActionStop("The settings of Pages cannot be read: the workflow needs the permission pages: read.");
+  }
+  const readiness = pagesReadinessOf(settings === "off" ? void 0 : settings, request.branch, request.folder);
+  if (readiness.kind === "ready") return readiness;
+  if (readiness.kind === "folder-outside") throw new ActionStop(folderOutsideProblem(readiness.servedFolder, request.branch));
+  const exists2 = await ports.siteBranch.exists(request.branch);
+  if (!exists2) await ports.siteBranch.make(request.branch);
+  throw new ActionStop(notFromBranchProblem(request.branch, !exists2));
+}
+function argumentsOf(request, target, checkout) {
+  const output = `--output=${import_node_path10.default.join(checkout, ...target.folder.split("/"))}`;
+  const how = target.kind === "version" ? `--version-name=${target.versionName}` : "--preview";
+  return [...request.build.buildArguments, output, how];
+}
+function pushedLine(target, outcome, branch, address) {
+  if (outcome === "unchanged") return `The site on ${branch} is already up to date.`;
+  if (target.kind === "removal") return `The preview of pull request #${target.pullRequest} is removed from ${branch}.`;
+  return `The site is published on ${branch}, at ${address}.`;
+}
+function messageOf(target) {
+  if (target.kind === "version") return `Publish the site's version ${target.versionName}`;
+  if (target.kind === "preview") return `Publish the preview of pull request #${target.pullRequest}`;
+  return `Remove the preview of pull request #${target.pullRequest}`;
+}
+async function comment(target, address, repository) {
+  const cannot = new ActionStop("The comment of the pull request's preview cannot be written.");
+  const comments = await repository.listComments(target.pullRequest);
+  if (comments === void 0) throw cannot;
+  const existing = previewCommentAmong(comments);
+  const body = target.kind === "preview" ? previewCommentOf(address) : REMOVED_PREVIEW_COMMENT;
+  if (existing?.body === body) return;
+  let written;
+  if (existing !== void 0) written = await repository.editComment(existing.id, body);
+  else if (target.kind === "preview") written = await repository.addComment(target.pullRequest, body);
+  else return;
+  if (!written) throw cannot;
 }
 
 // src/policies/build_arguments.ts
@@ -24855,6 +25247,60 @@ function trueOrFalse(name, input) {
   return { problem: `${name} must be true or false.` };
 }
 
+// src/policies/publish_request.ts
+function publishInputsOf(inputOf) {
+  const publish = inputOf("publish");
+  if (publish === "false" || publish === "") return void 0;
+  if (publish !== "true") return { problem: "publish must be true or false." };
+  const branch = inputOf("publish-branch");
+  if (branch === "") return { problem: "publish-branch must name a branch." };
+  const folder = folderOf(inputOf("publish-folder"));
+  if (folder === void 0) return { problem: "publish-folder must be a folder of publish-branch, such as features." };
+  if (inputOf("output") !== "") return { problem: "publish writes the site into publish-branch, so output must be empty." };
+  if (inputOf("preview") === "true") return { problem: "publish chooses which sites are previews, so preview must be empty." };
+  const changedOnly = inputOf("changed-only");
+  if (!["true", "false", ""].includes(changedOnly)) return { problem: "changed-only must be true or false." };
+  if (changedOnly === "true" && inputOf("only") !== "") {
+    return { problem: "changed-only gives ghg the files the pull request changes, so only must be empty." };
+  }
+  return { branch, folder, changedOnly: changedOnly === "true" };
+}
+function folderOf(input) {
+  const folder = input.replace(/\/+$/, "");
+  if (folder === "") return "";
+  if (folder.startsWith("/") || folder.includes("\\") || /^[A-Za-z]:/.test(folder)) return void 0;
+  return folder.split("/").every((name) => name !== "" && name !== "." && name !== "..") ? folder : void 0;
+}
+
+// src/policies/workflow_event.ts
+var import_node_path11 = require("node:path");
+function publishTargetOf(event, inputs, versionNameInput) {
+  if (event.name === "push") {
+    const versionName = versionNameInput !== "" ? versionNameInput : event.refName.replaceAll("/", "-");
+    return { kind: "version", versionName, folder: inputs.folder };
+  }
+  if (event.name !== "pull_request") return { problem: `publish acts on a push or a pull request, not on ${event.name}.` };
+  const pullRequest = pullRequestOf(event.payload);
+  if (pullRequest === void 0) throw new Error("the pull request's event has no number");
+  if (pullRequest.fromFork) return { kind: "fork" };
+  const folder = import_node_path11.posix.join(inputs.folder === "" ? "." : inputs.folder, "previews", `pr-${pullRequest.number}`);
+  return pullRequest.closed ? { kind: "removal", pullRequest: pullRequest.number, folder } : { kind: "preview", pullRequest: pullRequest.number, folder };
+}
+function pullRequestOf(payload) {
+  const number = field2(payload, "number");
+  if (typeof number !== "number") return void 0;
+  const headRepository = field2(field2(field2(field2(payload, "pull_request"), "head"), "repo"), "full_name");
+  const repository = field2(field2(payload, "repository"), "full_name");
+  return {
+    number,
+    closed: field2(payload, "action") === "closed",
+    fromFork: typeof headRepository !== "string" || headRepository !== repository
+  };
+}
+function field2(value, name) {
+  return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : void 0;
+}
+
 // src/services/reading_inputs.ts
 function readRequest(runner) {
   const versionInput = runner.input("ghg-version");
@@ -24863,16 +25309,26 @@ function readRequest(runner) {
   const passed = orStop(buildArguments((name) => runner.input(name)));
   const platform2 = orStop(platformOf(runner.system, runner.processor));
   const token = runner.onGitHubCom && runner.input("token") !== "" ? runner.input("token") : void 0;
+  const publishInputs = orStop(publishInputsOf((name) => runner.input(name)));
+  const buildOf = (buildArguments2) => ({
+    buildArguments: buildArguments2,
+    input: runner.input("input"),
+    frontPage: runner.input("front-page"),
+    configFile: configFileOf(runner.input("config"))
+  });
   return {
     version,
     platform: platform2,
     token,
-    build: build ? {
-      buildArguments: passed,
-      input: runner.input("input"),
-      frontPage: runner.input("front-page"),
-      configFile: configFileOf(runner.input("config"))
-    } : void 0
+    build: build ? buildOf(passed) : void 0,
+    publish: publishInputs === void 0 ? void 0 : {
+      ...publishInputs,
+      target: orStop(publishTargetOf(runner.workflowEvent(), publishInputs, runner.input("version-name"))),
+      token: runner.input("token"),
+      // The action names the version itself, and ghg refuses --version-name given twice, or
+      // with --preview (gherkin-glass's rules 19 and 212).
+      build: buildOf(orStop(buildArguments((name) => name === "version-name" ? "" : runner.input(name))))
+    }
   };
 }
 
@@ -24885,7 +25341,19 @@ async function runAction(pairedMajor, ports) {
       releases: ports.releasesWith(request.token)
     });
     try {
-      if (request.build !== void 0) await buildSite(ghg, request.build, ports);
+      const publish = request.publish;
+      if (publish?.target.kind === "fork") {
+        ports.runner.notice("This pull request comes from a fork, whose token cannot push, so its preview is not published.");
+      }
+      const publishesBuild = publish?.target.kind === "version" || publish?.target.kind === "preview";
+      if (request.build !== void 0 && !publishesBuild) await buildSite(ghg, request.build, ports);
+      if (publish !== void 0 && publish.target.kind !== "fork") {
+        await publishSite(ghg, { ...publish, target: publish.target }, {
+          ...ports,
+          repository: ports.repositoryWith(publish.token),
+          siteBranch: ports.siteBranchWith(publish.token)
+        });
+      }
     } finally {
       await ports.runner.addProblemMatcher();
     }
@@ -24900,5 +25368,12 @@ void runAction(majorOf(paired_ghg_default.version), {
   releasesWith: (token) => new GitHubGhgReleases(GITHUB_RELEASES, token),
   toolCache: new ActionsToolCache(),
   files: new NodeFiles(),
-  process: new ExecGhgProcess()
+  process: new ExecGhgProcess(),
+  repositoryWith: (token) => new GitHubRepositoryApi(process.env["GITHUB_API_URL"] ?? "https://api.github.com", process.env["GITHUB_REPOSITORY"] ?? "", token),
+  siteBranchWith: (token) => new GitSiteBranch(
+    process.env["GITHUB_SERVER_URL"] ?? "https://github.com",
+    process.env["GITHUB_REPOSITORY"] ?? "",
+    token,
+    process.env["RUNNER_TEMP"]
+  )
 });
