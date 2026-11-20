@@ -1,10 +1,12 @@
-// Tests docs/BEHAVIOUR.md, rules 21 and 24: whether Pages serves the branch, and the address of a folder of it.
+// Tests docs/BEHAVIOUR.md, rules 20 to 22: whether Pages serves the branch, and the address of a folder of it.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   addressOf,
   folderOutsideProblem,
+  jekyllProblem,
+  noJekyllFileOf,
   notFromBranchProblem,
   pagesReadinessOf,
   type PagesSettings,
@@ -26,7 +28,7 @@ test("Pages that is off, deploys an artifact, or serves another branch, does not
   assert.deepEqual(pagesReadinessOf({ ...SETTINGS, branch: "main" }, "gh-pages", ""), { kind: "not-from-branch" });
 });
 
-test("Pages serving a folder must hold publish-folder", () => {
+test("Pages serving a folder must hold folder", () => {
   const docs = { ...SETTINGS, path: "/docs" };
   assert.equal(pagesReadinessOf(docs, "gh-pages", "docs").kind, "ready");
   assert.equal(pagesReadinessOf(docs, "gh-pages", "docs/features").kind, "ready");
@@ -41,9 +43,22 @@ test("the sentences name the branch and the folder", () => {
   );
   assert.equal(
     notFromBranchProblem("gh-pages", true),
-    'The branch gh-pages is made: in the repository\'s Settings, under Pages, set the source to "Deploy from a branch" and choose gh-pages.',
+    'The branch gh-pages is made: in the repository\'s Settings, under Pages, set the source to "Deploy from a branch" and choose gh-pages, and add an empty .nojekyll file at its root.',
   );
-  assert.equal(folderOutsideProblem("/docs", "gh-pages"), "Pages serves the folder /docs of gh-pages, so publish-folder must be in it.");
+  assert.equal(folderOutsideProblem("/docs", "gh-pages"), "Pages serves the folder /docs of gh-pages, so folder must be in it.");
+  assert.equal(
+    jekyllProblem("docs", "gh-pages"),
+    "Pages runs Jekyll on gh-pages, which leaves out pages whose names start with _: add an empty .nojekyll file to the folder /docs of gh-pages.",
+  );
+  assert.equal(
+    jekyllProblem("", "gh-pages"),
+    "Pages runs Jekyll on gh-pages, which leaves out pages whose names start with _: add an empty .nojekyll file to the folder / of gh-pages.",
+  );
+});
+
+test(".nojekyll is at the root of the folder Pages serves", () => {
+  assert.equal(noJekyllFileOf(""), ".nojekyll");
+  assert.equal(noJekyllFileOf("docs"), "docs/.nojekyll");
 });
 
 test("a folder's address is its path below the folder Pages serves", () => {

@@ -22,6 +22,7 @@ export class FakeRunner implements Runner {
   /** What the runner was asked, in order: "matcher" for the problem matcher, "fail" for a failure. */
   readonly events: string[] = [];
   readonly notices: string[] = [];
+  readonly outputs = new Map<string, string>();
   /** The event that runs the workflow, a push of main unless a test sets another. */
   event: WorkflowEvent = { name: "push", refName: "main", payload: {} };
 
@@ -37,6 +38,9 @@ export class FakeRunner implements Runner {
   }
   addToPath(folder: string): void {
     this.path.push(folder);
+  }
+  setOutput(name: string, value: string): void {
+    this.outputs.set(name, value);
   }
   log(line: string): void {
     this.logged.push(line);

@@ -16,12 +16,7 @@ export interface BuildingPorts {
 
 /** Runs ghg build in the workspace, annotating each line of its report that names a file and a line. */
 export async function buildSite(ghg: string, request: BuildRequest, ports: BuildingPorts): Promise<void> {
-  const paths = reportPathsOf({
-    input: request.input,
-    frontPage: request.frontPage,
-    configFile: request.configFile,
-    configText: await ports.files.readText(request.configFile),
-  });
+  const paths = reportPathsOf({ ...request, configText: await ports.files.readText(request.configFile) });
   const status = await ports.process.run(ghg, ["build", ...request.buildArguments], (line) => {
     const annotation = annotationOf(line, paths);
     if (annotation !== undefined) ports.runner.annotate(annotation);

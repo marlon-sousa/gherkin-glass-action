@@ -1,4 +1,4 @@
-dist/index.cjs bundles these packages, each under the licence that follows its name.
+The bundles of dist/, index.cjs, publish/index.cjs and preview/index.cjs, hold these packages, each under the licence that follows its name.
 
 
 Package @actions/core 3.0.1, under the licence MIT.

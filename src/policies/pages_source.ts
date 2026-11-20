@@ -1,4 +1,4 @@
-// Policy: whether Pages serves the branch the action publishes on, and the address of a folder of it, as docs/BEHAVIOUR.md, rules 21 and 24, say.
+// Policy: whether Pages serves the branch the action publishes on, and the address of a folder of it, as docs/BEHAVIOUR.md, rules 20 to 22, say.
 
 import { posix } from "node:path";
 
@@ -19,7 +19,10 @@ export type PagesReadiness =
   | { readonly kind: "not-from-branch" }
   | { readonly kind: "folder-outside"; readonly servedFolder: string };
 
-/** Whether Pages, undefined when it is off, serves the branch and a folder that holds the folder the action publishes into. */
+/**
+ * Whether Pages, undefined when it is off, serves the branch and a folder that holds the folder
+ * the action publishes into. servedFolder is relative to the branch's root, empty for the root.
+ */
 export function pagesReadinessOf(settings: PagesSettings | undefined, branch: string, folder: string): PagesReadiness {
   if (settings === undefined || settings.buildType !== "legacy" || settings.branch !== branch) {
     return { kind: "not-from-branch" };
@@ -33,13 +36,26 @@ export function pagesReadinessOf(settings: PagesSettings | undefined, branch: st
 
 /** The sentence the action stops with when Pages does not deploy from the branch; made says the action has just made it. */
 export function notFromBranchProblem(branch: string, made: boolean): string {
-  const setting = `in the repository's Settings, under Pages, set the source to "Deploy from a branch" and choose ${branch}.`;
-  return made ? `The branch ${branch} is made: ${setting}` : `Pages does not deploy from the branch ${branch}: ${setting}`;
+  const setting = `in the repository's Settings, under Pages, set the source to "Deploy from a branch" and choose ${branch}`;
+  // A new branch needs .nojekyll too, which rule 21 would otherwise ask for on the next run.
+  return made
+    ? `The branch ${branch} is made: ${setting}, and add an empty .nojekyll file at its root.`
+    : `Pages does not deploy from the branch ${branch}: ${setting}.`;
 }
 
-/** The sentence the action stops with when Pages serves a folder that does not hold publish-folder. */
+/** The sentence the action stops with when Pages serves a folder that does not hold folder. */
 export function folderOutsideProblem(servedFolder: string, branch: string): string {
-  return `Pages serves the folder ${servedFolder} of ${branch}, so publish-folder must be in it.`;
+  return `Pages serves the folder ${servedFolder} of ${branch}, so folder must be in it.`;
+}
+
+/** The file whose presence stops Pages from running Jekyll: .nojekyll at the root of the folder it serves. */
+export function noJekyllFileOf(servedFolder: string): string {
+  return posix.join(servedFolder === "" ? "." : servedFolder, ".nojekyll");
+}
+
+/** The sentence the action stops with when the folder Pages serves has no .nojekyll. */
+export function jekyllProblem(servedFolder: string, branch: string): string {
+  return `Pages runs Jekyll on ${branch}, which leaves out pages whose names start with _: add an empty .nojekyll file to the folder /${servedFolder} of ${branch}.`;
 }
 
 /** The address of a folder of the branch, relative to its root, on the site of a branch that is ready. */

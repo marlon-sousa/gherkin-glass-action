@@ -1,10 +1,9 @@
 name: gherkin-glass
-description: Installs ghg, the accessible viewer for Gherkin feature files, and builds and publishes a site with it when asked.
+description: Installs ghg, the accessible static viewer for Gherkin feature files, and builds a site with it when asked.
 author: marlon-sousa
 
-# docs/BEHAVIOUR.md says what this action does. Besides ghg-version, build,
-# token, publish, publish-branch, publish-folder and changed-only, every input
-# is an option of ghg build of the same name, and every option
+# docs/BEHAVIOUR.md says what this action does. Besides ghg-version, build and
+# token, every input is an option of ghg build of the same name, and every option
 # of ghg build that sets how a site is built is an input: src/policies/build_arguments.ts
 # lists them, its test fails when an input here is not passed, and the job "the
 # inputs against ghg build" of .github/workflows/action.yml fails when they differ
@@ -24,25 +23,9 @@ inputs:
     required: false
     default: "false"
   token:
-    description: The token that lists the releases of ghg through GitHub's API, sent for that only on github.com, and that publishes the site, on the workflow's own server. By default, the workflow's own.
+    description: The token that lists the releases of ghg through GitHub's API, sent only on github.com. By default, the workflow's own.
     required: false
     default: ${{ github.token }}
-  publish:
-    description: true to publish the site on the branch Pages serves, a version on a push, a preview of a pull request, removed when it closes.
-    required: false
-    default: "false"
-  publish-branch:
-    description: The branch Pages serves, which the site is published on.
-    required: false
-    default: gh-pages
-  publish-folder:
-    description: The folder of publish-branch the site goes into, such as features. By default, the branch's root.
-    required: false
-    default: ""
-  changed-only:
-    description: true for a pull request's preview to show only the feature files it changes, and for none to be published when it changes none.
-    required: false
-    default: "false"
   config:
     description: The --config option of ghg build, the configuration file to read. Left out when empty.
     required: false
@@ -75,6 +58,12 @@ inputs:
     description: true to give ghg build the --preview option, building a site without versions whose every page asks search engines not to index it. Left out when false or empty.
     required: false
     default: ""
+
+outputs:
+  ghg-version:
+    description: The release of ghg installed, such as 1.2.0.
+  site:
+    description: The folder the build wrote the site into, relative to the workspace. Empty when the action does not build.
 
 runs:
   using: node24

@@ -1,8 +1,16 @@
 # gherkin-glass-action
 
-A GitHub Action that installs `ghg`, the command of [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), the accessible static viewer for Gherkin feature files, and builds a site with it when asked. It can also publish that site on the branch GitHub Pages serves, with a preview of each pull request beside it.
+GitHub Actions for [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), the accessible static viewer for Gherkin feature files. This repository holds three:
 
-## Using it
+| Action | What it does |
+| --- | --- |
+| `marlon-sousa/gherkin-glass-action@v1` | Installs `ghg`, the command of gherkin-glass, and builds a site with it when asked. |
+| `marlon-sousa/gherkin-glass-action/publish@v1` | Builds a version of the site and publishes it on the branch GitHub Pages serves, as [Publishing a version](#publishing-a-version) describes. |
+| `marlon-sousa/gherkin-glass-action/preview@v1` | Publishes a preview of each pull request's site beside the versions, comments its address on the pull request, and removes it when the pull request closes, as [Previewing a pull request](#previewing-a-pull-request) describes. |
+
+They run on GitHub's own runners and on self-hosted ones, on Linux on x86-64 or ARM64, macOS on Intel or Apple silicon, and Windows on x86-64. They need nothing installed on the runner, not even Node on the `PATH`, except that publish and preview need git 2.31 or later, as GitHub's own runners have.
+
+## Installing and building
 
 This step installs the newest `ghg` 1.x and builds the site of the feature files in `features`, as `ghg.toml` in the repository's root says, into `site`:
 
@@ -17,19 +25,11 @@ Without `build: true`, the action only installs `ghg` and puts it on the `PATH` 
 
 When the build reports a feature file that cannot be read, each problem shows as an error annotation on the file and the line, in the workflow's summary and among a pull request's changes, and the step fails.
 
-The action runs on GitHub's own runners and on self-hosted ones, on Linux on x86-64 or ARM64, macOS on Intel or Apple silicon, and Windows on x86-64. It needs nothing installed on the runner, not even Node on the `PATH`, except to publish the site, which needs git 2.31 or later, as GitHub's own runners have.
-
-## Inputs
-
 | Input | Default | What it sets |
 | --- | --- | --- |
 | `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install, such as `1.2.0` or `v1.2.0`, a pre-release such as `1.3.0-rc.1` included. |
 | `build` | `false` | `true` runs `ghg build` after installing it, in the workspace folder. |
-| `token` | the workflow's own token | The token that lists the releases of `ghg` through GitHub's API, sent for that only on github.com, and that publishes the site, on the workflow's own server. |
-| `publish` | `false` | `true` publishes the site on the branch Pages serves: a version on a push, a preview on a pull request, removed when it closes. |
-| `publish-branch` | `gh-pages` | The branch Pages serves, which the site is published on. |
-| `publish-folder` | the branch's root | The folder of `publish-branch` the site goes into, such as `features`. |
-| `changed-only` | `false` | `true` makes a pull request's preview show only the feature files it changes, and publishes none when it changes no file of the input folder. |
+| `token` | the workflow's own token | The token that lists the releases of `ghg` through GitHub's API, sent only on github.com. |
 | `config` | empty | The `--config` option of `ghg build`, the configuration file to read. |
 | `input` | empty | The `--input` option of `ghg build`, the folder of feature files to read. |
 | `output` | empty | The `--output` option of `ghg build`, the folder the site is written into. |
@@ -41,24 +41,67 @@ The action runs on GitHub's own runners and on self-hosted ones, on Linux on x86
 
 An input of an option that is empty is left out, so that the configuration file and `ghg`'s defaults still apply. gherkin-glass's [README](https://github.com/marlon-sousa/gherkin-glass#readme) says what each option does.
 
-## Publishing
+| Output | What it holds |
+| --- | --- |
+| `ghg-version` | The release of `ghg` installed, such as `1.2.0`. |
+| `site` | The folder the build wrote the site into, relative to the workspace, such as `site`; empty when the action does not build. A later step can upload it, or deploy it its own way. |
 
-With `publish: true`, the action builds the site and pushes it to the branch GitHub Pages serves, `gh-pages` unless `publish-branch` names another:
+## Publishing on GitHub Pages
 
-- On a push, it adds a version of the site, named after the branch or tag pushed, or `version-name`, beside the versions already there, under `ghg`'s versions page.
-- On a pull request, it publishes a preview, which search engines are asked not to index, in `previews/pr-<number>`, and writes its address in one comment on the pull request, edited on every later push.
-- When a pull request closes, merged or not, it removes that preview, and says so in the comment.
+The publish and preview actions build the site themselves, so a job that publishes needs neither `build: true` nor the root action. Each installs `ghg` as the root action does, builds into the branch Pages serves, commits what changed and pushes it. When nothing changed since the last push, it pushes nothing.
 
-When nothing changed since the last push, it pushes nothing. A pull request from a fork gets no preview, since the workflow's token cannot push from it.
+### Setting up Pages once
 
-Pages must deploy from that branch: in the repository's Settings, under Pages, set the source to "Deploy from a branch" and choose it, with its root, or a folder that holds `publish-folder`, such as `/docs` for a `publish-folder` of `docs/features`. When the branch does not exist yet, the action makes it and stops, asking for that setting, since Pages can be set only to a branch that exists. Run the workflow again once it is set.
+1. Make the branch Pages will serve, `gh-pages` unless you choose another, with an empty `.nojekyll` file at its root. Without it, Pages runs Jekyll on the branch, which leaves out every page whose name starts with `_`, such as the page of `_draft.feature`, so the actions refuse to publish there. When the branch does not exist, either action makes it, with no files, and stops, asking for the next step and for `.nojekyll`.
+2. In the repository's Settings, under Pages, set the source to "Deploy from a branch" and choose that branch, with its root, or a folder that holds the folder the site goes into, such as `/docs` for a `folder` of `docs/features`. Put `.nojekyll` at the root of the folder Pages serves.
+3. Give the job these permissions: `contents: write` to push the branch, `pages: read` to read how Pages is set, and, for preview, `pull-requests: write` to comment.
 
-The job needs these permissions:
+Each action stops with a sentence that says what is missing when Pages is not set this way.
+
+### Where the site goes
+
+The input `folder` names the folder of the branch the site goes into, such as `features`; empty, it is the branch's root. The rest of the branch is never touched, so the branch can hold a site of its own, a `CNAME` or `.nojekyll` beside the folder. Since the branch's root holds `.nojekyll`, which `ghg` did not write, give the site a folder of its own, such as `features`.
+
+Within that folder, `ghg` decides, as it does for any versioned site:
+
+- A folder that does not exist yet, or is empty, is made, and marked as `ghg`'s, with `ghg-versions.json`.
+- A version is added beside the versions already there, and the versions page lists them all.
+- A version of a name already there is replaced, so publishing the same version again brings it up to date.
+- A folder that holds anything `ghg` did not write, such as a page of another site, is refused, and nothing is written or deleted.
+- Previews go into `previews/pr-<number>` inside that folder, which `ghg` leaves alone.
+
+### Publishing a version
 
 ```yaml
 on:
   push:
     branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  pages: read
+
+# One run at a time, so that an older run never pushes after a newer one.
+concurrency:
+  group: site-${{ github.ref }}
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: marlon-sousa/gherkin-glass-action/publish@v1
+        with:
+          folder: features
+```
+
+A push of `main` publishes the version `main`, and the tag `v1.2.0` the version `v1.2.0`, each at its own address, such as `https://owner.github.io/repo/features/v1.2.0/`. The version is named by the tag or branch that ran, with every `/` made a `-`, such as `feature-login` for `feature/login`, or by `version-name`. The action runs on any event, such as a release or a run by hand.
+
+### Previewing a pull request
+
+```yaml
+on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
@@ -67,32 +110,53 @@ permissions:
   pages: read
   pull-requests: write
 
+# One run at a time for each pull request, so that an older run never pushes after a newer one.
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+
 jobs:
-  site:
+  preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: marlon-sousa/gherkin-glass-action@v1
+      - uses: marlon-sousa/gherkin-glass-action/preview@v1
         with:
-          publish: true
+          folder: features
 ```
 
-The `closed` type is needed for the preview to be removed, since a pull request's workflow does not run when it closes otherwise.
+The preview is built so that search engines are asked not to index it, and its address is written in one comment on the pull request, edited on every later push. The `closed` type is needed for the preview to be removed when the pull request closes, merged or not; the comment then says so.
 
-When the branch already holds other files, such as another site or a `CNAME`, set `publish-folder` to a folder of its own, such as `features`, so that `ghg` writes only there. A project that publishes its site its own way can let the action publish only the previews, with `publish: ${{ github.event_name == 'pull_request' }}`, as long as its own publishing leaves `previews/` on the branch alone.
+The comment also records, in a line that is not shown, the commit the preview was built from. A later push whose commits since that one change no file the preview is built from, neither a feature file of the input folder nor the configuration file or the front page, leaves the preview as it is; a change to the workflow alone, such as to `title`, does not count, nor does a change to the base branch, so either shows on the next push that changes one of those files. A run that failed or was cancelled leaves the comment as it was, so the next run builds what it missed. With `changed-only: true`, a preview shows only the feature files the pull request changes, at most the first 3000 that GitHub lists, and none is published when it changes none. A pull request from a fork gets no preview, since the workflow's token cannot push from it.
 
-With `changed-only: true`, a preview shows only the feature files the pull request changes, and no preview is published when it changes no file of the input folder.
+A project that publishes its site its own way can use preview alone, as long as its own publishing leaves `previews/` on the branch alone.
+
+### Inputs and outputs
+
+Both actions take these inputs:
+
+| Input | Default | What it sets |
+| --- | --- | --- |
+| `to` | `github-pages` | Where the site is published; GitHub Pages deploying from a branch is the only place today. |
+| `branch` | `gh-pages` | The branch Pages serves. |
+| `folder` | the branch's root | The folder of `branch` the site goes into, such as `features`. |
+| `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install. |
+| `token` | the workflow's own token | The token that reads Pages, pushes and comments on the workflow's own server, and lists the releases of `ghg` on github.com. |
+| `config`, `input`, `title`, `front-page` | empty | The options of `ghg build` of the same names, as for the root action. |
+
+publish also takes `version-name`, the name of the version, by default the tag or branch that ran. preview also takes `changed-only`, `false` by default.
+
+Each gives the output `address`, the address of the version or the preview it published.
 
 ## Versions
 
-The action shares its major version with `ghg`: action v1 installs `ghg` 1.x, and never a 2.x. Its minor and patch numbers are its own. `@v1` always names the newest 1.x release of the action, and a full version, such as `@v1.0.0`, never changes. A new input, for an option a newer `ghg` adds, comes in a minor release of the action.
+The three actions are released together, under one version, which shares its major version with `ghg`: v1 installs `ghg` 1.x, and never a 2.x. The minor and patch numbers are the actions' own. `@v1` always names the newest 1.x release, and a full version, such as `@v1.0.0`, never changes. A new input, for an option a newer `ghg` adds, comes in a minor release of the action.
 
-[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) says everything the action promises, the messages it stops with among them.
+[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) says everything the actions promise, the messages they stop with among them.
 
 ## Contributing
 
-[CONTRIBUTING.md](CONTRIBUTING.md) describes how the action is planned, built and released, and [AGENTS.md](AGENTS.md) how to work on it.
+[CONTRIBUTING.md](CONTRIBUTING.md) describes how the actions are planned, built and released, and [AGENTS.md](AGENTS.md) how to work on it.
 
 ## Licence
 
-Licensed under either of the [Apache License, Version 2.0](LICENSE-APACHE) or the [MIT licence](LICENSE-MIT), at your option. The action's bundle, `dist/index.cjs`, also holds the packages that [dist/licenses.txt](dist/licenses.txt) lists, each under its own licence.
+Licensed under either of the [Apache License, Version 2.0](LICENSE-APACHE) or the [MIT licence](LICENSE-MIT), at your option. The actions' bundles, in `dist/`, also hold the packages that [dist/licenses.txt](dist/licenses.txt) lists, each under its own licence.

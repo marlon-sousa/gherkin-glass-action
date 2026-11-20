@@ -17,19 +17,25 @@ export interface InstallingPorts {
   readonly files: Files;
 }
 
-/** Installs ghg and puts its folder on the PATH, returning the path of the ghg installed. */
+/** A ghg on the runner: its program's path, and its version. */
+export interface InstalledGhg {
+  readonly program: string;
+  readonly version: string;
+}
+
+/** Installs ghg and puts its folder on the PATH, returning the ghg installed. */
 export async function installGhg(
   version: string | undefined,
   platform: Platform,
   pairedMajor: number,
   ports: InstallingPorts,
-): Promise<string> {
+): Promise<InstalledGhg> {
   const installedVersion = version ?? (await newestCompatible(pairedMajor, ports.releases));
   const folder =
     ports.toolCache.find(installedVersion) ?? (await downloadGhg(installedVersion, platform, ports));
   ports.runner.addToPath(folder);
   ports.runner.log(`ghg ${installedVersion} is installed.`);
-  return path.join(folder, platform.binary);
+  return { program: path.join(folder, platform.binary), version: installedVersion };
 }
 
 async function newestCompatible(major: number, releases: GhgReleases): Promise<string> {

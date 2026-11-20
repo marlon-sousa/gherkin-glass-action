@@ -6,7 +6,7 @@ import { ActionStop } from "../../src/action_stop.ts";
 import { buildSite } from "../../src/services/building.ts";
 import { FakeFiles, FakeGhgProcess, FakeRunner } from "../support/fakes.ts";
 
-const REQUEST = { buildArguments: ["--preview"], input: "", frontPage: "", configFile: "docs/ghg.toml" };
+const REQUEST = { buildArguments: ["--preview"], input: "", output: "", frontPage: "", configFile: "docs/ghg.toml" };
 
 test("ghg build runs with the arguments of the inputs", async () => {
   const process = new FakeGhgProcess();

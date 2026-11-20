@@ -15,7 +15,7 @@ The manual for anyone, human or agent, changing gherkin-glass-action. [CONTRIBUT
 1. **No code before its behaviour.** Work on a feature starts only once its issue is agreed and its behaviour is in docs/BEHAVIOUR.md. If the behaviour is missing, or the code would need to do something the document does not say, stop and raise it in the issue.
 2. **Every rule has a test.** A rule added to or changed in docs/BEHAVIOUR.md comes with a test that checks it, named in the rule, in the same pull request as the code that makes it pass.
 3. **Inputs are promises.** Never remove or rename an input, or change the message the action stops with, without a major version, agreed in an issue.
-4. **The bundle is the action.** The runner runs `dist/index.cjs` as it is in the repository, so every change to `src/`, `paired-ghg.json`, which it bundles, `package.json` or `package-lock.json` is committed with `dist/` built again from it: the bundle, `dist/index.cjs`, and `dist/licenses.txt`, the licences of the packages the bundle holds.
+4. **The bundles are the actions.** The runner runs `dist/index.cjs`, `dist/publish/index.cjs` and `dist/preview/index.cjs` as they are in the repository, so every change to `src/`, `paired-ghg.json`, which they bundle, `package.json` or `package-lock.json` is committed with `dist/` built again from it: the bundles, and `dist/licenses.txt`, the licences of the packages they hold.
 5. **Small pull requests.** One thing each, naming its issue with `Closes #N` or `Refs #N`, with commit messages as CONTRIBUTING.md describes. Work too large for one is a stack, declared to GitHub through the REST API as CONTRIBUTING.md, "Stacked pull requests", describes, without installing `gh stack`.
 6. **Write for a screen reader.** Issues, pull requests, comments and documents use headings, lists, prose and simple tables, never ASCII art.
 7. **Mark agent comments.** A comment an agent writes on GitHub says it is an agent's.
@@ -24,15 +24,15 @@ The manual for anyone, human or agent, changing gherkin-glass-action. [CONTRIBUT
 
 ## How the code is organised
 
-The action is TypeScript, in `src/`, bundled with its dependencies by esbuild into one file, `dist/index.cjs`, which `action.yml` names and the runner runs on its own Node. It is organised in the roles of gherkin-glass's page script, each file declaring its role in a comment on its first line:
+The repository holds three actions: the root action, in `action.yml`, which installs `ghg` and builds a site, and the publish and preview actions, in `publish/action.yml` and `preview/action.yml`, which publish it on GitHub Pages. They are TypeScript, in `src/`, each bundled with its dependencies by esbuild into one file, `dist/index.cjs`, `dist/publish/index.cjs` and `dist/preview/index.cjs`, which its `action.yml` names and the runner runs on its own Node. It is organised in the roles of gherkin-glass's page script, each file declaring its role in a comment on its first line:
 
 - **`src/policies/`**: the decisions, as pure functions of their arguments and the constants they hold, which read nothing and write nothing: which target a runner gets, which release a version names, the checksum a file lists for an archive, the arguments of `ghg build`, the annotation a line of its report becomes, and, for publishing, what the workflow's event asks for, whether Pages is ready, the comment of a preview and the changed files it shows.
 - **`src/ports/`**: the interfaces through which a service reaches the world: the runner, the releases of `ghg`, the runner's tool cache, its files, the process of `ghg build`, the repository on GitHub's API, and the branch Pages serves.
 - **`src/adapters/`**: the ports' implementations, the only files that import `@actions/*` packages or a module of Node's that reaches the system, such as `node:fs`, `node:http` or `node:child_process`. `node:path` only computes, and any role may use it.
 - **`src/services/`**: the action's steps, reading the inputs, installing, building and publishing, and the service that runs them in order, each calling policies and ports, never an adapter.
 - **`src/action_stop.ts`**: `ActionStop`, the error a service throws when the action cannot go on, with the sentence a person reads, and `orStop`, which turns a policy's problem into one.
-- **`src/main.ts`**: the composition root, which makes the adapters and runs the services.
-- **`tools/`**: scripts the checks run, which are not part of the action, such as `tools/bundle.ts`, which bundles the action and writes the licences of the packages it holds, and `tools/check_inputs.ts`, which compares the inputs with the options of `ghg build`. Node runs them as TypeScript, as it is.
+- **`src/main.ts`**, **`src/publish_main.ts`** and **`src/preview_main.ts`**: the composition roots of the three actions, which make the adapters and run the services; the last two share theirs, `src/site_action_ports.ts`.
+- **`tools/`**: scripts the checks run, which are not part of the action, such as `tools/bundle.ts`, which bundles the three actions and writes the licences of the packages they hold, and `tools/check_inputs.ts`, which compares the inputs with the options of `ghg build`. Node runs them as TypeScript, as it is.
 
 These hold the code to that shape:
 
@@ -51,7 +51,7 @@ The dependencies are pinned to exact versions in `package.json`, and installed w
 Every pull request is reviewed by an independent reviewer before it is opened, one given the change, not its author's reasoning. A later push to an open pull request is made once the checks under "Building and testing" pass, and is reviewed while its CI runs; an accepted finding becomes a further push, reviewed the same way. An agent's `.claude/skills/review-change` says how to start and resume the reviewer. The reviewer is given this section in full, the documents under "What to read", the issue, the commits to review and the draft pull request description. For each item, it lists every place in the diff where the item applies, not only the first, and checks each against the rule it names.
 
 1. Every behaviour the change adds, against docs/BEHAVIOUR.md, and every rule added or changed there, against rule 2 above: the test the rule names exists and checks it.
-2. Every input the change adds, changes or removes, against rule 3 above, and against `action.yml`, README.md, "Inputs", and the options of the paired `ghg`: all four say the same.
+2. Every input the change adds, changes or removes, against rule 3 above, and against its `action.yml`, the README's table of that action's inputs, and, for an option of `ghg build`, the options of the paired `ghg`: all say the same.
 3. Every sentence the action stops with or reports, against docs/BEHAVIOUR.md, word for word, and against "How the code is organised", rule 4.
 4. Every file the change adds or makes longer, against "How the code is organised": its role, its folder, its name, and its length against rule 1 there.
 5. Every test the change adds or moves, against "How the code is organised", rule 3: where it is, and that it reaches no network.
@@ -77,6 +77,6 @@ Node is pinned in `.node-version`, to the major version the runner runs the acti
 - `npm run check-dist`, which bundles the action again and fails when `dist/` differs from the committed one;
 - the release tools' own tests, `.github/release/test-gate.sh`, `.github/release/test-action-tag.sh` and `.github/release/test-publish.sh`, and `.github/release/test-notes.sh`, which needs git-cliff 2.14.2.
 
-`npm run bundle` writes `dist/` from the sources: `dist/index.cjs`, and `dist/licenses.txt`, with the name, version and licence of each package esbuild bundles, its licence files, the notices of code it embeds without one, which `tools/licenses/` keeps, and the notices in the bundled code's comments; commit it with them. The checks that run the action itself, on each platform, run only on GitHub, in `.github/workflows/action.yml`.
+`npm run bundle` writes `dist/` from the sources: the three bundles, and `dist/licenses.txt`, with the name, version and licence of each package esbuild bundles, its licence files, the notices of code it embeds without one, which `tools/licenses/` keeps, and the notices in the bundled code's comments; commit it with them. The two folders `publish/` and `preview/` hold only their `action.yml`. The checks that run the action itself, on each platform, run only on GitHub, in `.github/workflows/action.yml`.
 
 The commit messages can be checked before pushing with the `commit-messages` action of [itinera-dev/actions](https://github.com/itinera-dev/actions), which needs Python 3.11 or later. With a clone of it in the shell variable `ACTIONS`, run `PYTHONPATH="$ACTIONS" python3 "$ACTIONS/commit-messages/main.py" origin/main..HEAD` in this repository.
