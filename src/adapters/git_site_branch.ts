@@ -54,11 +54,13 @@ export class GitSiteBranch implements SiteBranch {
     return listed.stdout.trim() !== "";
   }
 
-  async make(branch: string): Promise<void> {
+  async make(branch: string): Promise<boolean> {
     const checkout = await this.emptyCheckout();
     await this.git(checkout, ["symbolic-ref", "HEAD", `refs/heads/${branch}`]);
     await this.git(checkout, ["commit", "--quiet", "--allow-empty", "-m", "Make the branch GitHub Pages serves"]);
-    await this.git(checkout, ["push", "--quiet", this.remote, `HEAD:refs/heads/${branch}`]);
+    const pushed = await this.git(checkout, ["push", "--quiet", this.remote, `HEAD:refs/heads/${branch}`], true);
+    if (pushed.exitCode !== 0) core.info(`git push failed: ${pushed.stderr.trim()}`);
+    return pushed.exitCode === 0;
   }
 
   async checkOut(branch: string): Promise<string> {

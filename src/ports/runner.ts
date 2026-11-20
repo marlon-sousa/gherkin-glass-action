@@ -15,6 +15,8 @@ export interface Runner {
   readonly onGitHubCom: boolean;
   /** Puts a folder on the PATH of the job's later steps. */
   addToPath(folder: string): void;
+  /** Gives the job's later steps an output of the step. */
+  setOutput(name: string, value: string): void;
   /** Writes a line to the step's log. */
   log(line: string): void;
   /** Writes a line to the step's log as a notice, which the workflow's summary shows. */

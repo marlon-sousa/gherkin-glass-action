@@ -84,7 +84,7 @@ test("the notices name each package, its version and its licence, then its licen
   );
   assert.equal(
     text,
-    "dist/index.cjs bundles these packages, each under the licence that follows its name.\n" +
+    "The bundles of dist/, index.cjs, publish/index.cjs and preview/index.cjs, hold these packages, each under the licence that follows its name.\n" +
       "\n\n" +
       "Package semver 7.8.6, under the licence ISC.\n\nFrom node_modules/semver/LICENSE:\n\nISC\n" +
       "\n\n" +

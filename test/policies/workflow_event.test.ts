@@ -1,68 +1,53 @@
-// Tests docs/BEHAVIOUR.md, rules 19, 20, 22 and 23: what the workflow's event asks to publish.
+// Tests docs/BEHAVIOUR.md, rules 23 to 26 and 29: what the workflow's event asks the publish and preview actions to do.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { publishTargetOf, type WorkflowEvent } from "../../src/policies/workflow_event.ts";
+import { previewEventOf, versionNameOf, type WorkflowEvent } from "../../src/policies/workflow_event.ts";
 
-const ROOT = { branch: "gh-pages", folder: "" };
-const FEATURES = { branch: "gh-pages", folder: "features" };
-
-function pullRequest(action: string, headRepository: string | null = "owner/repo"): WorkflowEvent {
+function pullRequest(action: string, headRepository: string | null = "owner/repo", head: object = {}): WorkflowEvent {
   return {
     name: "pull_request",
     refName: "12/merge",
     payload: {
       action,
       number: 12,
-      pull_request: { head: { repo: headRepository === null ? null : { full_name: headRepository } } },
+      pull_request: { head: { repo: headRepository === null ? null : { full_name: headRepository }, ...head } },
       repository: { full_name: "owner/repo" },
     },
   };
 }
 
-test("a push publishes a version named by the tag or branch, with every / made a -", () => {
-  assert.deepEqual(publishTargetOf({ name: "push", refName: "v1.2.0", payload: {} }, FEATURES, ""), {
-    kind: "version",
-    versionName: "v1.2.0",
-    folder: "features",
-  });
-  assert.deepEqual(publishTargetOf({ name: "push", refName: "feature/login", payload: {} }, ROOT, ""), {
-    kind: "version",
-    versionName: "feature-login",
-    folder: "",
-  });
+test("a version is named by the tag or branch that ran, with every / made a -", () => {
+  assert.equal(versionNameOf("", "v1.2.0"), "v1.2.0");
+  assert.equal(versionNameOf("", "feature/login"), "feature-login");
 });
 
 test("version-name, when given, names the version instead", () => {
-  assert.deepEqual(publishTargetOf({ name: "push", refName: "main", payload: {} }, ROOT, "latest"), {
-    kind: "version",
-    versionName: "latest",
-    folder: "",
-  });
+  assert.equal(versionNameOf("latest", "main"), "latest");
 });
 
-test("a pull request publishes its preview, and removes it once closed, merged or not", () => {
-  for (const action of ["opened", "synchronize", "reopened"]) {
-    assert.deepEqual(publishTargetOf(pullRequest(action), FEATURES, "ignored"), {
-      kind: "preview",
-      pullRequest: 12,
-      folder: "features/previews/pr-12",
-    });
+test("a pull request asks for its preview, and for its removal once closed, merged or not", () => {
+  for (const action of ["opened", "reopened", "synchronize"]) {
+    assert.deepEqual(previewEventOf(pullRequest(action)), { kind: "open", pullRequest: 12, headCommit: undefined });
   }
-  assert.deepEqual(publishTargetOf(pullRequest("closed"), ROOT, ""), {
-    kind: "removal",
+  assert.deepEqual(previewEventOf(pullRequest("closed")), { kind: "closed", pullRequest: 12 });
+});
+
+test("a pull request's event gives the commit its head points to", () => {
+  assert.deepEqual(previewEventOf(pullRequest("synchronize", "owner/repo", { sha: "bbb" })), {
+    kind: "open",
     pullRequest: 12,
-    folder: "previews/pr-12",
+    headCommit: "bbb",
   });
 });
 
-test("a pull request from a fork publishes nothing", () => {
-  assert.deepEqual(publishTargetOf(pullRequest("opened", "someone/repo"), ROOT, ""), { kind: "fork" });
-  assert.deepEqual(publishTargetOf(pullRequest("opened", null), ROOT, ""), { kind: "fork" });
+test("a pull request from a fork asks for nothing", () => {
+  assert.deepEqual(previewEventOf(pullRequest("opened", "someone/repo")), { kind: "fork" });
+  assert.deepEqual(previewEventOf(pullRequest("opened", null)), { kind: "fork" });
 });
 
-test("any other event stops the action", () => {
-  assert.deepEqual(publishTargetOf({ name: "workflow_dispatch", refName: "main", payload: {} }, ROOT, ""), {
-    problem: "publish acts on a push or a pull request, not on workflow_dispatch.",
+test("any other event stops preview", () => {
+  assert.deepEqual(previewEventOf({ name: "push", refName: "main", payload: {} }), {
+    problem: "preview acts on a pull request, not on push.",
   });
 });

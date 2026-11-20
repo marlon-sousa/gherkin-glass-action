@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 21, 25 and 26: the repository through GitHub's API, served on the loopback address.
+// Tests docs/BEHAVIOUR.md, rules 20, 27 to 29: the repository through GitHub's API, served on the loopback address.
 
 import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
@@ -38,6 +38,13 @@ before(async () => {
         reply(200, [{ id: 7, body: "a comment", user: { login: "someone" } }]);
       } else if (url.pathname === "/repos/owner/on/issues/12/comments") reply(201, { id: 8 });
       else if (url.pathname === "/repos/owner/on/issues/comments/7") reply(200, { id: 7 });
+      else if (url.pathname === "/repos/owner/on/compare/aaa...bbb") {
+        reply(200, {
+          status: "ahead",
+          files: [{ filename: "features/new.feature", status: "renamed", previous_filename: "features/old.feature" }],
+        });
+      } else if (url.pathname === "/repos/owner/on/compare/aaa...ccc") reply(200, { status: "diverged", files: [] });
+      else if (url.pathname === "/repos/owner/on/compare/aaa...ddd") reply(200, { status: "ahead", files: FILES.concat(FILES) });
       else reply(404);
     });
   });
@@ -82,4 +89,19 @@ test("comments are listed, added and edited", async () => {
     ],
   );
   assert.equal(await new GitHubRepositoryApi(api, "owner/off", "a-token").addComment(12, "x"), false);
+});
+
+test("commits are compared, a renamed file removing its previous path", async () => {
+  const repository = new GitHubRepositoryApi(api, "owner/on", "a-token");
+  assert.deepEqual(await repository.compareCommits("aaa", "bbb"), [
+    { path: "features/new.feature", removed: false },
+    { path: "features/old.feature", removed: true },
+  ]);
+});
+
+test("commits that do not follow, a comparison that may be cut short, or none, cannot be compared", async () => {
+  const repository = new GitHubRepositoryApi(api, "owner/on", "a-token");
+  assert.equal(await repository.compareCommits("aaa", "ccc"), undefined);
+  assert.equal(await repository.compareCommits("aaa", "ddd"), undefined);
+  assert.equal(await repository.compareCommits("aaa", "eee"), undefined);
 });

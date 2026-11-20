@@ -24,6 +24,10 @@ export class ActionsRunner implements Runner {
     core.addPath(folder);
   }
 
+  setOutput(name: string, value: string): void {
+    core.setOutput(name, value);
+  }
+
   log(line: string): void {
     core.info(line);
   }

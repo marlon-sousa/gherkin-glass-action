@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 21 and 24: the branch Pages serves, against a repository on disk.
+// Tests docs/BEHAVIOUR.md, rules 20 and 22: the branch Pages serves, against a repository on disk.
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -45,7 +45,7 @@ test("a branch that does not exist is told, made with one empty commit, and then
   } finally {
     process.chdir(workingFolder);
   }
-  await siteBranch.make("gh-pages");
+  assert.equal(await siteBranch.make("gh-pages"), true);
   assert.equal(await siteBranch.exists("gh-pages"), true);
   assert.equal(git("rev-list", "--count", "gh-pages"), "1");
   assert.equal(git("log", "-1", "--format=%an <%ae>", "gh-pages"), "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>");
@@ -85,4 +85,5 @@ test("a push the server refuses for another reason than being behind is refused"
   writeFileSync(path.join(remote, "hooks", "pre-receive"), "#!/bin/sh\necho permission denied >&2\nexit 1\n", { mode: 0o755 });
   writeFileSync(path.join(checkout, "refused.html"), "refused");
   assert.equal(await siteBranch.commitAndPush(checkout, "gh-pages", "Refused"), "refused");
+  assert.equal(await siteBranch.make("site"), false);
 });

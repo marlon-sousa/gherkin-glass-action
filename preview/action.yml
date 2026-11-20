@@ -1,0 +1,57 @@
+name: gherkin-glass preview
+description: Publishes a preview of a pull request's Gherkin feature files, built with ghg, on the branch GitHub Pages serves, and removes it when the pull request closes.
+author: marlon-sousa
+
+# docs/BEHAVIOUR.md, "Publishing" and "The preview action", says what this
+# action does. Its inputs are the shared ones of rule 19 and changed-only;
+# test/policies/site_inputs.test.ts fails when they differ.
+
+inputs:
+  to:
+    description: Where the site is published. github-pages, the only value today, is GitHub Pages deploying from a branch.
+    required: false
+    default: github-pages
+  branch:
+    description: The branch GitHub Pages serves, which the site is published on.
+    required: false
+    default: gh-pages
+  folder:
+    description: The folder of branch the site goes into, such as features. By default, the branch's root.
+    required: false
+    default: ""
+  ghg-version:
+    description: The release of ghg to install, such as 1.2.0. By default, the newest stable release of ghg of this action's major version.
+    required: false
+    default: ""
+  token:
+    description: The token that reads how Pages is set, pushes the branch and comments on the pull request, and lists the releases of ghg on github.com. By default, the workflow's own.
+    required: false
+    default: ${{ github.token }}
+  config:
+    description: The --config option of ghg build, the configuration file to read. Left out when empty.
+    required: false
+    default: ""
+  input:
+    description: The --input option of ghg build, the folder of feature files to read. Left out when empty.
+    required: false
+    default: ""
+  title:
+    description: The --title option of ghg build, the site's title. Left out when empty.
+    required: false
+    default: ""
+  front-page:
+    description: The --front-page option of ghg build, the Markdown template of the site's front page. Left out when empty.
+    required: false
+    default: ""
+  changed-only:
+    description: true for the preview to show only the feature files the pull request changes, and for none to be published when it changes none.
+    required: false
+    default: "false"
+
+outputs:
+  address:
+    description: The address of the preview published. Empty when the preview is removed, or not published.
+
+runs:
+  using: node24
+  main: ../dist/preview/index.cjs

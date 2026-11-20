@@ -19,7 +19,7 @@ export const BUILD_OPTIONS: readonly BuildOption[] = [
 ];
 
 /** The inputs that are not options of ghg build. */
-export const OWN_INPUTS: readonly string[] = ["ghg-version", "build", "token", "publish", "publish-branch", "publish-folder", "changed-only"];
+export const OWN_INPUTS: readonly string[] = ["ghg-version", "build", "token"];
 
 /** Whether the input build asks for a build, or the sentence the action stops with. */
 export function buildAsked(input: string): boolean | { readonly problem: string } {

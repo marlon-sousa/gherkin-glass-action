@@ -1,4 +1,4 @@
-// Tool: the licence notices of the packages bundled into dist/index.cjs, which their licences ask to go with every copy (issue #1, decision 15).
+// Tool: the licence notices of the packages bundled into the actions in dist/, which their licences ask to go with every copy (issue #1, decision 15).
 
 import { posix } from "node:path";
 
@@ -108,7 +108,7 @@ export function licensesText(
     legalComments.trim() === "" ? [] : [`Notices in comments of the bundled code:\n\n${legalComments.trim()}\n`];
   // Blank lines part the sections rather than a rule of dashes, which a screen reader reads out dash by dash.
   return [
-    "dist/index.cjs bundles these packages, each under the licence that follows its name.\n",
+    "The bundles of dist/, index.cjs, publish/index.cjs and preview/index.cjs, hold these packages, each under the licence that follows its name.\n",
     ...packageSections,
     ...embeddedSections,
     ...commentSections,

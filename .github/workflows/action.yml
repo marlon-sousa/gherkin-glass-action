@@ -58,7 +58,7 @@ jobs:
         run: echo "version=${GHG_VERSION:-$(jq -r .version paired-ghg.json)}" >> "$GITHUB_OUTPUT"
 
   platforms:
-    # docs/BEHAVIOUR.md, rules 1, 4 and 7.
+    # docs/BEHAVIOUR.md, rules 1, 4, 7 and 18.
     name: the action on each platform (${{ matrix.runner }})
     needs: paired
     strategy:
@@ -73,11 +73,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: ./
+      - id: action
+        uses: ./
         with:
           ghg-version: ${{ needs.paired.outputs.version }}
           build: true
           config: test/fixtures/site/ghg.toml
+      - name: Check the outputs
+        env:
+          VERSION: ${{ steps.action.outputs.ghg-version }}
+          EXPECTED_VERSION: ${{ needs.paired.outputs.version }}
+          SITE: ${{ steps.action.outputs.site }}
+        run: test "$VERSION" = "$EXPECTED_VERSION" && test "$SITE" = test/fixtures/site/site
       - name: Check ghg is on the PATH of the next step
         env:
           EXPECTED: ghg ${{ needs.paired.outputs.version }}
@@ -116,6 +123,48 @@ jobs:
           # Shown without its leading ::, so that the passing job shows no error.
           echo "The action said: ${said#::}"
           grep -Fx "::error::ghg has no build for Windows on ARM64." <<< "$said"
+
+  site-actions:
+    # docs/BEHAVIOUR.md, rules 19 and 28: the bundles of the publish and preview
+    # actions run, and stop at an input they cannot use, on any event. Publishing itself is checked
+    # against a repository on disk by the unit tests, since this repository's own
+    # Pages is not one to push to.
+    name: the publish and preview actions stopping
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: publish
+        uses: ./publish
+        continue-on-error: true
+        with:
+          folder: ../site
+      - id: preview
+        uses: ./preview
+        continue-on-error: true
+        with:
+          changed-only: "yes"
+      - name: Check both stopped
+        env:
+          PUBLISH: ${{ steps.publish.outcome }}
+          PREVIEW: ${{ steps.preview.outcome }}
+        run: test "$PUBLISH" = failure && test "$PREVIEW" = failure
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Check they say why
+        env:
+          # The runner gives an action its inputs so, with their defaults.
+          INPUT_TO: github-pages
+          INPUT_BRANCH: gh-pages
+        run: |
+          said=$( (INPUT_FOLDER=../site node dist/publish/index.cjs || true) | tr -d '\r')
+          echo "publish said: ${said#::}"
+          grep -Fx "::error::folder must be a folder of branch, such as features." <<< "$said"
+          said=$( (env INPUT_CHANGED-ONLY=yes node dist/preview/index.cjs || true) | tr -d '\r')
+          echo "preview said: ${said#::}"
+          grep -Fx "::error::changed-only must be true or false." <<< "$said"
 
   inputs:
     # docs/BEHAVIOUR.md, rule 9.

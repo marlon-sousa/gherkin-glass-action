@@ -9,6 +9,7 @@ import type { GitHubRepository, PullRequestComment } from "../ports/github_repos
 // files of a pull request in all (github/rest-api-description, api.github.com.json, the parameter
 // per-page and the operation "List pull requests files").
 const PAGE_SIZE = 100;
+const COMPARED_FILES = 300;
 
 export class GitHubRepositoryApi implements GitHubRepository {
   private readonly httpClient = new HttpClient("gherkin-glass-action");
@@ -32,24 +33,36 @@ export class GitHubRepositoryApi implements GitHubRepository {
   }
 
   async listChangedFiles(pullRequest: number): Promise<readonly ChangedFile[] | undefined> {
-    return this.listAll(`/pulls/${pullRequest}/files`, changedFileOf);
+    return this.listAll(`/pulls/${pullRequest}/files`, changedFilesOf);
+  }
+
+  // GET /repos/{owner}/{repo}/compare/{basehead} gives at most 300 files, and its status, ahead
+  // when head follows base (github/rest-api-description, api.github.com.json, the operation
+  // "Compare two commits"). A list that may be cut short cannot tell that no file matters.
+  async compareCommits(before: string, after: string): Promise<readonly ChangedFile[] | undefined> {
+    const response = await this.request("GET", `/compare/${before}...${after}`);
+    const files = field(response?.body, "files");
+    const status = field(response?.body, "status");
+    if (response?.status !== 200 || !Array.isArray(files) || !["ahead", "identical"].includes(String(status))) return undefined;
+    if (files.length >= COMPARED_FILES) return undefined;
+    return changedFilesOf(files);
   }
 
   async listComments(pullRequest: number): Promise<readonly PullRequestComment[] | undefined> {
-    return this.listAll(`/issues/${pullRequest}/comments`, commentOf);
+    return this.listAll(`/issues/${pullRequest}/comments`, (page) => everyOrNone(page.map(commentOf)));
   }
 
   // Every item of a listing, page by page, or undefined when a page cannot be read or holds an
   // item that is not one.
-  private async listAll<T>(listing: string, itemOf: (item: unknown) => T[]): Promise<T[] | undefined> {
+  private async listAll<T>(listing: string, itemsOf: (page: unknown[]) => T[] | undefined): Promise<T[] | undefined> {
     const listed: T[] = [];
     for (let page = 1; ; page++) {
       const response = await this.request("GET", `${listing}?per_page=${PAGE_SIZE}&page=${page}`);
       if (response?.status !== 200 || !Array.isArray(response.body)) return undefined;
-      const items = response.body.flatMap(itemOf);
-      if (items.length !== response.body.length) return undefined;
+      const items = itemsOf(response.body);
+      if (items === undefined) return undefined;
       listed.push(...items);
-      if (items.length < PAGE_SIZE) return listed;
+      if (response.body.length < PAGE_SIZE) return listed;
     }
   }
 
@@ -102,17 +115,31 @@ function pagesSettingsOf(body: unknown): PagesSettings | undefined {
   };
 }
 
-// A file of GET /repos/{owner}/{repo}/pulls/{number}/files: its filename, and its status, removed for a removed file.
-function changedFileOf(file: unknown): ChangedFile[] {
-  const filename = field(file, "filename");
-  const status = field(file, "status");
-  return typeof filename === "string" && typeof status === "string" ? [{ path: filename, removed: status === "removed" }] : [];
+// The files of a pull request or of a comparison: each one's filename, and its status, removed
+// for a removed file; a renamed file's previous_filename is a file it removes.
+function changedFilesOf(files: unknown[]): ChangedFile[] | undefined {
+  return everyOrNone(
+    files.map((file) => {
+      const filename = field(file, "filename");
+      const status = field(file, "status");
+      if (typeof filename !== "string" || typeof status !== "string") return undefined;
+      const previous = field(file, "previous_filename");
+      const moved = typeof previous === "string" ? [{ path: previous, removed: true }] : [];
+      return [{ path: filename, removed: status === "removed" }, ...moved];
+    }),
+  )?.flat();
 }
 
-function commentOf(comment: unknown): PullRequestComment[] {
+function commentOf(comment: unknown): PullRequestComment | undefined {
   const id = field(comment, "id");
   const body = field(comment, "body");
-  return typeof id === "number" && typeof body === "string" ? [{ id, body }] : [];
+  return typeof id === "number" && typeof body === "string" ? { id, body } : undefined;
+}
+
+// The items, or undefined when one of them is not one.
+function everyOrNone<T>(items: (T | undefined)[]): T[] | undefined {
+  const every = items.filter((item) => item !== undefined);
+  return every.length === items.length ? every : undefined;
 }
 
 function field(value: unknown, name: string): unknown {

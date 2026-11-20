@@ -6,8 +6,8 @@ export type PushOutcome = "pushed" | "unchanged" | "behind" | "refused";
 export interface SiteBranch {
   /** Whether the branch exists on the repository. */
   exists(branch: string): Promise<boolean>;
-  /** Makes the branch, with one empty commit, and pushes it. */
-  make(branch: string): Promise<void>;
+  /** Makes the branch, with one empty commit, and pushes it; false when the push is refused. */
+  make(branch: string): Promise<boolean>;
   /** Checks out the branch's newest commit into a new folder, with no .git in it, and returns the folder. */
   checkOut(branch: string): Promise<string>;
   /** Removes a folder of the checked-out branch, relative to its root. */
