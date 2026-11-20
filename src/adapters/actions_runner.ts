@@ -1,16 +1,19 @@
 // Adapter: the runner, through @actions/core and the runner's environment.
 
+import { readFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import * as core from "@actions/core";
 import { PROBLEM_MATCHER } from "../policies/problem_matcher.ts";
 import type { Annotation } from "../policies/report_annotations.ts";
+import type { WorkflowEvent } from "../policies/workflow_event.ts";
 import type { Runner } from "../ports/runner.ts";
 
 export class ActionsRunner implements Runner {
   readonly system = process.env["RUNNER_OS"] ?? "";
   readonly processor = process.env["RUNNER_ARCH"] ?? "";
+  readonly workspace = process.env["GITHUB_WORKSPACE"] ?? process.cwd();
   readonly onGitHubCom = (process.env["GITHUB_SERVER_URL"] ?? "https://github.com") === "https://github.com";
 
   input(name: string): string {
@@ -23,6 +26,20 @@ export class ActionsRunner implements Runner {
 
   log(line: string): void {
     core.info(line);
+  }
+
+  notice(line: string): void {
+    core.notice(line);
+  }
+
+  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
+  workflowEvent(): WorkflowEvent {
+    const payloadFile = process.env["GITHUB_EVENT_PATH"];
+    return {
+      name: process.env["GITHUB_EVENT_NAME"] ?? "",
+      refName: process.env["GITHUB_REF_NAME"] ?? "",
+      payload: payloadFile === undefined ? undefined : JSON.parse(readFileSync(payloadFile, "utf8")),
+    };
   }
 
   annotate(annotation: Annotation): void {

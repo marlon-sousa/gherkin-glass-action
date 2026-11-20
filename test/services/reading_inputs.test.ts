@@ -14,6 +14,7 @@ test("the defaults install the newest ghg and build nothing", () => {
   const request = readRequest(new FakeRunner());
   assert.equal(request.version, undefined);
   assert.equal(request.build, undefined);
+  assert.equal(request.publish, undefined);
   assert.equal(request.platform.target, "x86_64-unknown-linux-musl");
   assert.equal(request.token, undefined);
 });
@@ -39,4 +40,34 @@ test("each input that cannot be used stops the action", () => {
   stops(new FakeRunner({ build: "yes" }), "build must be true or false.");
   stops(new FakeRunner({ preview: "yes" }), "preview must be true or false.");
   stops(new FakeRunner({}, "Windows", "ARM64"), "ghg has no build for Windows on ARM64.");
+});
+
+test("publish asks for a target from the event, with the build's arguments but version-name", () => {
+  const runner = new FakeRunner({
+    publish: "true",
+    "publish-branch": "gh-pages",
+    "publish-folder": "features",
+    token: "a-token",
+    title: "T",
+    "version-name": "latest",
+  });
+  runner.event = { name: "push", refName: "v1.2.0", payload: {} };
+  assert.deepEqual(readRequest(runner).publish, {
+    branch: "gh-pages",
+    folder: "features",
+    changedOnly: false,
+    target: { kind: "version", versionName: "latest", folder: "features" },
+    token: "a-token",
+    build: { buildArguments: ["--title=T"], input: "", frontPage: "", configFile: "ghg.toml" },
+  });
+});
+
+test("publish on an event that publishes nothing, or with an input it decides, stops the action", () => {
+  const dispatched = new FakeRunner({ publish: "true", "publish-branch": "gh-pages" });
+  dispatched.event = { name: "workflow_dispatch", refName: "main", payload: {} };
+  stops(dispatched, "publish acts on a push or a pull request, not on workflow_dispatch.");
+  stops(
+    new FakeRunner({ publish: "true", "publish-branch": "gh-pages", output: "public" }),
+    "publish writes the site into publish-branch, so output must be empty.",
+  );
 });

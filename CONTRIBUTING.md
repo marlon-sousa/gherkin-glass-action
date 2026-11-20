@@ -1,6 +1,6 @@
 # Contributing to gherkin-glass-action
 
-Thank you for your interest. This guide describes how the gherkin-glass GitHub Action is planned, built and released. The action installs `ghg`, the command of [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), on a runner, and builds a site with it when asked. Changes to `ghg` itself belong to gherkin-glass, which has a guide of its own.
+Thank you for your interest. This guide describes how the gherkin-glass GitHub Action is planned, built and released. The action installs `ghg`, the command of [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass), on a runner, builds a site with it when asked, and can publish that site on GitHub Pages. Changes to `ghg` itself belong to gherkin-glass, which has a guide of its own.
 
 ## How gherkin-glass-action is built
 
@@ -23,9 +23,9 @@ Please do not open a pull request for a feature before its issue is agreed and i
 
 ## The documents
 
-- **[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md)** is what the action promises, in terms a test can observe: its inputs, what it installs and from where, the messages it stops with, its annotations, and how its versions relate to those of `ghg`. A feature is written here, in a pull request of its own, before it is built. When we say "the spec", we mean this document.
+- **[docs/BEHAVIOUR.md](docs/BEHAVIOUR.md)** is what the action promises, in terms a test can observe: its inputs, what it installs and from where, the messages it stops with, its annotations, how it publishes the site on GitHub Pages, and how its versions relate to those of `ghg`. A feature is written here, in a pull request of its own, before it is built. When we say "the spec", we mean this document.
 - **[AGENTS.md](AGENTS.md)** is how the work is done: the rules, how the code is organised and written, how a change is reviewed, and how to build and test it.
-- **[README.md](README.md)** is what a person writing a workflow reads: how to use the action, its inputs and its versions.
+- **[README.md](README.md)** is what a person writing a workflow reads: how to use the action, its inputs, how it publishes the site, and its versions.
 
 ## Pull requests
 
