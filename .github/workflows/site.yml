@@ -61,4 +61,6 @@ jobs:
           persist-credentials: false
       - uses: ./preview
         with:
-          title: gherkin-glass-action's behaviour
+          # The pull request's number, which GitHub sets, tells a preview from the
+          # site's versions at a glance.
+          title: "gherkin-glass-action's behaviour, pull request #${{ github.event.pull_request.number }}"
