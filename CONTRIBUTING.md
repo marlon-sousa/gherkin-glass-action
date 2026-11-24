@@ -34,6 +34,7 @@ We work trunk-based: small pull requests straight to `main`, no long-lived branc
 - **Name the issue.** Every pull request names an open issue of this repository: `Closes #N` when it finishes the issue, `Refs #N` when it contributes to it. A check refuses a pull request that names none.
 - **Stack large changes.** A change too large for one pull request becomes a stack: a chain of pull requests, each building on the one before, reviewed and merged in order. Each says `Refs #N`, and the last says `Closes #N`. See "Stacked pull requests" below.
 - **Keep it focused.** One thing per pull request, described in plain prose: what changed and why.
+- **Reuse before writing.** Code that does something general, such as calling GitHub's API, first looks for what already does it: this repository's own code, the official `@actions/*` packages of the Actions toolkit, then a maintained package. The pull request says what was considered when it writes its own, as AGENTS.md, rule 10, describes.
 - **Merge without squashing.** Pull requests merge with a merge commit or a rebase, never squashed, because a squash folds every commit's message into one, and the release notes are built from each commit's changelog trailers.
 
 ### Stacked pull requests

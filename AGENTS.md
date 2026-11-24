@@ -21,6 +21,7 @@ The manual for anyone, human or agent, changing gherkin-glass-action. [CONTRIBUT
 7. **Mark agent comments.** A comment an agent writes on GitHub says it is an agent's.
 8. **Check a library before ruling it in or out.** Before saying that a package or an action can or cannot do something, read its source or its documentation at the version we would use. Look for its override and extension points, not only its defaults. The issue or pull request says what was checked: the file and line, or the documentation page.
 9. **One question at a time.** A question for the maintainer is asked in plain prose, one decision at a time, with the option recommended and why. The answer is recorded on its issue, as CONTRIBUTING.md, "Issues come first", describes, before the next question is asked.
+10. **Reuse before writing.** Before writing code that does something general, such as calling GitHub's API, downloading, running a process or reading the runner's settings, look for what already does it, in this order: the code of this repository; the official packages of the Actions toolkit, `@actions/*`, such as `@actions/github` for GitHub's API; then a maintained package. Write it yourself only when none fits, and the issue or the pull request says what was considered and why it does not fit, with the source that shows it, as rule 8 asks.
 
 ## How the code is organised
 
@@ -57,15 +58,16 @@ Every pull request is reviewed by an independent reviewer before it is opened, o
 4. Every file the change adds or makes longer, against "How the code is organised": its role, its folder, its name, and its length against rule 1 there.
 5. Every test the change adds or moves, against "How the code is organised", rule 3: where it is, and that it reaches no network.
 6. Every comment, against "How the code is organised", rule 7.
-7. Every `any`, cast, non-null assertion, `throw` and `catch`, against "How the code is organised", rules 5 and 6; every helper, naming what already provides it, if anything; and every line that changes nothing.
-8. Every service and adapter, against the roles: a service that imports an adapter or an `@actions/*` package, and a policy that reads or writes anything, are findings.
-9. `dist/`, against rule 4 above: rebuilt from the change and committed with it.
-10. Every dependency the change adds or raises, against rule 8 above, and that it is pinned to an exact version; every action a workflow uses, that it is pinned to a commit with its version in a comment.
-11. Every workflow the change adds or changes: its permissions are the fewest it needs, and no value a person can write, such as a pull request's description or an input, is written into a script rather than passed in the environment.
-12. The commit messages and the description, against CONTRIBUTING.md and rule 5 above. For a layer of a stack, its branch sits on the current tip of the layer below and holds no merge of a lower branch, as CONTRIBUTING.md, "Stacked pull requests", rule 5, says.
-13. Every claim that a library or an action can or cannot do something, against rule 8 above: it names the source it was checked against.
-14. README.md and CONTRIBUTING.md: what they say is still true after the change, for a person writing a workflow and for a contributor.
-15. The checks under "Building and testing", run at the reviewed revision, without changing the checkout the author works in.
+7. Every `any`, cast, non-null assertion, `throw` and `catch`, against "How the code is organised", rules 5 and 6; every helper, naming what already provides it, if anything, in this repository or in a package; and every line that changes nothing.
+8. Every piece of code that does something general, against rule 10 above: what already does it, in this repository, in an official `@actions/*` package or in a maintained package, and, when none is used, that the change says why, with its source.
+9. Every service and adapter, against the roles: a service that imports an adapter or an `@actions/*` package, and a policy that reads or writes anything, are findings.
+10. `dist/`, against rule 4 above: rebuilt from the change and committed with it.
+11. Every dependency the change adds or raises, against rule 8 above, and that it is pinned to an exact version; every action a workflow uses, that it is pinned to a commit with its version in a comment.
+12. Every workflow the change adds or changes: its permissions are the fewest it needs, and no value a person can write, such as a pull request's description or an input, is written into a script rather than passed in the environment.
+13. The commit messages and the description, against CONTRIBUTING.md and rule 5 above. For a layer of a stack, its branch sits on the current tip of the layer below and holds no merge of a lower branch, as CONTRIBUTING.md, "Stacked pull requests", rule 5, says.
+14. Every claim that a library or an action can or cannot do something, against rule 8 above: it names the source it was checked against.
+15. README.md and CONTRIBUTING.md: what they say is still true after the change, for a person writing a workflow and for a contributor.
+16. The checks under "Building and testing", run at the reviewed revision, without changing the checkout the author works in.
 
 The report lists findings, each marked blocking or not, with its `file:line` and a fix, then a verdict: approve, or changes needed. A finding the author rejects goes back to the reviewer with the reason, and a blocking one closes only when the reviewer agrees or the maintainer decides. A pull request is reported ready to the maintainer only once both the review and the CI of its latest push have passed.
 

@@ -5,7 +5,7 @@ import { ActionsToolCache } from "./adapters/actions_tool_cache.ts";
 import { ExecGhgProcess } from "./adapters/exec_ghg_process.ts";
 import { GitSiteBranch } from "./adapters/git_site_branch.ts";
 import { GITHUB_RELEASES, GitHubGhgReleases } from "./adapters/github_releases.ts";
-import { GitHubRepositoryApi } from "./adapters/github_repository_api.ts";
+import { gitHubClientOf, GitHubRepositoryApi } from "./adapters/github_repository_api.ts";
 import { NodeFiles } from "./adapters/node_files.ts";
 import type { SiteActionPorts } from "./services/running_site_actions.ts";
 
@@ -18,7 +18,10 @@ export function siteActionPorts(): SiteActionPorts {
     files: new NodeFiles(),
     process: new ExecGhgProcess(),
     repositoryWith: (token) =>
-      new GitHubRepositoryApi(process.env["GITHUB_API_URL"] ?? "https://api.github.com", process.env["GITHUB_REPOSITORY"] ?? "", token),
+      new GitHubRepositoryApi(
+        gitHubClientOf(process.env["GITHUB_API_URL"] ?? "https://api.github.com", token),
+        process.env["GITHUB_REPOSITORY"] ?? "",
+      ),
     siteBranchWith: (token) =>
       new GitSiteBranch(
         process.env["GITHUB_SERVER_URL"] ?? "https://github.com",
