@@ -23,7 +23,7 @@ This step installs the newest `ghg` 1.x and builds the site of the feature files
 
 Without `build: true`, the action only installs `ghg` and puts it on the `PATH` of the job's later steps, which may then run it themselves, such as `ghg build --title "Our features"`.
 
-When the build reports a feature file that cannot be read, each problem shows as an error annotation on the file and the line, in the workflow's summary and among a pull request's changes, and the step fails. When the input holds no feature file, `ghg` writes nothing and says so, and the step passes. The action reads how the build ended from the report `ghg build --message-format=json` prints, which it asks for itself, so building needs `ghg` 1.1.0 or newer.
+When the build reports a feature file that cannot be read, each problem shows as an error annotation on the file and the line, in the workflow's summary and among a pull request's changes, and the step fails. The action also registers a problem matcher, so that a later step that runs `ghg build` itself has each problem it reports on a file and a line annotated too, at the path `ghg` prints. When the input holds no feature file, `ghg` writes nothing and says so, and the step passes. The action reads how the build ended from the report `ghg build --message-format=json` prints, which it asks for itself, so building needs `ghg` 1.1.0 or newer.
 
 | Input | Default | What it sets |
 | --- | --- | --- |
