@@ -11,6 +11,7 @@ test("each platform ghg is built for installs its target's archive", () => {
     ["macOS", "X64", "ghg-v1.2.0-x86_64-apple-darwin.tar.gz"],
     ["macOS", "ARM64", "ghg-v1.2.0-aarch64-apple-darwin.tar.gz"],
     ["Windows", "X64", "ghg-v1.2.0-x86_64-pc-windows-msvc.zip"],
+    ["Windows", "ARM64", "ghg-v1.2.0-aarch64-pc-windows-msvc.zip"],
   ];
   for (const [system = "", processor = "", archive] of archives) {
     const platform = platformOf(system, processor);
@@ -33,7 +34,7 @@ test("only Windows installs ghg.exe", () => {
 });
 
 test("a platform without a build is named in the runner's words", () => {
-  assert.deepEqual(platformOf("Windows", "ARM64"), { problem: "ghg has no build for Windows on ARM64." });
+  assert.deepEqual(platformOf("Linux", "ARM"), { problem: "ghg has no build for Linux on ARM." });
   assert.deepEqual(platformOf("Linux", "X86"), { problem: "ghg has no build for Linux on X86." });
   assert.deepEqual(platformOf("", ""), { problem: "ghg has no build for this system on this processor." });
 });

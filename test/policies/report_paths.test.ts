@@ -1,12 +1,12 @@
-// Tests docs/BEHAVIOUR.md, rules 10 and 18: where the files ghg build reads and writes are, found as ghg finds them.
+// Tests docs/BEHAVIOUR.md, rules 10, 28 and 29: where the files ghg build reads are, found as ghg finds them.
 
 import assert from "node:assert/strict";
 import path from "node:path";
 import { test } from "node:test";
-import { configFileOf, outputFolderOf, reportPathsOf, type BuildSettings } from "../../src/policies/report_paths.ts";
+import { configFileOf, reportPathsOf, type BuildSettings } from "../../src/policies/report_paths.ts";
 
 function settings(given: Partial<BuildSettings>): BuildSettings {
-  return { input: "", output: "", frontPage: "", configFile: "ghg.toml", configText: undefined, ...given };
+  return { input: "", frontPage: "", configFile: "ghg.toml", configText: undefined, ...given };
 }
 
 function paths(given: Partial<BuildSettings>) {
@@ -52,11 +52,4 @@ test("the configuration file and the front page are named from the workspace", (
     path.join("docs", "ghg.toml"),
     path.join("docs", "front.md"),
   ]);
-});
-
-test("the output folder is the input output, else the configuration's, relative to its folder, else site", () => {
-  assert.equal(outputFolderOf(settings({ output: "public", configText: 'output = "other"' })), "public");
-  assert.equal(outputFolderOf(settings({ configFile: "docs/ghg.toml", configText: 'output = "../public"' })), "public");
-  assert.equal(outputFolderOf(settings({ configFile: "docs/ghg.toml", configText: 'title = "x"' })), path.join("docs", "site"));
-  assert.equal(outputFolderOf(settings({ configFile: "docs/ghg.toml" })), "site");
 });

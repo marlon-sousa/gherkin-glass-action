@@ -1,7 +1,8 @@
-// Service: changes the branch Pages serves once Pages is ready for it, as docs/BEHAVIOUR.md, rules 20 to 22, say.
+// Service: changes the branch Pages serves once Pages is ready for it, as docs/BEHAVIOUR.md, rules 19 to 22, say.
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
+import { keptInOutputArguments } from "../policies/kept_in_output.ts";
 import {
   folderOutsideProblem,
   jekyllProblem,
@@ -12,7 +13,8 @@ import {
 import type { SiteInputs } from "../policies/site_inputs.ts";
 import type { GitHubRepository } from "../ports/github_repository.ts";
 import type { SiteBranch } from "../ports/site_branch.ts";
-import type { BuildingPorts } from "./building.ts";
+import { buildSite, type BuildingPorts } from "./building.ts";
+import type { SiteRequest } from "./reading_site_inputs.ts";
 
 export interface PublishingPorts extends BuildingPorts {
   readonly repository: GitHubRepository;
@@ -82,7 +84,21 @@ function pushRefusedProblem(branch: string): string {
   return `The site cannot be pushed to ${branch}: the workflow needs the permission contents: write.`;
 }
 
-/** The --output argument of a folder of the checked-out branch, relative to its root. */
-export function outputArgumentOf(checkout: string, folder: string): string {
-  return `--output=${path.join(checkout, ...folder.split("/"))}`;
+/**
+ * Builds the site into a folder of the checked-out branch, relative to its root, keeping what
+ * rule 19 keeps, with the arguments the action adds; true when ghg wrote it, false when it had
+ * nothing to build (rule 7).
+ */
+export async function buildIntoBranch(
+  ghg: string,
+  request: SiteRequest,
+  output: { readonly checkout: string; readonly folder: string },
+  added: readonly string[],
+  ports: PublishingPorts,
+): Promise<boolean> {
+  const kept = keptInOutputArguments(request.keepInOutput, await ports.files.readText(request.build.configFile));
+  const outputArgument = `--output=${path.join(output.checkout, ...output.folder.split("/"))}`;
+  const buildArguments = [...request.build.buildArguments, ...kept, outputArgument, ...added];
+  const built = await buildSite(ghg, { ...request.build, buildArguments }, ports);
+  return built.outcome === "built";
 }

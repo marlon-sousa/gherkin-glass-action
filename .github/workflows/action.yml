@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-latest]
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-latest, windows-11-arm]
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
@@ -94,35 +94,6 @@ jobs:
           test "$actual" = "$EXPECTED"
       - name: Check the site was written
         run: test -f test/fixtures/site/site/index.html && test -f test/fixtures/site/site/shop/basket.html
-
-  without-build:
-    # docs/BEHAVIOUR.md, rule 4.
-    name: the action on a platform without a build
-    runs-on: windows-11-arm
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - id: action
-        uses: ./
-        continue-on-error: true
-      - name: Check the action stopped
-        env:
-          OUTCOME: ${{ steps.action.outcome }}
-        run: test "$OUTCOME" = failure
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: .node-version
-      - name: Check it says why
-        run: |
-          # @actions/core ends its commands with the system's line ending.
-          said=$( (node dist/index.cjs || true) | tr -d '\r')
-          # Shown without its leading ::, so that the passing job shows no error.
-          echo "The action said: ${said#::}"
-          grep -Fx "::error::ghg has no build for Windows on ARM64." <<< "$said"
 
   site-actions:
     # docs/BEHAVIOUR.md, rules 19 and 28: the bundles of the publish and preview

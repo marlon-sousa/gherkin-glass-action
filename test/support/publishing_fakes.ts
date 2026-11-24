@@ -88,14 +88,19 @@ export class FakeSiteBranch implements SiteBranch {
   }
 }
 
-/** The ports publishing reaches, whose branch's checkouts each hold the files given, .nojekyll at the root by default. */
-export function publishingPorts(outcomes: PushOutcome[] = ["pushed"], repository = new FakeRepository(), onBranch = [".nojekyll"]) {
+/** The ports publishing reaches, whose branch's checkouts each hold the files given, .nojekyll at the root by default, and whose ghg builds as process says. */
+export function publishingPorts(
+  outcomes: PushOutcome[] = ["pushed"],
+  repository = new FakeRepository(),
+  onBranch = [".nojekyll"],
+  process = new FakeGhgProcess(),
+) {
   const checkouts = ["checkout-1", "checkout-2", "checkout-3"];
   return {
     runner: new FakeRunner(),
     repository,
     siteBranch: new FakeSiteBranch(outcomes),
-    process: new FakeGhgProcess(),
+    process,
     files: new FakeFiles(Object.fromEntries(checkouts.flatMap((checkout) => onBranch.map((file) => [`${checkout}/${file}`, ""])))),
   };
 }

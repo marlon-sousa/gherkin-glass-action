@@ -61,7 +61,7 @@ async function runSiteAction(
     const publishing = publishingOf(request, ports.runner);
     if (publishing === undefined) return;
     const installedGhg = async () => {
-      const ghg = await installGhg(request.install.version, request.install.platform, pairedMajor, {
+      const ghg = await installGhg(request.install.version, request.install.platform, true, pairedMajor, {
         ...ports,
         releases: ports.releasesWith(request.install.releasesToken),
       });

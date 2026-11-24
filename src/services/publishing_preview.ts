@@ -9,8 +9,7 @@ import { reportPathsOf, type ReportPaths } from "../policies/report_paths.ts";
 import { previewFolderOf } from "../policies/site_inputs.ts";
 import type { PreviewEvent } from "../policies/workflow_event.ts";
 import type { PullRequestComment } from "../ports/github_repository.ts";
-import { buildSite } from "./building.ts";
-import { changeBranch, outputArgumentOf, servedSiteOf, type PublishingPorts } from "./publishing.ts";
+import { buildIntoBranch, changeBranch, servedSiteOf, type PublishingPorts } from "./publishing.ts";
 import type { SiteRequest } from "./reading_site_inputs.ts";
 
 /** What preview is asked: the shared inputs, and whether the preview shows only the files the pull request changes. */
@@ -44,6 +43,7 @@ export async function publishPreview(
   const comment = await previewCommentOn(event.pullRequest, ports);
   const builtFrom = comment === undefined ? undefined : builtFromOf(comment.body);
   const sourcesKept = await keepsSources(builtFrom, event.headCommit, paths, ports);
+  let nothingToBuild = false;
   const outcome = await changeBranch(
     request.branch,
     served,
@@ -52,13 +52,17 @@ export async function publishPreview(
       apply: async (checkout) => {
         const output = path.join(checkout, ...folder.split("/"));
         if (sourcesKept && (await ports.files.isFile(path.join(output, SITE_MARKER)))) return false;
-        const how = [outputArgumentOf(checkout, folder), "--preview", ...only];
-        await buildSite(ghg, { ...request.build, buildArguments: [...request.build.buildArguments, ...how] }, ports);
-        return true;
+        nothingToBuild = !(await buildIntoBranch(ghg, request, { checkout, folder }, ["--preview", ...only], ports));
+        return !nothingToBuild;
       },
     },
     ports,
   );
+  // Rule 26: an earlier preview and its comment are left as they are, as rule 28 leaves them.
+  if (nothingToBuild) {
+    ports.runner.log("ghg read no feature file, so no preview is published.");
+    return;
+  }
   const address = addressOf(served, folder);
   if (outcome === "left") {
     ports.runner.log("The commits since the preview was built change no file it is built from, so the preview is left as it is.");

@@ -3,7 +3,7 @@
 import type { Annotation } from "../../src/policies/report_annotations.ts";
 import type { ReleaseListing } from "../../src/policies/versions.ts";
 import type { Files } from "../../src/ports/files.ts";
-import type { GhgProcess } from "../../src/ports/ghg_process.ts";
+import type { GhgProcess, GhgRun } from "../../src/ports/ghg_process.ts";
 import type { GhgReleases } from "../../src/ports/ghg_releases.ts";
 import type { GhgToolCache } from "../../src/ports/ghg_tool_cache.ts";
 import type { WorkflowEvent } from "../../src/policies/workflow_event.ts";
@@ -128,20 +128,25 @@ export class FakeToolCache implements GhgToolCache {
   }
 }
 
-/** A ghg that writes the given lines to its standard error and exits with the given status. */
+/** The JSON object ghg build prints with --message-format=json (gherkin-glass's rule 231), with those keys changed. */
+export function ghgReport(given: Record<string, unknown> = {}): string {
+  const report = { outcome: "built", output: "site", version: null, features: 1, scenarios: 1, notes: [], errors: [], ...given };
+  return `${JSON.stringify(report)}\n`;
+}
+
+/** A ghg that prints the given standard output, a built site's report by default, and exits with the given status. */
 export class FakeGhgProcess implements GhgProcess {
   readonly runs: (readonly string[])[] = [];
-  readonly errorLines: readonly string[];
+  readonly standardOutput: string;
   readonly status: number;
 
-  constructor(errorLines: readonly string[] = [], status = 0) {
-    this.errorLines = errorLines;
+  constructor(standardOutput = ghgReport(), status = 0) {
+    this.standardOutput = standardOutput;
     this.status = status;
   }
 
-  async run(program: string, commandArguments: readonly string[], onErrorLine: (line: string) => void): Promise<number> {
+  async run(program: string, commandArguments: readonly string[]): Promise<GhgRun> {
     this.runs.push([program, ...commandArguments]);
-    this.errorLines.forEach(onErrorLine);
-    return this.status;
+    return { status: this.status, standardOutput: this.standardOutput };
   }
 }

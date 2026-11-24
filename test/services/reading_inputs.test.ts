@@ -31,7 +31,6 @@ test("a build is asked with its arguments, its folders and its configuration fil
   assert.deepEqual(request.build, {
     buildArguments: ["--input=specs", "--output=public", "--title=T"],
     input: "specs",
-    output: "public",
     frontPage: "",
     configFile: "ghg.toml",
   });
@@ -41,5 +40,5 @@ test("each input that cannot be used stops the action", () => {
   stops(new FakeRunner({ "ghg-version": "latest" }), "ghg-version must be a version of ghg, such as 1.2.0.");
   stops(new FakeRunner({ build: "yes" }), "build must be true or false.");
   stops(new FakeRunner({ preview: "yes" }), "preview must be true or false.");
-  stops(new FakeRunner({}, "Windows", "ARM64"), "ghg has no build for Windows on ARM64.");
+  stops(new FakeRunner({}, "Linux", "ARM"), "ghg has no build for Linux on ARM.");
 });

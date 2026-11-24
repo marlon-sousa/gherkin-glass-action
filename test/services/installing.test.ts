@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 1 and 3 to 6: installing ghg, through fakes of the ports.
+// Tests docs/BEHAVIOUR.md, rules 1 to 6: installing ghg, through fakes of the ports.
 
 import assert from "node:assert/strict";
 import path from "node:path";
@@ -44,7 +44,7 @@ async function stops(install: Promise<unknown>, message: string) {
 
 test("ghg is downloaded, checked, kept in the tool cache and put on the PATH", async () => {
   const used = ports();
-  const ghg = await installGhg("1.2.0", platform(LINUX), 1, used);
+  const ghg = await installGhg("1.2.0", platform(LINUX), false, 1, used);
   assert.deepEqual(ghg, { program: path.join("cache/1.2.0", "ghg"), version: "1.2.0" });
   assert.deepEqual(used.runner.path, ["cache/1.2.0"]);
   assert.deepEqual(used.runner.logged, ["ghg 1.2.0 is installed."]);
@@ -53,22 +53,31 @@ test("ghg is downloaded, checked, kept in the tool cache and put on the PATH", a
 
 test("without a version, the newest stable release of the paired major version is installed", async () => {
   const used = ports();
-  await installGhg(undefined, platform(LINUX), 1, used);
+  await installGhg(undefined, platform(LINUX), false, 1, used);
   assert.deepEqual(used.runner.logged, ["ghg 1.2.0 is installed."]);
 });
 
 test("without a compatible release, or a listing, the action stops", async () => {
-  await stops(installGhg(undefined, platform(LINUX), 2, ports()), "ghg has no release compatible with this action's version.");
+  await stops(installGhg(undefined, platform(LINUX), false, 2, ports()), "ghg has no release compatible with this action's version.");
   await stops(
-    installGhg(undefined, platform(LINUX), 1, ports(new FakeReleases(undefined))),
+    installGhg(undefined, platform(LINUX), false, 1, ports(new FakeReleases(undefined))),
     "The releases of ghg cannot be listed.",
   );
 });
 
+test("a ghg to build with older than 1.1.0 stops the action before it is downloaded, but may be installed alone", async () => {
+  const old = ports(release({ [ARCHIVE.replace("1.2.0", "1.0.0")]: "", SHA256SUMS: "" }));
+  await stops(installGhg("1.0.0", platform(LINUX), true, 1, old), "The action builds with ghg 1.1.0 or newer, not 1.0.0.");
+  assert.deepEqual(old.releases.downloads, []);
+  const building = ports();
+  await installGhg("1.2.0", platform(LINUX), true, 1, building);
+  assert.deepEqual(building.runner.logged, ["ghg 1.2.0 is installed."]);
+});
+
 test("a ghg already in the tool cache is not downloaded again", async () => {
   const used = ports();
-  await installGhg("1.2.0", platform(LINUX), 1, used);
-  await installGhg("1.2.0", platform(LINUX), 1, used);
+  await installGhg("1.2.0", platform(LINUX), false, 1, used);
+  await installGhg("1.2.0", platform(LINUX), false, 1, used);
   assert.equal(used.releases.downloads.length, 2);
   assert.equal(used.toolCache.unpacked.length, 1);
   assert.deepEqual(used.runner.path, ["cache/1.2.0", "cache/1.2.0"]);
@@ -80,29 +89,29 @@ test("Windows installs ghg.exe from the zip", async () => {
     { "downloads/v1.2.0/SHA256SUMS": `${SUM} *${zip}\n`, [path.join(`unpacked/downloads/v1.2.0/${zip}`, "ghg.exe")]: "" },
     { [`downloads/v1.2.0/${zip}`]: SUM },
   );
-  const ghg = await installGhg("1.2.0", platform(WINDOWS), 1, ports(release({ [zip]: "", SHA256SUMS: "" }), files));
+  const ghg = await installGhg("1.2.0", platform(WINDOWS), false, 1, ports(release({ [zip]: "", SHA256SUMS: "" }), files));
   assert.equal(ghg.program, path.join("cache/1.2.0", "ghg.exe"));
 });
 
 test("a missing archive or SHA256SUMS stops the action", async () => {
   await stops(
-    installGhg("1.2.0", platform(LINUX), 1, ports(release({ SHA256SUMS: "" }))),
+    installGhg("1.2.0", platform(LINUX), false, 1, ports(release({ SHA256SUMS: "" }))),
     `${ARCHIVE} cannot be downloaded from the release v1.2.0 of ghg.`,
   );
   await stops(
-    installGhg("1.2.0", platform(LINUX), 1, ports(release({ [ARCHIVE]: "" }))),
+    installGhg("1.2.0", platform(LINUX), false, 1, ports(release({ [ARCHIVE]: "" }))),
     "SHA256SUMS cannot be downloaded from the release v1.2.0 of ghg.",
   );
 });
 
 test("an archive that does not match SHA256SUMS is never installed", async () => {
   const unlisted = ports(release(), sound("ghg", `${SUM}  another.tar.gz\n`));
-  await stops(installGhg("1.2.0", platform(LINUX), 1, unlisted), `${ARCHIVE} is not in the release's SHA256SUMS.`);
+  await stops(installGhg("1.2.0", platform(LINUX), false, 1, unlisted), `${ARCHIVE} is not in the release's SHA256SUMS.`);
   const differing = ports(release(), sound("ghg", `${SUM}  ${ARCHIVE}\n`, "d".repeat(64)));
-  await stops(installGhg("1.2.0", platform(LINUX), 1, differing), `${ARCHIVE} does not match its checksum in SHA256SUMS.`);
+  await stops(installGhg("1.2.0", platform(LINUX), false, 1, differing), `${ARCHIVE} does not match its checksum in SHA256SUMS.`);
   assert.deepEqual([unlisted.toolCache.unpacked, differing.toolCache.unpacked], [[], []]);
 });
 
 test("an archive without ghg at its root stops the action", async () => {
-  await stops(installGhg("1.2.0", platform(LINUX), 1, ports(release(), sound("bin/ghg"))), `${ARCHIVE} has no ghg.`);
+  await stops(installGhg("1.2.0", platform(LINUX), false, 1, ports(release(), sound("bin/ghg"))), `${ARCHIVE} has no ghg.`);
 });

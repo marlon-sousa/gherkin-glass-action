@@ -2,7 +2,6 @@
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
-import { outputFolderOf } from "../policies/report_paths.ts";
 import type { Files } from "../ports/files.ts";
 import type { GhgProcess } from "../ports/ghg_process.ts";
 import type { GhgReleases } from "../ports/ghg_releases.ts";
@@ -25,22 +24,18 @@ export interface ActionPorts {
 export async function runAction(pairedMajor: number, ports: ActionPorts): Promise<void> {
   try {
     const { install, build } = readRequest(ports.runner);
-    const ghg = await installGhg(install.version, install.platform, pairedMajor, {
+    const ghg = await installGhg(install.version, install.platform, build !== undefined, pairedMajor, {
       ...ports,
       releases: ports.releasesWith(install.releasesToken),
     });
     ports.runner.setOutput("ghg-version", ghg.version);
     // Registered after the build, so that the action's own annotations are not made twice.
     try {
-      if (build !== undefined) {
-        await buildSite(ghg.program, build, ports);
-        const outputFolder = outputFolderOf({ ...build, configText: await ports.files.readText(build.configFile) });
-        // Rule 18: given as the build's report gives paths, from the workspace and with / on every
-        // system, so that a later step's shell reads it alike everywhere.
-        ports.runner.setOutput("site", path.normalize(outputFolder).split(path.sep).join("/"));
-      } else {
-        ports.runner.setOutput("site", "");
-      }
+      const built = build === undefined ? undefined : await buildSite(ghg.program, build, ports);
+      // Rule 18: from the workspace, as the build's report gives it, and with / on every system,
+      // so that a later step's shell reads it alike everywhere.
+      const site = built?.outcome === "built" ? path.normalize(built.output).split(path.sep).join("/") : "";
+      ports.runner.setOutput("site", site);
     } finally {
       await ports.runner.addProblemMatcher();
     }

@@ -2,10 +2,10 @@
 // Usage: ghg build --help | node tools/check_inputs.ts
 
 import { text } from "node:stream/consumers";
-import { BUILD_OPTIONS } from "../src/policies/build_arguments.ts";
+import { ACTION_OPTIONS, BUILD_OPTIONS } from "../src/policies/build_arguments.ts";
 import { optionsOfHelp } from "./help_options.ts";
 
-const options = optionsOfHelp(await text(process.stdin));
+const options = optionsOfHelp(await text(process.stdin)).filter((option) => !ACTION_OPTIONS.includes(option));
 const inputs = BUILD_OPTIONS.map((option) => option.name);
 const withoutInput = options.filter((option) => !inputs.includes(option));
 const withoutOption = inputs.filter((input) => !options.includes(input));

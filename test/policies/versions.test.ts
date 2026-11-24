@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import packageJson from "../../package.json" with { type: "json" };
 import pairedGhg from "../../paired-ghg.json" with { type: "json" };
-import { majorOf, namedVersion, newestStable, type ReleaseListing } from "../../src/policies/versions.ts";
+import { buildingProblem, majorOf, namedVersion, newestStable, type ReleaseListing } from "../../src/policies/versions.ts";
 
 const PROBLEM = { problem: "ghg-version must be a version of ghg, such as 1.2.0." };
 
@@ -54,4 +54,11 @@ test("the action's major version is that of its paired ghg", () => {
   assert.ok(namedVersion(pairedGhg.version) === pairedGhg.version, "paired-ghg.json names a version");
   assert.equal(majorOf(packageJson.version), majorOf(pairedGhg.version));
   assert.equal(majorOf("12.3.4"), 12);
+});
+
+test("the action builds with ghg 1.1.0 or newer, its pre-releases coming before it", () => {
+  for (const version of ["1.1.0", "1.1.1", "1.2.0", "2.0.0", "1.2.0-rc.1"]) assert.equal(buildingProblem(version), undefined, version);
+  for (const version of ["1.0.0", "1.0.9", "0.1.0-alpha.2", "1.1.0-rc.1"]) {
+    assert.deepEqual(buildingProblem(version), { problem: `The action builds with ghg 1.1.0 or newer, not ${version}.` }, version);
+  }
 });

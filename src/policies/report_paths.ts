@@ -1,4 +1,4 @@
-// Policy: where the files ghg build reads and writes are, found as ghg finds them, for docs/BEHAVIOUR.md, rules 10 and 18.
+// Policy: where the files ghg build reads are, found as ghg finds them, for docs/BEHAVIOUR.md, rules 10, 28 and 29.
 
 import path from "node:path";
 import { parse } from "smol-toml";
@@ -7,8 +7,6 @@ import { parse } from "smol-toml";
 export interface BuildSettings {
   /** The input input, empty when it is not given. */
   readonly input: string;
-  /** The input output, empty when it is not given. */
-  readonly output: string;
   /** The input front-page, empty when it is not given. */
   readonly frontPage: string;
   /** The configuration file, as ghg build is given it or as it reads it by default. */
@@ -47,11 +45,6 @@ export function reportPathsOf(settings: BuildSettings): ReportPaths {
   };
 }
 
-/** The output folder ghg build writes the site into, found as the input folder is. */
-export function outputFolderOf(settings: BuildSettings): string {
-  return folderOf(settings.output, configuredPaths(settings.configText).output, "site", settings);
-}
-
 // The folder an input gives; else the configuration file's key, or its default, relative to the
 // file's folder; without a file, the default relative to the workspace.
 function folderOf(given: string, key: string | undefined, fallback: string, settings: BuildSettings): string {
@@ -67,15 +60,13 @@ function besideConfigOf(configFile: string): (key: string) => string {
 // then annotates with the defaults.
 function configuredPaths(configText: string | undefined): {
   readonly input?: string;
-  readonly output?: string;
   readonly frontPage?: string;
 } {
   if (configText === undefined) return {};
   try {
-    const { input, output, front_page: frontPage } = parse(configText);
+    const { input, front_page: frontPage } = parse(configText);
     return {
       ...(typeof input === "string" && { input }),
-      ...(typeof output === "string" && { output }),
       ...(typeof frontPage === "string" && { frontPage }),
     };
   } catch {

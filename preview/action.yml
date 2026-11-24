@@ -43,6 +43,10 @@ inputs:
     description: The --front-page option of ghg build, the Markdown template of the site's front page. Left out when empty.
     required: false
     default: ""
+  keep-in-output:
+    description: The patterns of what ghg leaves alone in the folder the site goes into, in the gitignore syntax, one on each line, passed to ghg build after /.nojekyll and /CNAME, which the action always keeps. When empty, the patterns of the configuration file's keep_in_output are passed instead.
+    required: false
+    default: ""
   changed-only:
     description: true for the preview to show only the feature files the pull request changes, and for none to be published when it changes none.
     required: false

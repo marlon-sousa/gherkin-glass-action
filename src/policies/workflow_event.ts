@@ -1,5 +1,7 @@
 // Policy: what the event that runs the workflow asks the publish and preview actions to do, as docs/BEHAVIOUR.md, rules 23 to 26 and 29, say.
 
+import { fieldOf } from "./json_field.ts";
+
 /** The event that runs the workflow, as the runner gives it. */
 export interface WorkflowEvent {
   /** GITHUB_EVENT_NAME, such as push or pull_request. */
@@ -31,22 +33,16 @@ export function versionNameOf(versionNameInput: string, refName: string): string
 export function previewEventOf(event: WorkflowEvent): PreviewEvent | { readonly problem: string } {
   if (event.name !== "pull_request") return { problem: `preview acts on a pull request, not on ${event.name}.` };
   const { payload } = event;
-  const pullRequest = field(payload, "number");
+  const pullRequest = fieldOf(payload, "number");
   // GitHub gives every pull_request event its number, so a payload without one is not GitHub's.
   if (typeof pullRequest !== "number") throw new Error("the pull request's event has no number");
   // A head whose repository was deleted has none, which is a fork too.
-  const headRepository = field(field(field(field(payload, "pull_request"), "head"), "repo"), "full_name");
-  if (typeof headRepository !== "string" || headRepository !== field(field(payload, "repository"), "full_name")) {
+  const headRepository = fieldOf(fieldOf(fieldOf(fieldOf(payload, "pull_request"), "head"), "repo"), "full_name");
+  if (typeof headRepository !== "string" || headRepository !== fieldOf(fieldOf(payload, "repository"), "full_name")) {
     return { kind: "fork" };
   }
-  const action = field(payload, "action");
+  const action = fieldOf(payload, "action");
   if (action === "closed") return { kind: "closed", pullRequest };
-  const headCommit = field(field(field(payload, "pull_request"), "head"), "sha");
+  const headCommit = fieldOf(fieldOf(fieldOf(payload, "pull_request"), "head"), "sha");
   return { kind: "open", pullRequest, headCommit: typeof headCommit === "string" ? headCommit : undefined };
-}
-
-// A field of GitHub's pull_request payload: action, number, pull_request.head.repo,
-// pull_request.head.sha and repository.
-function field(value: unknown, name: string): unknown {
-  return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : undefined;
 }

@@ -50,7 +50,7 @@ test("a preview goes into previews/pr-<number> of folder", () => {
 });
 
 test("each action.yml takes the shared inputs, and its own", () => {
-  const shared = ["to", "branch", "folder", "ghg-version", "token", "config", "input", "title", "front-page"];
+  const shared = ["to", "branch", "folder", "ghg-version", "token", "config", "input", "title", "front-page", "keep-in-output"];
   assert.deepEqual(inputsOfActionYml("publish"), [...shared, "version-name"]);
   assert.deepEqual(inputsOfActionYml("preview"), [...shared, "changed-only"]);
 });

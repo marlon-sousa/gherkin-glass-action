@@ -58,6 +58,10 @@ inputs:
     description: true to give ghg build the --preview option, building a site without versions whose every page asks search engines not to index it. Left out when false or empty.
     required: false
     default: ""
+  keep-in-output:
+    description: The --keep-in-output option of ghg build, the patterns of what ghg leaves alone in the output folder, in the gitignore syntax, one on each line, each passed as one --keep-in-output. Left out when empty.
+    required: false
+    default: ""
 
 outputs:
   ghg-version:

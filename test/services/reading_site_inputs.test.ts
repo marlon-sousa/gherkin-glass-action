@@ -10,7 +10,14 @@ const DEFAULTS = { to: "github-pages", branch: "gh-pages", token: "a-token" };
 
 test("the shared inputs name the branch, the folder, the token and the build", () => {
   const request = readSiteRequest(
-    new FakeRunner({ ...DEFAULTS, folder: "features", "ghg-version": "1.2.0", title: "T", "front-page": "front.md" }),
+    new FakeRunner({
+      ...DEFAULTS,
+      folder: "features",
+      "ghg-version": "1.2.0",
+      title: "T",
+      "front-page": "front.md",
+      "keep-in-output": "README.md",
+    }),
   );
   assert.equal(request.branch, "gh-pages");
   assert.equal(request.folder, "features");
@@ -20,10 +27,10 @@ test("the shared inputs name the branch, the folder, the token and the build", (
   assert.deepEqual(request.build, {
     buildArguments: ["--title=T", "--front-page=front.md"],
     input: "",
-    output: "",
     frontPage: "front.md",
     configFile: "ghg.toml",
   });
+  assert.equal(request.keepInOutput, "README.md");
 });
 
 test("the token reads Pages and pushes on any server, though it lists releases only on github.com", () => {
@@ -35,7 +42,7 @@ test("the token reads Pages and pushes on any server, though it lists releases o
 test("an input the action does not take is not passed to ghg build", () => {
   const request = readSiteRequest(new FakeRunner({ ...DEFAULTS, output: "public", preview: "yes", only: "list.txt" }));
   assert.deepEqual(request.build.buildArguments, []);
-  assert.equal(request.build.output, "");
+  assert.equal(request.build.input, "");
 });
 
 test("an input that cannot be used stops the action", () => {

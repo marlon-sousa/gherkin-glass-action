@@ -69,7 +69,7 @@ Every pull request runs:
 - the issue check, the check that no closing keyword names another repository's issue, and the commit message check, from [itinera-dev/actions](https://github.com/itinera-dev/actions);
 - a check that fails while the description has an unticked checkbox, so that a manual check is finished before merging;
 - the action's own checks: the TypeScript type-checked, the unit tests, and the files of `dist/`, the bundles and their licences, built again and compared with the committed ones, which must not differ;
-- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, and on one it is not, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use, since this repository's own Pages is not one to publish on. Their publishing itself is checked by the unit tests, against a repository on disk.
+- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use, since this repository's own Pages is not one to publish on. Their publishing itself is checked by the unit tests, against a repository on disk.
 
 AGENTS.md, "Building and testing", gives the command of each.
 

@@ -4,7 +4,7 @@ import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
 import { listedChecksum } from "../policies/checksums.ts";
 import { archiveName, type Platform } from "../policies/targets.ts";
-import { newestStable } from "../policies/versions.ts";
+import { buildingProblem, newestStable } from "../policies/versions.ts";
 import type { Files } from "../ports/files.ts";
 import type { GhgReleases } from "../ports/ghg_releases.ts";
 import type { GhgToolCache } from "../ports/ghg_tool_cache.ts";
@@ -23,14 +23,20 @@ export interface InstalledGhg {
   readonly version: string;
 }
 
-/** Installs ghg and puts its folder on the PATH, returning the ghg installed. */
+/**
+ * Installs ghg and puts its folder on the PATH, returning the ghg installed; a ghg to build with
+ * must be one whose report the action reads (rule 2), which is checked before it is downloaded.
+ */
 export async function installGhg(
   version: string | undefined,
   platform: Platform,
+  building: boolean,
   pairedMajor: number,
   ports: InstallingPorts,
 ): Promise<InstalledGhg> {
   const installedVersion = version ?? (await newestCompatible(pairedMajor, ports.releases));
+  const tooOld = building ? buildingProblem(installedVersion) : undefined;
+  if (tooOld !== undefined) throw new ActionStop(tooOld.problem);
   const folder =
     ports.toolCache.find(installedVersion) ?? (await downloadGhg(installedVersion, platform, ports));
   ports.runner.addToPath(folder);

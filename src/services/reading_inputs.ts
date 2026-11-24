@@ -27,9 +27,8 @@ export interface ActionRequest {
 export interface BuildRequest {
   /** The arguments after build. */
   readonly buildArguments: readonly string[];
-  /** The inputs input, output and front-page, empty when they are not given. */
+  /** The inputs input and front-page, empty when they are not given. */
   readonly input: string;
-  readonly output: string;
   readonly frontPage: string;
   /** The configuration file ghg build reads. */
   readonly configFile: string;
@@ -57,7 +56,6 @@ export function buildRequestOf(passed: readonly string[], inputOf: (name: string
   return {
     buildArguments: passed,
     input: inputOf("input"),
-    output: inputOf("output"),
     frontPage: inputOf("front-page"),
     configFile: configFileOf(inputOf("config")),
   };

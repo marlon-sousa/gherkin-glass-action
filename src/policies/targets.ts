@@ -14,6 +14,7 @@ const PLATFORMS: ReadonlyMap<string, Platform> = new Map([
   ["macOS/X64", { target: "x86_64-apple-darwin", packing: "tar.gz", binary: "ghg" }],
   ["macOS/ARM64", { target: "aarch64-apple-darwin", packing: "tar.gz", binary: "ghg" }],
   ["Windows/X64", { target: "x86_64-pc-windows-msvc", packing: "zip", binary: "ghg.exe" }],
+  ["Windows/ARM64", { target: "aarch64-pc-windows-msvc", packing: "zip", binary: "ghg.exe" }],
 ]);
 
 /** The platform of a runner, or the sentence the action stops with when ghg has no build for it. */

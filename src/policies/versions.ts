@@ -36,3 +36,17 @@ export function newestStable(releases: readonly ReleaseListing[], major: number)
     .map((numbers) => numbers.join("."))
     .at(-1);
 }
+
+// Rule 2: the first release of ghg with --message-format, whose report the action reads to build.
+const FIRST_BUILDING = [1, 1, 0];
+
+/** The sentence the action stops with when it builds with a version older than 1.1.0, if it is. */
+export function buildingProblem(version: string): { readonly problem: string } | undefined {
+  const [numbers = "", preRelease] = version.split(/-(.*)/s);
+  const [major = 0, minor = 0, patch = 0] = numbers.split(".").map(Number);
+  const [firstMajor = 0, firstMinor = 0, firstPatch = 0] = FIRST_BUILDING;
+  const order = major - firstMajor || minor - firstMinor || patch - firstPatch;
+  // A pre-release comes before its version, as Semantic Versioning orders them.
+  const older = order < 0 || (order === 0 && preRelease !== undefined);
+  return older ? { problem: `The action builds with ghg ${FIRST_BUILDING.join(".")} or newer, not ${version}.` } : undefined;
+}

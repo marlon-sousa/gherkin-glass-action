@@ -8,7 +8,7 @@ GitHub Actions for [gherkin-glass](https://github.com/marlon-sousa/gherkin-glass
 | `marlon-sousa/gherkin-glass-action/publish@v1` | Builds a version of the site and publishes it on the branch GitHub Pages serves, as [Publishing a version](#publishing-a-version) describes. |
 | `marlon-sousa/gherkin-glass-action/preview@v1` | Publishes a preview of each pull request's site beside the versions, comments its address on the pull request, and removes it when the pull request closes, as [Previewing a pull request](#previewing-a-pull-request) describes. |
 
-They run on GitHub's own runners and on self-hosted ones, on Linux on x86-64 or ARM64, macOS on Intel or Apple silicon, and Windows on x86-64. They need nothing installed on the runner, not even Node on the `PATH`, except that publish and preview need git 2.31 or later, as GitHub's own runners have.
+They run on GitHub's own runners and on self-hosted ones, on Linux on x86-64 or ARM64, macOS on Intel or Apple silicon, and Windows on x86-64 or ARM64. They need nothing installed on the runner, not even Node on the `PATH`, except that publish and preview need git 2.31 or later, as GitHub's own runners have.
 
 ## Installing and building
 
@@ -23,11 +23,11 @@ This step installs the newest `ghg` 1.x and builds the site of the feature files
 
 Without `build: true`, the action only installs `ghg` and puts it on the `PATH` of the job's later steps, which may then run it themselves, such as `ghg build --title "Our features"`.
 
-When the build reports a feature file that cannot be read, each problem shows as an error annotation on the file and the line, in the workflow's summary and among a pull request's changes, and the step fails.
+When the build reports a feature file that cannot be read, each problem shows as an error annotation on the file and the line, in the workflow's summary and among a pull request's changes, and the step fails. When the input holds no feature file, `ghg` writes nothing and says so, and the step passes. The action reads how the build ended from the report `ghg build --message-format=json` prints, which it asks for itself, so building needs `ghg` 1.1.0 or newer.
 
 | Input | Default | What it sets |
 | --- | --- | --- |
-| `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install, such as `1.2.0` or `v1.2.0`, a pre-release such as `1.3.0-rc.1` included. |
+| `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install, such as `1.2.0` or `v1.2.0`, a pre-release such as `1.3.0-rc.1` included; 1.1.0 or newer to build. |
 | `build` | `false` | `true` runs `ghg build` after installing it, in the workspace folder. |
 | `token` | the workflow's own token | The token that lists the releases of `ghg` through GitHub's API, sent only on github.com. |
 | `config` | empty | The `--config` option of `ghg build`, the configuration file to read. |
@@ -38,13 +38,14 @@ When the build reports a feature file that cannot be read, each problem shows as
 | `front-page` | empty | The `--front-page` option of `ghg build`, the Markdown template of the site's front page. |
 | `only` | empty | The `--only` option of `ghg build`, the file listing the feature files to build the site from, alone. |
 | `preview` | empty | `true` gives `ghg build` the `--preview` option, a site whose every page asks search engines not to index it. |
+| `keep-in-output` | empty | The `--keep-in-output` option of `ghg build`, the patterns of what `ghg` leaves alone in the output folder, in the gitignore syntax, one on each line, such as `.nojekyll` and `CNAME`. |
 
 An input of an option that is empty is left out, so that the configuration file and `ghg`'s defaults still apply. gherkin-glass's [README](https://github.com/marlon-sousa/gherkin-glass#readme) says what each option does.
 
 | Output | What it holds |
 | --- | --- |
 | `ghg-version` | The release of `ghg` installed, such as `1.2.0`. |
-| `site` | The folder the build wrote the site into, relative to the workspace, such as `site`; empty when the action does not build. A later step can upload it, or deploy it its own way. |
+| `site` | The folder the build wrote the site into, relative to the workspace, such as `site`; empty when the action does not build, or the input holds no feature file. A later step can upload it, or deploy it its own way. |
 
 ## Publishing on GitHub Pages
 
@@ -60,7 +61,7 @@ Each action stops with a sentence that says what is missing when Pages is not se
 
 ### Where the site goes
 
-The input `folder` names the folder of the branch the site goes into, such as `features`; empty, it is the branch's root. The rest of the branch is never touched, so the branch can hold a site of its own, a `CNAME` or `.nojekyll` beside the folder. Since the branch's root holds `.nojekyll`, which `ghg` did not write, give the site a folder of its own, such as `features`.
+The input `folder` names the folder of the branch the site goes into, such as `features`; empty, it is the branch's root. The rest of the branch is never touched, so the branch can hold a site of its own beside the folder. Both actions keep `.nojekyll` and `CNAME` at the root of the folder the site goes into, so the site can go into the branch's root. Anything else there that `ghg` did not write, such as a `README.md`, is kept by naming it in `keep-in-output`, or in the configuration file's `keep_in_output`.
 
 Within that folder, `ghg` decides, as it does for any versioned site:
 
@@ -69,6 +70,7 @@ Within that folder, `ghg` decides, as it does for any versioned site:
 - A version of a name already there is replaced, so publishing the same version again brings it up to date.
 - A folder that holds anything `ghg` did not write, such as a page of another site, is refused, and nothing is written or deleted.
 - Previews go into `previews/pr-<number>` inside that folder, which `ghg` leaves alone.
+- When the input holds no feature file, nothing is published, and an earlier version or preview stays as it is.
 
 ### Publishing a version
 
@@ -139,9 +141,10 @@ Both actions take these inputs:
 | `to` | `github-pages` | Where the site is published; GitHub Pages deploying from a branch is the only place today. |
 | `branch` | `gh-pages` | The branch Pages serves. |
 | `folder` | the branch's root | The folder of `branch` the site goes into, such as `features`. |
-| `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install. |
+| `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install, 1.1.0 or newer. |
 | `token` | the workflow's own token | The token that reads Pages, pushes and comments on the workflow's own server, and lists the releases of `ghg` on github.com. |
 | `config`, `input`, `title`, `front-page` | empty | The options of `ghg build` of the same names, as for the root action. |
+| `keep-in-output` | empty | The patterns of what `ghg` leaves alone in the folder the site goes into, one on each line, after `/.nojekyll` and `/CNAME`, which are always kept. When it is empty, the configuration file's `keep_in_output` is used instead. |
 
 publish also takes `version-name`, the name of the version, by default the tag or branch that ran. preview also takes `changed-only`, `false` by default.
 

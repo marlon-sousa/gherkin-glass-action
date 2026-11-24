@@ -18336,12 +18336,12 @@ var require_eventsource_stream = __commonJS({
       }
       return true;
     }
-    function isFieldName(line, length, field3) {
-      if (length !== field3.length) {
+    function isFieldName(line, length, field2) {
+      if (length !== field2.length) {
         return false;
       }
       for (let i = 0; i < length; i++) {
-        if (line[i] !== field3[i]) {
+        if (line[i] !== field2[i]) {
           return false;
         }
       }
@@ -18542,13 +18542,13 @@ ${value}`;
           }
         }
       }
-      setEventFieldSize(field3, size) {
-        const eventSize = this.eventSize - this.eventFieldSizes[field3] + size;
+      setEventFieldSize(field2, size) {
+        const eventSize = this.eventSize - this.eventFieldSizes[field2] + size;
         if (this.maxEventSize > 0 && eventSize > this.maxEventSize) {
           throw createMaxEventSizeExceededError();
         }
         this.eventSize = eventSize;
-        this.eventFieldSizes[field3] = size;
+        this.eventFieldSizes[field2] = size;
       }
       /**
        * @param {EventSourceStreamEvent} event
@@ -21358,7 +21358,7 @@ var require_semver2 = __commonJS({
 });
 
 // paired-ghg.json
-var paired_ghg_default = { version: "1.0.0" };
+var paired_ghg_default = { version: "1.1.0" };
 
 // src/policies/versions.ts
 var IDENTIFIER = String.raw`(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)`;
@@ -21374,6 +21374,15 @@ function majorOf(version) {
 }
 function newestStable(releases, major) {
   return releases.filter((release) => !release.draft && !release.prerelease).map((release) => STABLE_TAG.exec(release.tag)).flatMap((match) => match ? [[match[1], match[2], match[3]].map(Number)] : []).filter(([releaseMajor]) => releaseMajor === major).sort(([, aMinor = 0, aPatch = 0], [, bMinor = 0, bPatch = 0]) => aMinor - bMinor || aPatch - bPatch).map((numbers) => numbers.join(".")).at(-1);
+}
+var FIRST_BUILDING = [1, 1, 0];
+function buildingProblem(version) {
+  const [numbers = "", preRelease] = version.split(/-(.*)/s);
+  const [major = 0, minor = 0, patch = 0] = numbers.split(".").map(Number);
+  const [firstMajor = 0, firstMinor = 0, firstPatch = 0] = FIRST_BUILDING;
+  const order = major - firstMajor || minor - firstMinor || patch - firstPatch;
+  const older = order < 0 || order === 0 && preRelease !== void 0;
+  return older ? { problem: `The action builds with ghg ${FIRST_BUILDING.join(".")} or newer, not ${version}.` } : void 0;
 }
 
 // src/action_stop.ts
@@ -21411,23 +21420,25 @@ function folderOf(input) {
   return folder.split("/").every((name) => name !== "" && name !== "." && name !== "..") ? folder : void 0;
 }
 
+// src/policies/json_field.ts
+function fieldOf(value, name) {
+  return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : void 0;
+}
+
 // src/policies/workflow_event.ts
 function previewEventOf(event) {
   if (event.name !== "pull_request") return { problem: `preview acts on a pull request, not on ${event.name}.` };
   const { payload } = event;
-  const pullRequest = field(payload, "number");
+  const pullRequest = fieldOf(payload, "number");
   if (typeof pullRequest !== "number") throw new Error("the pull request's event has no number");
-  const headRepository = field(field(field(field(payload, "pull_request"), "head"), "repo"), "full_name");
-  if (typeof headRepository !== "string" || headRepository !== field(field(payload, "repository"), "full_name")) {
+  const headRepository = fieldOf(fieldOf(fieldOf(fieldOf(payload, "pull_request"), "head"), "repo"), "full_name");
+  if (typeof headRepository !== "string" || headRepository !== fieldOf(fieldOf(payload, "repository"), "full_name")) {
     return { kind: "fork" };
   }
-  const action = field(payload, "action");
+  const action = fieldOf(payload, "action");
   if (action === "closed") return { kind: "closed", pullRequest };
-  const headCommit = field(field(field(payload, "pull_request"), "head"), "sha");
+  const headCommit = fieldOf(fieldOf(fieldOf(payload, "pull_request"), "head"), "sha");
   return { kind: "open", pullRequest, headCommit: typeof headCommit === "string" ? headCommit : void 0 };
-}
-function field(value, name) {
-  return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : void 0;
 }
 
 // src/services/installing.ts
@@ -21444,7 +21455,8 @@ var PLATFORMS = /* @__PURE__ */ new Map([
   ["Linux/ARM64", { target: "aarch64-unknown-linux-musl", packing: "tar.gz", binary: "ghg" }],
   ["macOS/X64", { target: "x86_64-apple-darwin", packing: "tar.gz", binary: "ghg" }],
   ["macOS/ARM64", { target: "aarch64-apple-darwin", packing: "tar.gz", binary: "ghg" }],
-  ["Windows/X64", { target: "x86_64-pc-windows-msvc", packing: "zip", binary: "ghg.exe" }]
+  ["Windows/X64", { target: "x86_64-pc-windows-msvc", packing: "zip", binary: "ghg.exe" }],
+  ["Windows/ARM64", { target: "aarch64-pc-windows-msvc", packing: "zip", binary: "ghg.exe" }]
 ]);
 function platformOf(system, processor) {
   return PLATFORMS.get(`${system}/${processor}`) ?? {
@@ -21456,8 +21468,10 @@ function archiveName(version, platform2) {
 }
 
 // src/services/installing.ts
-async function installGhg(version, platform2, pairedMajor, ports) {
+async function installGhg(version, platform2, building, pairedMajor, ports) {
   const installedVersion = version ?? await newestCompatible(pairedMajor, ports.releases);
+  const tooOld = building ? buildingProblem(installedVersion) : void 0;
+  if (tooOld !== void 0) throw new ActionStop(tooOld.problem);
   const folder = ports.toolCache.find(installedVersion) ?? await downloadGhg(installedVersion, platform2, ports);
   ports.runner.addToPath(folder);
   ports.runner.log(`ghg ${installedVersion} is installed.`);
@@ -22341,10 +22355,9 @@ function besideConfigOf(configFile) {
 function configuredPaths(configText) {
   if (configText === void 0) return {};
   try {
-    const { input, output, front_page: frontPage } = parse(configText);
+    const { input, front_page: frontPage } = parse(configText);
     return {
       ...typeof input === "string" && { input },
-      ...typeof output === "string" && { output },
       ...typeof frontPage === "string" && { frontPage }
     };
   } catch {
@@ -22352,30 +22365,116 @@ function configuredPaths(configText) {
   }
 }
 
+// src/services/publishing.ts
+var import_node_path7 = __toESM(require("node:path"), 1);
+
+// src/policies/build_arguments.ts
+var BUILD_OPTIONS = [
+  { name: "config", takes: "value" },
+  { name: "input", takes: "value" },
+  { name: "output", takes: "value" },
+  { name: "title", takes: "value" },
+  { name: "version-name", takes: "value" },
+  { name: "front-page", takes: "value" },
+  { name: "only", takes: "value" },
+  { name: "preview", takes: "nothing" },
+  { name: "keep-in-output", takes: "lines" }
+];
+function buildArguments(inputOf) {
+  const passed = [];
+  for (const option of BUILD_OPTIONS) {
+    const value = inputOf(option.name);
+    if (option.takes === "value") {
+      if (value !== "") passed.push(`--${option.name}=${value}`);
+      continue;
+    }
+    if (option.takes === "lines") {
+      passed.push(...linesOf(value).map((line) => `--${option.name}=${line}`));
+      continue;
+    }
+    const given = trueOrFalse(option.name, value);
+    if (typeof given !== "boolean") return given;
+    if (given) passed.push(`--${option.name}`);
+  }
+  return passed;
+}
+function trueOrFalse(name, input) {
+  if (input === "true") return true;
+  if (input === "false" || input === "") return false;
+  return { problem: `${name} must be true or false.` };
+}
+function linesOf(input) {
+  return input.split(/\r?\n/).filter((line) => line.trim() !== "");
+}
+
+// src/policies/kept_in_output.ts
+var PAGES_FILES = ["/.nojekyll", "/CNAME"];
+function keptInOutputArguments(keepInOutput, configText) {
+  const given = linesOf(keepInOutput);
+  const patterns = given.length > 0 ? given : configuredPatterns(configText);
+  return [...PAGES_FILES, ...patterns].map((pattern) => `--keep-in-output=${pattern}`);
+}
+function configuredPatterns(configText) {
+  if (configText === void 0) return [];
+  try {
+    const { keep_in_output: patterns } = parse(configText);
+    const texts = Array.isArray(patterns) && patterns.every((pattern) => typeof pattern === "string");
+    return texts ? patterns.filter((pattern) => pattern !== "") : [];
+  } catch {
+    return [];
+  }
+}
+
+// src/policies/build_report.ts
+var NO_REPORT_PROBLEM = "ghg build gave no report of how it ended.";
+var NO_REPORT = { problem: NO_REPORT_PROBLEM };
+function buildReportOf(standardOutput) {
+  const lastLine = standardOutput.trimEnd().split(/\r?\n/).at(-1) ?? "";
+  let report;
+  try {
+    report = JSON.parse(lastLine);
+  } catch {
+    return NO_REPORT;
+  }
+  const [outcome, output, errors] = ["outcome", "output", "errors"].map((name) => fieldOf(report, name));
+  if (outcome === "built" && typeof output === "string") return { outcome, output };
+  if (outcome === "nothing-to-build") return { outcome };
+  if (outcome === "stopped" && Array.isArray(errors)) return { outcome, errors: errors.flatMap(problemOf) };
+  return NO_REPORT;
+}
+function problemOf(error2) {
+  const [path16, line, message] = ["path", "line", "message"].map((name) => fieldOf(error2, name));
+  if (typeof path16 !== "string" || typeof message !== "string") return [];
+  return [{ path: path16, line: typeof line === "number" ? line : void 0, message }];
+}
+
 // src/policies/report_annotations.ts
 var import_node_path6 = __toESM(require("node:path"), 1);
-var FILE_AND_LINE = /^(.+?):(\d+): (.+)$/;
-function annotationOf(reportLine, paths) {
-  const match = FILE_AND_LINE.exec(reportLine.trimEnd());
-  if (!match) return void 0;
-  const [, reported = "", line = "", message = ""] = match;
-  const fromWorkspace = paths.workspaceFiles.includes(import_node_path6.default.normalize(reported));
-  const file = fromWorkspace ? reported : import_node_path6.default.join(paths.inputFolder, reported);
-  return { file: file.split(import_node_path6.default.sep).join("/"), line: Number(line), message };
+function annotationOf(problem, paths) {
+  if (problem.line === void 0) return void 0;
+  const fromWorkspace = paths.workspaceFiles.includes(import_node_path6.default.normalize(problem.path));
+  const file = fromWorkspace ? problem.path : import_node_path6.default.join(paths.inputFolder, problem.path);
+  return { file: file.split(import_node_path6.default.sep).join("/"), line: problem.line, message: problem.message };
 }
 
 // src/services/building.ts
 async function buildSite(ghg, request, ports) {
-  const paths = reportPathsOf({ ...request, configText: await ports.files.readText(request.configFile) });
-  const status = await ports.process.run(ghg, ["build", ...request.buildArguments], (line) => {
-    const annotation = annotationOf(line, paths);
-    if (annotation !== void 0) ports.runner.annotate(annotation);
-  });
-  if (status !== 0) throw new ActionStop(`ghg build stopped with status ${status}.`);
+  const run = await ports.process.run(ghg, ["build", ...request.buildArguments, "--message-format=json"]);
+  const report = buildReportOf(run.standardOutput);
+  if ("outcome" in report && report.outcome === "stopped") {
+    const paths = reportPathsOf({ ...request, configText: await ports.files.readText(request.configFile) });
+    for (const problem of report.errors) {
+      const annotation = annotationOf(problem, paths);
+      if (annotation !== void 0) ports.runner.annotate(annotation);
+    }
+  }
+  if (run.status !== 0) throw new ActionStop(`ghg build stopped with status ${run.status}.`);
+  const passed = orStop(report);
+  if (passed.outcome === "stopped") throw new ActionStop(NO_REPORT_PROBLEM);
+  return passed;
 }
 
 // src/services/publishing.ts
-var import_node_path7 = __toESM(require("node:path"), 1);
 var ATTEMPTS = 3;
 async function servedSiteOf(site, ports) {
   const settings = await ports.repository.pagesSettings();
@@ -22407,8 +22506,12 @@ async function changeBranch(branch, served, change, ports) {
 function pushRefusedProblem(branch) {
   return `The site cannot be pushed to ${branch}: the workflow needs the permission contents: write.`;
 }
-function outputArgumentOf(checkout, folder) {
-  return `--output=${import_node_path7.default.join(checkout, ...folder.split("/"))}`;
+async function buildIntoBranch(ghg, request, output, added, ports) {
+  const kept = keptInOutputArguments(request.keepInOutput, await ports.files.readText(request.build.configFile));
+  const outputArgument = `--output=${import_node_path7.default.join(output.checkout, ...output.folder.split("/"))}`;
+  const buildArguments2 = [...request.build.buildArguments, ...kept, outputArgument, ...added];
+  const built = await buildSite(ghg, { ...request.build, buildArguments: buildArguments2 }, ports);
+  return built.outcome === "built";
 }
 
 // src/services/publishing_preview.ts
@@ -22426,6 +22529,7 @@ async function publishPreview(ghg, request, event, ports) {
   const comment = await previewCommentOn(event.pullRequest, ports);
   const builtFrom = comment === void 0 ? void 0 : builtFromOf(comment.body);
   const sourcesKept = await keepsSources(builtFrom, event.headCommit, paths, ports);
+  let nothingToBuild = false;
   const outcome = await changeBranch(
     request.branch,
     served,
@@ -22434,13 +22538,16 @@ async function publishPreview(ghg, request, event, ports) {
       apply: async (checkout) => {
         const output = import_node_path8.default.join(checkout, ...folder.split("/"));
         if (sourcesKept && await ports.files.isFile(import_node_path8.default.join(output, SITE_MARKER))) return false;
-        const how = [outputArgumentOf(checkout, folder), "--preview", ...only];
-        await buildSite(ghg, { ...request.build, buildArguments: [...request.build.buildArguments, ...how] }, ports);
-        return true;
+        nothingToBuild = !await buildIntoBranch(ghg, request, { checkout, folder }, ["--preview", ...only], ports);
+        return !nothingToBuild;
       }
     },
     ports
   );
+  if (nothingToBuild) {
+    ports.runner.log("ghg read no feature file, so no preview is published.");
+    return;
+  }
   const address = addressOf(served, folder);
   if (outcome === "left") {
     ports.runner.log("The commits since the preview was built change no file it is built from, so the preview is left as it is.");
@@ -22492,37 +22599,6 @@ async function writeComment(pullRequest, comment, body, ports) {
   if (!written) throw new ActionStop(COMMENT_PROBLEM);
 }
 
-// src/policies/build_arguments.ts
-var BUILD_OPTIONS = [
-  { name: "config", takesValue: true },
-  { name: "input", takesValue: true },
-  { name: "output", takesValue: true },
-  { name: "title", takesValue: true },
-  { name: "version-name", takesValue: true },
-  { name: "front-page", takesValue: true },
-  { name: "only", takesValue: true },
-  { name: "preview", takesValue: false }
-];
-function buildArguments(inputOf) {
-  const passed = [];
-  for (const option of BUILD_OPTIONS) {
-    const value = inputOf(option.name);
-    if (option.takesValue) {
-      if (value !== "") passed.push(`--${option.name}=${value}`);
-      continue;
-    }
-    const given = trueOrFalse(option.name, value);
-    if (typeof given !== "boolean") return given;
-    if (given) passed.push(`--${option.name}`);
-  }
-  return passed;
-}
-function trueOrFalse(name, input) {
-  if (input === "true") return true;
-  if (input === "false" || input === "") return false;
-  return { problem: `${name} must be true or false.` };
-}
-
 // src/services/reading_inputs.ts
 function readInstallRequest(runner) {
   const versionInput = runner.input("ghg-version");
@@ -22535,7 +22611,6 @@ function buildRequestOf(passed, inputOf) {
   return {
     buildArguments: passed,
     input: inputOf("input"),
-    output: inputOf("output"),
     frontPage: inputOf("front-page"),
     configFile: configFileOf(inputOf("config"))
   };
@@ -22547,7 +22622,8 @@ function readSiteRequest(runner) {
   const site = orStop(siteInputsOf((name) => runner.input(name)));
   const inputOf = (name) => SITE_BUILD_INPUTS.includes(name) ? runner.input(name) : "";
   const passed = orStop(buildArguments(inputOf));
-  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf) };
+  const keepInOutput = runner.input("keep-in-output");
+  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput };
 }
 
 // src/services/running_site_actions.ts
@@ -22569,7 +22645,7 @@ async function runSiteAction(pairedMajor, ports, publishingOf) {
     const publishing = publishingOf(request, ports.runner);
     if (publishing === void 0) return;
     const installedGhg = async () => {
-      const ghg = await installGhg(request.install.version, request.install.platform, pairedMajor, {
+      const ghg = await installGhg(request.install.version, request.install.platform, true, pairedMajor, {
         ...ports,
         releases: ports.releasesWith(request.install.releasesToken)
       });
@@ -25113,25 +25189,14 @@ var ActionsToolCache = class {
 // src/adapters/exec_ghg_process.ts
 var import_node_string_decoder = require("node:string_decoder");
 var ExecGhgProcess = class {
-  // Standard error is split into lines here, not by the errline listener: @actions/exec
-  // gives errline only text that ends in os.EOL, which is \r\n on Windows, and emits what
-  // is left at the end on its ToolRunner, which exec() does not listen to (lib/toolrunner.js,
-  // lines 75 to 86 and 443 to 449, at 3.0.0). ghg ends its lines with \n on every system.
-  async run(program, commandArguments, onErrorLine) {
+  async run(program, commandArguments) {
     const decoder = new import_node_string_decoder.StringDecoder("utf8");
-    let unfinished = "";
-    const giveLines = (text) => {
-      const lines = (unfinished + text).split(/\r?\n/);
-      unfinished = lines.pop() ?? "";
-      lines.filter((line) => line !== "").forEach(onErrorLine);
-    };
+    let standardOutput = "";
     const status = await exec(program, [...commandArguments], {
       ignoreReturnCode: true,
-      listeners: { stderr: (data) => giveLines(decoder.write(data)) }
+      listeners: { stdout: (data) => standardOutput += decoder.write(data) }
     });
-    giveLines(decoder.end());
-    if (unfinished !== "") onErrorLine(unfinished);
-    return status;
+    return { status, standardOutput: standardOutput + decoder.end() };
   }
 };
 
@@ -25333,8 +25398,8 @@ var GitHubRepositoryApi = class {
   // "Compare two commits"). A list that may be cut short cannot tell that no file matters.
   async compareCommits(before, after) {
     const response = await this.request("GET", `/compare/${before}...${after}`);
-    const files = field2(response?.body, "files");
-    const status = field2(response?.body, "status");
+    const files = field(response?.body, "files");
+    const status = field(response?.body, "status");
     if (response?.status !== 200 || !Array.isArray(files) || !["ahead", "identical"].includes(String(status))) return void 0;
     if (files.length >= COMPARED_FILES) return void 0;
     return changedFilesOf(files);
@@ -25383,11 +25448,11 @@ var GitHubRepositoryApi = class {
   }
 };
 function pagesSettingsOf(body) {
-  const address = field2(body, "html_url");
+  const address = field(body, "html_url");
   if (typeof address !== "string") return void 0;
-  const buildType = field2(body, "build_type");
-  const branch = field2(field2(body, "source"), "branch");
-  const path16 = field2(field2(body, "source"), "path");
+  const buildType = field(body, "build_type");
+  const branch = field(field(body, "source"), "branch");
+  const path16 = field(field(body, "source"), "path");
   return {
     buildType: typeof buildType === "string" ? buildType : void 0,
     branch: typeof branch === "string" ? branch : void 0,
@@ -25398,25 +25463,25 @@ function pagesSettingsOf(body) {
 function changedFilesOf(files) {
   return everyOrNone(
     files.map((file) => {
-      const filename = field2(file, "filename");
-      const status = field2(file, "status");
+      const filename = field(file, "filename");
+      const status = field(file, "status");
       if (typeof filename !== "string" || typeof status !== "string") return void 0;
-      const previous = field2(file, "previous_filename");
+      const previous = field(file, "previous_filename");
       const moved = typeof previous === "string" ? [{ path: previous, removed: true }] : [];
       return [{ path: filename, removed: status === "removed" }, ...moved];
     })
   )?.flat();
 }
 function commentOf(comment) {
-  const id = field2(comment, "id");
-  const body = field2(comment, "body");
+  const id = field(comment, "id");
+  const body = field(comment, "body");
   return typeof id === "number" && typeof body === "string" ? { id, body } : void 0;
 }
 function everyOrNone(items) {
   const every = items.filter((item) => item !== void 0);
   return every.length === items.length ? every : void 0;
 }
-function field2(value, name) {
+function field(value, name) {
   return typeof value === "object" && value !== null && name in value ? Reflect.get(value, name) : void 0;
 }
 

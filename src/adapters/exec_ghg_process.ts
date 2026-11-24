@@ -2,28 +2,20 @@
 
 import { StringDecoder } from "node:string_decoder";
 import { exec } from "@actions/exec";
-import type { GhgProcess } from "../ports/ghg_process.ts";
+import type { GhgProcess, GhgRun } from "../ports/ghg_process.ts";
 
 export class ExecGhgProcess implements GhgProcess {
-  // Standard error is split into lines here, not by the errline listener: @actions/exec
-  // gives errline only text that ends in os.EOL, which is \r\n on Windows, and emits what
-  // is left at the end on its ToolRunner, which exec() does not listen to (lib/toolrunner.js,
-  // lines 75 to 86 and 443 to 449, at 3.0.0). ghg ends its lines with \n on every system.
-  async run(program: string, commandArguments: readonly string[], onErrorLine: (line: string) => void): Promise<number> {
+  async run(program: string, commandArguments: readonly string[]): Promise<GhgRun> {
     // A character may be cut between two chunks, which the decoder joins again.
     const decoder = new StringDecoder("utf8");
-    let unfinished = "";
-    const giveLines = (text: string) => {
-      const lines = (unfinished + text).split(/\r?\n/);
-      unfinished = lines.pop() ?? "";
-      lines.filter((line) => line !== "").forEach(onErrorLine);
-    };
+    let standardOutput = "";
+    // @actions/exec gives the stdout listener every chunk, and still writes both streams to the
+    // step's log, the command line it prints going to the log alone (lib/toolrunner.js, lines
+    // 330 to 331 and 389 to 414, at 3.0.0).
     const status = await exec(program, [...commandArguments], {
       ignoreReturnCode: true,
-      listeners: { stderr: (data: Buffer) => giveLines(decoder.write(data)) },
+      listeners: { stdout: (data: Buffer) => (standardOutput += decoder.write(data)) },
     });
-    giveLines(decoder.end());
-    if (unfinished !== "") onErrorLine(unfinished);
-    return status;
+    return { status, standardOutput: standardOutput + decoder.end() };
   }
 }

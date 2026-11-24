@@ -13,6 +13,8 @@ export interface SiteRequest extends SiteInputs {
   readonly token: string;
   /** The build of what is published, before the action adds where it is written and how. */
   readonly build: BuildRequest;
+  /** The input keep-in-output, which the action passes after the files Pages reads. */
+  readonly keepInOutput: string;
 }
 
 /** The request the shared inputs make, or an ActionStop with the first problem among them. */
@@ -22,5 +24,6 @@ export function readSiteRequest(runner: Runner): SiteRequest {
   // The action chooses the other options of ghg build itself.
   const inputOf = (name: string) => (SITE_BUILD_INPUTS.includes(name) ? runner.input(name) : "");
   const passed = orStop(buildArguments(inputOf));
-  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf) };
+  const keepInOutput = runner.input("keep-in-output");
+  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput };
 }

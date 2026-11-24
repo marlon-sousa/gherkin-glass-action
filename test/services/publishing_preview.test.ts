@@ -6,6 +6,7 @@ import { test } from "node:test";
 import { ActionStop } from "../../src/action_stop.ts";
 import type { PushOutcome } from "../../src/ports/site_branch.ts";
 import { publishPreview, removePreview, type OpenPullRequest } from "../../src/services/publishing_preview.ts";
+import { FakeGhgProcess, ghgReport } from "../support/fakes.ts";
 import { FakeRepository, publishingPorts, siteRequest } from "../support/publishing_fakes.ts";
 
 const OPENED: OpenPullRequest = { kind: "open", pullRequest: 12, headCommit: undefined };
@@ -25,9 +26,16 @@ function builtFromAaa(compared: FakeRepository["comparedFiles"]): FakeRepository
 
 function previewing(
   event: OpenPullRequest | "closed",
-  options: { outcomes?: PushOutcome[]; repository?: FakeRepository; changedOnly?: boolean; onBranch?: string[] } = {},
+  options: {
+    outcomes?: PushOutcome[];
+    repository?: FakeRepository;
+    changedOnly?: boolean;
+    onBranch?: string[];
+    process?: FakeGhgProcess;
+  } = {},
 ) {
-  const used = publishingPorts(options.outcomes, options.repository, [".nojekyll", ...(options.onBranch ?? [])]);
+  const onBranch = [".nojekyll", ...(options.onBranch ?? [])];
+  const used = publishingPorts(options.outcomes, options.repository, onBranch, options.process);
   const request = { ...siteRequest(), changedOnly: options.changedOnly ?? false };
   return {
     used,
@@ -43,7 +51,16 @@ test("a pull request's preview is built with --preview into its folder, and its 
   const { used, run } = previewing(OPENED);
   await run();
   assert.deepEqual(used.process.runs, [
-    ["ghg", "build", "--title=T", `--output=${path.join("checkout-1", "previews", "pr-12")}`, "--preview"],
+    [
+      "ghg",
+      "build",
+      "--title=T",
+      "--keep-in-output=/.nojekyll",
+      "--keep-in-output=/CNAME",
+      `--output=${path.join("checkout-1", "previews", "pr-12")}`,
+      "--preview",
+      "--message-format=json",
+    ],
   ]);
   assert.deepEqual(used.siteBranch.steps, ["check out", "push Publish the preview of pull request #12"]);
   assert.deepEqual(used.runner.logged, [`The site is published on gh-pages, at ${ADDRESS}.`]);
@@ -97,7 +114,7 @@ test("changed-only gives ghg the changed files of the input folder, or publishes
   ];
   const narrowed = previewing(OPENED, { repository, changedOnly: true });
   await narrowed.run();
-  assert.deepEqual(narrowed.used.process.runs[0]?.slice(-1), ["--only=temporary/changed-files.txt"]);
+  assert.deepEqual(narrowed.used.process.runs[0]?.slice(-2, -1), ["--only=temporary/changed-files.txt"]);
   assert.equal(narrowed.used.files.texts.get("temporary/changed-files.txt"), "features/a.feature\n");
   repository.changedFiles = [{ path: "features/a.feature", removed: true }];
   const none = previewing(OPENED, { repository, changedOnly: true });
@@ -142,4 +159,15 @@ test("the preview is built all the same when a source changed, it is missing, th
     await run();
     assert.equal(used.process.runs.length, 1);
   }
+});
+
+test("nothing to build leaves an earlier preview and its comment as they are, and says so", async () => {
+  const repository = builtFromAaa([{ path: "features/notes.md", removed: false }]);
+  const process = new FakeGhgProcess(ghgReport({ outcome: "nothing-to-build", output: null }));
+  const { used, run } = previewing(PUSHED, { repository, onBranch: [MARKER], process });
+  await run();
+  assert.deepEqual(used.siteBranch.steps, ["check out"]);
+  assert.deepEqual(used.runner.logged, ["ghg read no feature file, so no preview is published."]);
+  assert.equal(used.runner.outputs.get("address"), undefined);
+  assert.deepEqual(repository.written, []);
 });

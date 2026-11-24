@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 19, 23 to 25: the publish and preview actions from their inputs to their end.
+// Tests docs/BEHAVIOUR.md, rules 2, 19 and 23 to 25: the publish and preview actions from their inputs to their end.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -37,6 +37,19 @@ function pullRequest(action: string, headRepository = "owner/repo") {
     payload: { action, number: 12, pull_request: { head: { repo: { full_name: headRepository } } }, repository },
   };
 }
+
+test("publish and preview build only with ghg 1.1.0 or newer, and stop before installing an older one", async () => {
+  const publishing = new FakeRunner({ ...SHARED, "ghg-version": "1.0.0" });
+  publishing.event = { name: "push", refName: "main", payload: {} };
+  await runPublish(1, ports(publishing));
+  const previewing = new FakeRunner({ ...SHARED, "ghg-version": "1.0.0" });
+  previewing.event = pullRequest("opened");
+  await runPreview(1, ports(previewing));
+  for (const runner of [publishing, previewing]) {
+    assert.deepEqual(runner.failures, ["The action builds with ghg 1.1.0 or newer, not 1.0.0."]);
+    assert.deepEqual(runner.path, []);
+  }
+});
 
 test("publish installs ghg and publishes a version named by the branch, with the token the inputs give", async () => {
   const runner = new FakeRunner({ ...SHARED });
