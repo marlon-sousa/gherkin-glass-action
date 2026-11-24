@@ -79,7 +79,7 @@
 <div class="ghg-page">
 <nav class="ghg-breadcrumb" aria-label="Breadcrumb">
 <ol>
-<li><a href="index.html">gherkin-glass-action&#39;s behaviour</a></li>
+<li><a href="index.html">gherkin-glass-action&#39;s behaviour, pull request #20</a></li>
 <li><a href="preview_action.html" aria-current="page">Feature: <bdi>Previewing a pull request&#39;s feature files on GitHub Pages</bdi></a></li>
 </ol>
 </nav>
@@ -108,6 +108,9 @@ its address in one comment, and removes it when the pull request closes (docs/BE
 <li><a href="#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is">Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></a></li>
 <li><a href="#a-preview-whose-sources-have-not-changed-is-not-built-again">Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></a></li>
 <li><a href="#a-preview-whose-sources-changed-is-built-again">Scenario: <bdi>A preview whose sources changed is built again</bdi></a></li>
+<li><a href="#a-previews-title-is-the-configuration-files-naming-the-pull-request">Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></a></li>
+<li><a href="#the-input-title-wins-over-the-configuration-files">Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></a></li>
+<li><a href="#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request">Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></a></li>
 </ul>
 </nav>
 <div class="ghg-controls">
@@ -536,6 +539,116 @@ its address in one comment, and removes it when the pull request closes (docs/BE
 <li><span class="ghg-keyword">And </span>the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> holds <span class="ghg-parameter">&#34;previews/pr-12/shop/checkout.html&#34;</span></li>
 <li><span class="ghg-keyword">And </span>the newest commit of <span class="ghg-parameter">&#34;gh-pages&#34;</span> says <span class="ghg-parameter">&#34;Publish the preview of pull request #12&#34;</span></li>
 <li><span class="ghg-keyword">And </span>the preview&#39;s comment is edited to say <span class="ghg-parameter">&#34;&#60;!-- built from bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb --&#62;&#34;</span></li>
+</ol>
+</div>
+</div>
+<div class="ghg-block ghg-scenario">
+<h2 id="a-previews-title-is-the-configuration-files-naming-the-pull-request"><button type="button" class="ghg-toggle" aria-expanded="true">Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></button></h2>
+<div class="ghg-content">
+<ul class="ghg-tags">
+<li><a href="tags/rule-30.html">@rule-30</a></li>
+</ul>
+<div class="ghg-block ghg-background-in-scenario" data-expanded-when-unchecked="false">
+<h3 id="a-previews-title-is-the-configuration-files-naming-the-pull-request_background_1"><button type="button" class="ghg-toggle" aria-expanded="true">From the background</button></h3>
+<div class="ghg-content">
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the repository holds the feature file <span class="ghg-parameter">&#34;features/shop/basket.feature&#34;</span></li>
+<li><span class="ghg-keyword">And </span>Pages deploys from the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span>, serving <span class="ghg-parameter">&#34;/&#34;</span></li>
+</ol>
+</div>
+</div>
+<h3 class="ghg-steps-heading">From the scenario</h3>
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> holds:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">.nojekyll</th></tr>
+</thead>
+</table></li>
+<li><span class="ghg-keyword">And </span>the repository holds the file <span class="ghg-parameter">&#34;ghg.toml&#34;</span> with &#39;title = <span class="ghg-parameter">&#34;Shop&#34;</span>&#39;</li>
+<li><span class="ghg-keyword">And </span>pull request #<span class="ghg-number">12</span> has no comment</li>
+<li><span class="ghg-keyword">When </span>pull request #<span class="ghg-number">12</span> is opened, and runs the preview action with:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">ghg-version</th><th scope="col">1.1.0</th></tr>
+</thead>
+</table></li>
+<li><span class="ghg-keyword">Then </span>the action passes</li>
+<li><span class="ghg-keyword">And </span>the page <span class="ghg-parameter">&#34;previews/pr-12/index.html&#34;</span> of the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> says <span class="ghg-parameter">&#34;&#60;title&#62;Shop, pull request #12&#60;/title&#62;&#34;</span></li>
+</ol>
+</div>
+</div>
+<div class="ghg-block ghg-scenario">
+<h2 id="the-input-title-wins-over-the-configuration-files"><button type="button" class="ghg-toggle" aria-expanded="true">Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></button></h2>
+<div class="ghg-content">
+<ul class="ghg-tags">
+<li><a href="tags/rule-30.html">@rule-30</a></li>
+</ul>
+<div class="ghg-block ghg-background-in-scenario" data-expanded-when-unchecked="false">
+<h3 id="the-input-title-wins-over-the-configuration-files_background_1"><button type="button" class="ghg-toggle" aria-expanded="true">From the background</button></h3>
+<div class="ghg-content">
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the repository holds the feature file <span class="ghg-parameter">&#34;features/shop/basket.feature&#34;</span></li>
+<li><span class="ghg-keyword">And </span>Pages deploys from the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span>, serving <span class="ghg-parameter">&#34;/&#34;</span></li>
+</ol>
+</div>
+</div>
+<h3 class="ghg-steps-heading">From the scenario</h3>
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> holds:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">.nojekyll</th></tr>
+</thead>
+</table></li>
+<li><span class="ghg-keyword">And </span>the repository holds the file <span class="ghg-parameter">&#34;ghg.toml&#34;</span> with &#39;title = <span class="ghg-parameter">&#34;Shop&#34;</span>&#39;</li>
+<li><span class="ghg-keyword">And </span>pull request #<span class="ghg-number">12</span> has no comment</li>
+<li><span class="ghg-keyword">When </span>pull request #<span class="ghg-number">12</span> is opened, and runs the preview action with:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">ghg-version</th><th scope="col">1.1.0</th></tr>
+</thead>
+<tbody>
+<tr><td>title</td><td>Our shop</td></tr>
+</tbody>
+</table></li>
+<li><span class="ghg-keyword">Then </span>the action passes</li>
+<li><span class="ghg-keyword">And </span>the page <span class="ghg-parameter">&#34;previews/pr-12/index.html&#34;</span> of the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> says <span class="ghg-parameter">&#34;&#60;title&#62;Our shop, pull request #12&#60;/title&#62;&#34;</span></li>
+</ol>
+</div>
+</div>
+<div class="ghg-block ghg-scenario">
+<h2 id="without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><button type="button" class="ghg-toggle" aria-expanded="true">Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></button></h2>
+<div class="ghg-content">
+<ul class="ghg-tags">
+<li><a href="tags/rule-30.html">@rule-30</a></li>
+</ul>
+<div class="ghg-block ghg-background-in-scenario" data-expanded-when-unchecked="false">
+<h3 id="without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request_background_1"><button type="button" class="ghg-toggle" aria-expanded="true">From the background</button></h3>
+<div class="ghg-content">
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the repository holds the feature file <span class="ghg-parameter">&#34;features/shop/basket.feature&#34;</span></li>
+<li><span class="ghg-keyword">And </span>Pages deploys from the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span>, serving <span class="ghg-parameter">&#34;/&#34;</span></li>
+</ol>
+</div>
+</div>
+<h3 class="ghg-steps-heading">From the scenario</h3>
+<ol class="ghg-steps">
+<li><span class="ghg-keyword">Given </span>the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> holds:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">.nojekyll</th></tr>
+</thead>
+</table></li>
+<li><span class="ghg-keyword">And </span>pull request #<span class="ghg-number">12</span> has no comment</li>
+<li><span class="ghg-keyword">When </span>pull request #<span class="ghg-number">12</span> is opened, and runs the preview action with:
+<table class="ghg-table">
+<thead>
+<tr><th scope="col">ghg-version</th><th scope="col">1.1.0</th></tr>
+</thead>
+</table></li>
+<li><span class="ghg-keyword">Then </span>the action passes</li>
+<li><span class="ghg-keyword">And </span>the page <span class="ghg-parameter">&#34;previews/pr-12/index.html&#34;</span> of the branch <span class="ghg-parameter">&#34;gh-pages&#34;</span> says <span class="ghg-parameter">&#34;&#60;title&#62;Feature files, pull request #12&#60;/title&#62;&#34;</span></li>
 </ol>
 </div>
 </div>
