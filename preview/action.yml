@@ -36,7 +36,7 @@ inputs:
     required: false
     default: ""
   title:
-    description: The --title option of ghg build, the site's title. Left out when empty.
+    description: The site's title, passed to ghg build as --title, followed by ", pull request #<number>". When empty, the title of the configuration file, or else Feature files, is followed by it.
     required: false
     default: ""
   front-page:

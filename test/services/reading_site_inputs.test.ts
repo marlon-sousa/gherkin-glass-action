@@ -25,12 +25,13 @@ test("the shared inputs name the branch, the folder, the token and the build", (
   assert.equal(request.install.version, "1.2.0");
   assert.equal(request.install.releasesToken, "a-token");
   assert.deepEqual(request.build, {
-    buildArguments: ["--title=T", "--front-page=front.md"],
+    buildArguments: ["--front-page=front.md"],
     input: "",
     frontPage: "front.md",
     configFile: "ghg.toml",
   });
   assert.equal(request.keepInOutput, "README.md");
+  assert.equal(request.title, "T");
 });
 
 test("the token reads Pages and pushes on any server, though it lists releases only on github.com", () => {

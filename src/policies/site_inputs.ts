@@ -10,8 +10,11 @@ export interface SiteInputs {
   readonly folder: string;
 }
 
-/** The options of ghg build that the publish and preview actions take as inputs; they choose the rest themselves. */
-export const SITE_BUILD_INPUTS: readonly string[] = ["config", "input", "title", "front-page"];
+/**
+ * The options of ghg build that the publish and preview actions pass from their inputs as they are;
+ * they choose the rest themselves, and pass title themselves, since preview adds to it (rule 30).
+ */
+export const SITE_BUILD_INPUTS: readonly string[] = ["config", "input", "front-page"];
 
 /** Where the inputs ask the site to be published, or the sentence the action stops with. */
 export function siteInputsOf(inputOf: (name: string) => string): SiteInputs | { readonly problem: string } {

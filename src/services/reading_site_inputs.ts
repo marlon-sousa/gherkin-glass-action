@@ -15,6 +15,8 @@ export interface SiteRequest extends SiteInputs {
   readonly build: BuildRequest;
   /** The input keep-in-output, which the action passes after the files Pages reads. */
   readonly keepInOutput: string;
+  /** The input title, empty when it is not given, which each action passes itself. */
+  readonly title: string;
 }
 
 /** The request the shared inputs make, or an ActionStop with the first problem among them. */
@@ -25,5 +27,6 @@ export function readSiteRequest(runner: Runner): SiteRequest {
   const inputOf = (name: string) => (SITE_BUILD_INPUTS.includes(name) ? runner.input(name) : "");
   const passed = orStop(buildArguments(inputOf));
   const keepInOutput = runner.input("keep-in-output");
-  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput };
+  const title = runner.input("title");
+  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput, title };
 }

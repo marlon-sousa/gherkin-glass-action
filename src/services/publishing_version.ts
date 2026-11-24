@@ -21,8 +21,7 @@ export async function publishVersion(ghg: string, request: VersionRequest, ports
     served,
     {
       message: `Publish the site's version ${request.versionName}`,
-      apply: (checkout) =>
-        buildIntoBranch(ghg, request, { checkout, folder: request.folder }, [`--version-name=${request.versionName}`], ports),
+      apply: (checkout) => buildIntoBranch(ghg, request, { checkout, folder: request.folder }, versionArguments(request), ports),
     },
     ports,
   );
@@ -34,4 +33,10 @@ export async function publishVersion(ghg: string, request: VersionRequest, ports
   const address = addressOf(served, posix.join(request.folder, request.versionName));
   if (outcome === "pushed") ports.runner.log(`The site is published on ${request.branch}, at ${address}.`);
   ports.runner.setOutput("address", address);
+}
+
+// The title as the input gives it, left out when empty as rule 8 says, and the version's name.
+function versionArguments(request: VersionRequest): readonly string[] {
+  const title = request.title === "" ? [] : [`--title=${request.title}`];
+  return [...title, `--version-name=${request.versionName}`];
 }

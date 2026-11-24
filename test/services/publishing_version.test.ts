@@ -23,9 +23,9 @@ test("a versioned build goes into folder of the branch, and the log and the outp
     [
       "ghg",
       "build",
-      "--title=T",
       ...KEPT,
       `--output=${path.join("checkout-1", "features")}`,
+      "--title=T",
       "--version-name=v1.2.0",
       "--message-format=json",
     ],
@@ -39,8 +39,14 @@ test("a versioned build goes into folder of the branch, and the log and the outp
 test("a folder left empty publishes into the branch's root", async () => {
   const { used, run } = publishing(["pushed"], "");
   await run();
-  assert.equal(used.process.runs[0]?.[5], "--output=checkout-1");
+  assert.equal(used.process.runs[0]?.[4], "--output=checkout-1");
   assert.equal(used.runner.outputs.get("address"), "https://owner.github.io/repo/v1.2.0/");
+});
+
+test("an empty input title is left out, so that the configuration file's applies", async () => {
+  const used = publishingPorts(["pushed"]);
+  await publishVersion("ghg", { ...siteRequest({ title: "" }), versionName: "v1.2.0" }, used);
+  assert.ok(!used.process.runs[0]?.some((argument) => argument.startsWith("--title")));
 });
 
 test("a version already published gives its address all the same", async () => {
@@ -54,7 +60,7 @@ test("without the input keep-in-output, the configuration file's patterns follow
   const { used, run } = publishing();
   used.files.texts.set("ghg.toml", 'keep_in_output = ["README.md"]');
   await run();
-  assert.deepEqual(used.process.runs[0]?.slice(3, 6), [...KEPT, "--keep-in-output=README.md"]);
+  assert.deepEqual(used.process.runs[0]?.slice(2, 5), [...KEPT, "--keep-in-output=README.md"]);
 });
 
 test("nothing to build publishes nothing, and says so", async () => {

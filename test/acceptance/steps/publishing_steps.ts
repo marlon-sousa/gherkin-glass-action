@@ -76,6 +76,10 @@ Then("the branch {string} does not hold {string}", function (this: ScenarioWorld
   assert.ok(!this.siteRepository.filesOf(branch).some((held) => held === file || held.startsWith(`${file}/`)));
 });
 
+Then("the page {string} of the branch {string} says {string}", function (this: ScenarioWorld, file: string, branch: string, text: string) {
+  assert.ok(this.siteRepository.textOf(branch, file).includes(text), `${file} of ${branch} does not say ${text}.`);
+});
+
 Then("the branch {string} has {int} commit(s)", function (this: ScenarioWorld, branch: string, commits: number) {
   assert.equal(this.siteRepository.commitsOf(branch), commits);
 });

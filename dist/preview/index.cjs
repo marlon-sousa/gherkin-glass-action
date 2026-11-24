@@ -21396,7 +21396,7 @@ function orStop(result) {
 
 // src/policies/site_inputs.ts
 var import_node_path = require("node:path");
-var SITE_BUILD_INPUTS = ["config", "input", "title", "front-page"];
+var SITE_BUILD_INPUTS = ["config", "input", "front-page"];
 function siteInputsOf(inputOf) {
   if (inputOf("to") !== "github-pages") return { problem: "to must be github-pages." };
   const branch = inputOf("branch");
@@ -21552,26 +21552,6 @@ function addressOf(readiness, folder) {
   const base = readiness.address.endsWith("/") ? readiness.address : `${readiness.address}/`;
   return below === "" ? base : `${base}${below}/`;
 }
-
-// src/policies/preview_comment.ts
-var PREVIEW_COMMENT_MARKER = "<!-- gherkin-glass-action preview -->";
-function previewCommentOf(address, builtFrom) {
-  const commitLine = builtFrom === void 0 ? "" : `<!-- built from ${builtFrom} -->
-`;
-  return `${PREVIEW_COMMENT_MARKER}
-${commitLine}The preview of this pull request's feature files is at ${address}.`;
-}
-function builtFromOf(body) {
-  return /^<!-- built from ([0-9a-f]+) -->$/m.exec(body)?.[1];
-}
-var REMOVED_PREVIEW_COMMENT = `${PREVIEW_COMMENT_MARKER}
-The preview of this pull request was removed when it closed.`;
-function previewCommentAmong(comments) {
-  return comments.find((comment) => comment.body.startsWith(PREVIEW_COMMENT_MARKER));
-}
-
-// src/policies/report_paths.ts
-var import_node_path5 = __toESM(require("node:path"), 1);
 
 // node_modules/smol-toml/dist/error.js
 function getLineColFromPtr(string, ptr) {
@@ -22331,7 +22311,41 @@ function parse(toml, options = {}) {
 // node_modules/smol-toml/dist/stringify.js
 var HAS_WELLFORMED = !!"".isWellFormed;
 
+// src/policies/preview_title.ts
+var DEFAULT_TITLE = "Feature files";
+function previewTitleOf(titleInput, configText, pullRequest) {
+  const siteTitle = titleInput !== "" ? titleInput : configuredTitle(configText) ?? DEFAULT_TITLE;
+  return `${siteTitle}, pull request #${pullRequest}`;
+}
+function configuredTitle(configText) {
+  if (configText === void 0) return void 0;
+  try {
+    const { title } = parse(configText);
+    return typeof title === "string" && title !== "" ? title : void 0;
+  } catch {
+    return void 0;
+  }
+}
+
+// src/policies/preview_comment.ts
+var PREVIEW_COMMENT_MARKER = "<!-- gherkin-glass-action preview -->";
+function previewCommentOf(address, builtFrom) {
+  const commitLine = builtFrom === void 0 ? "" : `<!-- built from ${builtFrom} -->
+`;
+  return `${PREVIEW_COMMENT_MARKER}
+${commitLine}The preview of this pull request's feature files is at ${address}.`;
+}
+function builtFromOf(body) {
+  return /^<!-- built from ([0-9a-f]+) -->$/m.exec(body)?.[1];
+}
+var REMOVED_PREVIEW_COMMENT = `${PREVIEW_COMMENT_MARKER}
+The preview of this pull request was removed when it closed.`;
+function previewCommentAmong(comments) {
+  return comments.find((comment) => comment.body.startsWith(PREVIEW_COMMENT_MARKER));
+}
+
 // src/policies/report_paths.ts
+var import_node_path5 = __toESM(require("node:path"), 1);
 function configFileOf(configInput) {
   return configInput === "" ? "ghg.toml" : configInput;
 }
@@ -22518,7 +22532,9 @@ async function buildIntoBranch(ghg, request, output, added, ports) {
 var COMMENT_PROBLEM = "The comment of the pull request's preview cannot be written.";
 var SITE_MARKER = "ghg-site.json";
 async function publishPreview(ghg, request, event, ports) {
-  const paths = reportPathsOf({ ...request.build, configText: await ports.files.readText(request.build.configFile) });
+  const configText = await ports.files.readText(request.build.configFile);
+  const paths = reportPathsOf({ ...request.build, configText });
+  const title = `--title=${previewTitleOf(request.title, configText, event.pullRequest)}`;
   const only = request.changedOnly ? await changedOnlyArguments(event.pullRequest, paths, ports) : [];
   if (only === void 0) {
     ports.runner.log("This pull request changes no file of the input folder, so no preview is published.");
@@ -22538,7 +22554,7 @@ async function publishPreview(ghg, request, event, ports) {
       apply: async (checkout) => {
         const output = import_node_path8.default.join(checkout, ...folder.split("/"));
         if (sourcesKept && await ports.files.isFile(import_node_path8.default.join(output, SITE_MARKER))) return false;
-        nothingToBuild = !await buildIntoBranch(ghg, request, { checkout, folder }, ["--preview", ...only], ports);
+        nothingToBuild = !await buildIntoBranch(ghg, request, { checkout, folder }, [title, "--preview", ...only], ports);
         return !nothingToBuild;
       }
     },
@@ -22623,7 +22639,8 @@ function readSiteRequest(runner) {
   const inputOf = (name) => SITE_BUILD_INPUTS.includes(name) ? runner.input(name) : "";
   const passed = orStop(buildArguments(inputOf));
   const keepInOutput = runner.input("keep-in-output");
-  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput };
+  const title = runner.input("title");
+  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput, title };
 }
 
 // src/services/running_site_actions.ts

@@ -126,7 +126,7 @@ jobs:
           folder: features
 ```
 
-The preview is built so that search engines are asked not to index it, and its address is written in one comment on the pull request, edited on every later push. The `closed` type is needed for the preview to be removed when the pull request closes, merged or not; the comment then says so.
+The preview's title names its pull request, such as "Shop, pull request #12": the action adds ", pull request #12" to the site's title, which is `title`, else the `title` of the configuration file when there is one, else ghg's own, "Feature files". The preview is built so that search engines are asked not to index it, and its address is written in one comment on the pull request, edited on every later push. The `closed` type is needed for the preview to be removed when the pull request closes, merged or not; the comment then says so.
 
 The comment also records, in a line that is not shown, the commit the preview was built from. A later push whose commits since that one change no file the preview is built from, neither a feature file of the input folder nor the configuration file or the front page, leaves the preview as it is; a change to the workflow alone, such as to `title`, does not count, nor does a change to the base branch, so either shows on the next push that changes one of those files. A run that failed or was cancelled leaves the comment as it was, so the next run builds what it missed. With `changed-only: true`, a preview shows only the feature files the pull request changes, at most the first 3000 that GitHub lists, and none is published when it changes none. A pull request from a fork gets no preview, since the workflow's token cannot push from it.
 
@@ -143,7 +143,8 @@ Both actions take these inputs:
 | `folder` | the branch's root | The folder of `branch` the site goes into, such as `features`. |
 | `ghg-version` | the newest stable `ghg` of the action's major version | The release of `ghg` to install, 1.1.0 or newer. |
 | `token` | the workflow's own token | The token that reads Pages, pushes and comments on the workflow's own server, and lists the releases of `ghg` on github.com. |
-| `config`, `input`, `title`, `front-page` | empty | The options of `ghg build` of the same names, as for the root action. |
+| `config`, `input`, `front-page` | empty | The options of `ghg build` of the same names, as for the root action. |
+| `title` | empty | The `--title` option of `ghg build`, the site's title. preview adds ", pull request #<number>" to it, or, when it is empty, to the configuration file's `title`, else to "Feature files". |
 | `keep-in-output` | empty | The patterns of what `ghg` leaves alone in the folder the site goes into, one on each line, after `/.nojekyll` and `/CNAME`, which are always kept. When it is empty, the configuration file's `keep_in_output` is used instead. |
 
 publish also takes `version-name`, the name of the version, by default the tag or branch that ran. preview also takes `changed-only`, `false` by default.

@@ -45,6 +45,11 @@ export class SiteRepository {
     return listed === "" ? [] : listed.split("\n");
   }
 
+  /** The text of a file the branch holds, its path written with /. */
+  textOf(branch: string, file: string): string {
+    return this.git("show", `${branch}:${file}`);
+  }
+
   /** The subject of the branch's newest commit. */
   lastSubjectOf(branch: string): string {
     return this.git("log", "-1", "--format=%s", branch);

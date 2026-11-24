@@ -32,11 +32,12 @@ function previewing(
     changedOnly?: boolean;
     onBranch?: string[];
     process?: FakeGhgProcess;
+    title?: string;
   } = {},
 ) {
   const onBranch = [".nojekyll", ...(options.onBranch ?? [])];
   const used = publishingPorts(options.outcomes, options.repository, onBranch, options.process);
-  const request = { ...siteRequest(), changedOnly: options.changedOnly ?? false };
+  const request = { ...siteRequest(options.title === undefined ? {} : { title: options.title }), changedOnly: options.changedOnly ?? false };
   return {
     used,
     run: () => (event === "closed" ? removePreview(12, request, used) : publishPreview("ghg", request, event, used)),
@@ -54,10 +55,10 @@ test("a pull request's preview is built with --preview into its folder, and its 
     [
       "ghg",
       "build",
-      "--title=T",
       "--keep-in-output=/.nojekyll",
       "--keep-in-output=/CNAME",
       `--output=${path.join("checkout-1", "previews", "pr-12")}`,
+      "--title=T, pull request #12",
       "--preview",
       "--message-format=json",
     ],
@@ -66,6 +67,13 @@ test("a pull request's preview is built with --preview into its folder, and its 
   assert.deepEqual(used.runner.logged, [`The site is published on gh-pages, at ${ADDRESS}.`]);
   assert.equal(used.runner.outputs.get("address"), ADDRESS);
   assert.deepEqual(used.repository.written, [`add 12: ${PREVIEW_COMMENT}`]);
+});
+
+test("without the input title, the preview's title starts with the configuration file's", async () => {
+  const { used, run } = previewing(OPENED, { title: "" });
+  used.files.texts.set("ghg.toml", 'title = "Shop"');
+  await run();
+  assert.ok(used.process.runs[0]?.includes("--title=Shop, pull request #12"));
 });
 
 test("the comment is edited on a later push, and left alone when it already says the same", async () => {

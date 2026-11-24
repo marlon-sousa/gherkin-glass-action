@@ -4,6 +4,7 @@ import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
 import { changesPreviewSources, filesToPreview } from "../policies/changed_files.ts";
 import { addressOf } from "../policies/pages_source.ts";
+import { previewTitleOf } from "../policies/preview_title.ts";
 import { builtFromOf, previewCommentAmong, previewCommentOf, REMOVED_PREVIEW_COMMENT } from "../policies/preview_comment.ts";
 import { reportPathsOf, type ReportPaths } from "../policies/report_paths.ts";
 import { previewFolderOf } from "../policies/site_inputs.ts";
@@ -32,7 +33,9 @@ export async function publishPreview(
   event: OpenPullRequest,
   ports: PublishingPorts,
 ): Promise<void> {
-  const paths = reportPathsOf({ ...request.build, configText: await ports.files.readText(request.build.configFile) });
+  const configText = await ports.files.readText(request.build.configFile);
+  const paths = reportPathsOf({ ...request.build, configText });
+  const title = `--title=${previewTitleOf(request.title, configText, event.pullRequest)}`;
   const only = request.changedOnly ? await changedOnlyArguments(event.pullRequest, paths, ports) : [];
   if (only === undefined) {
     ports.runner.log("This pull request changes no file of the input folder, so no preview is published.");
@@ -52,7 +55,7 @@ export async function publishPreview(
       apply: async (checkout) => {
         const output = path.join(checkout, ...folder.split("/"));
         if (sourcesKept && (await ports.files.isFile(path.join(output, SITE_MARKER)))) return false;
-        nothingToBuild = !(await buildIntoBranch(ghg, request, { checkout, folder }, ["--preview", ...only], ports));
+        nothingToBuild = !(await buildIntoBranch(ghg, request, { checkout, folder }, [title, "--preview", ...only], ports));
         return !nothingToBuild;
       },
     },

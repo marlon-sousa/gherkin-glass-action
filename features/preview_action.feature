@@ -144,3 +144,36 @@ Feature: Previewing a pull request's feature files on GitHub Pages
     And the branch "gh-pages" holds "previews/pr-12/shop/checkout.html"
     And the newest commit of "gh-pages" says "Publish the preview of pull request #12"
     And the preview's comment is edited to say "<!-- built from bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -->"
+
+  @rule-30
+  Scenario: A preview's title is the configuration file's, naming the pull request
+    Given the branch "gh-pages" holds:
+      | .nojekyll |
+    And the repository holds the file "ghg.toml" with 'title = "Shop"'
+    And pull request #12 has no comment
+    When pull request #12 is opened, and runs the preview action with:
+      | ghg-version | 1.1.0 |
+    Then the action passes
+    And the page "previews/pr-12/index.html" of the branch "gh-pages" says "<title>Shop, pull request #12</title>"
+
+  @rule-30
+  Scenario: The input title wins over the configuration file's
+    Given the branch "gh-pages" holds:
+      | .nojekyll |
+    And the repository holds the file "ghg.toml" with 'title = "Shop"'
+    And pull request #12 has no comment
+    When pull request #12 is opened, and runs the preview action with:
+      | ghg-version | 1.1.0    |
+      | title       | Our shop |
+    Then the action passes
+    And the page "previews/pr-12/index.html" of the branch "gh-pages" says "<title>Our shop, pull request #12</title>"
+
+  @rule-30
+  Scenario: Without a title or a configuration file, ghg's own title names the pull request
+    Given the branch "gh-pages" holds:
+      | .nojekyll |
+    And pull request #12 has no comment
+    When pull request #12 is opened, and runs the preview action with:
+      | ghg-version | 1.1.0 |
+    Then the action passes
+    And the page "previews/pr-12/index.html" of the branch "gh-pages" says "<title>Feature files, pull request #12</title>"

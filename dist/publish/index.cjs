@@ -21395,7 +21395,7 @@ function orStop(result) {
 }
 
 // src/policies/site_inputs.ts
-var SITE_BUILD_INPUTS = ["config", "input", "title", "front-page"];
+var SITE_BUILD_INPUTS = ["config", "input", "front-page"];
 function siteInputsOf(inputOf) {
   if (inputOf("to") !== "github-pages") return { problem: "to must be github-pages." };
   const branch = inputOf("branch");
@@ -21515,14 +21515,6 @@ function addressOf(readiness, folder) {
   const base = readiness.address.endsWith("/") ? readiness.address : `${readiness.address}/`;
   return below === "" ? base : `${base}${below}/`;
 }
-
-// src/policies/preview_comment.ts
-var PREVIEW_COMMENT_MARKER = "<!-- gherkin-glass-action preview -->";
-var REMOVED_PREVIEW_COMMENT = `${PREVIEW_COMMENT_MARKER}
-The preview of this pull request was removed when it closed.`;
-
-// src/policies/report_paths.ts
-var import_node_path3 = __toESM(require("node:path"), 1);
 
 // node_modules/smol-toml/dist/error.js
 function getLineColFromPtr(string, ptr) {
@@ -22282,7 +22274,13 @@ function parse(toml, options = {}) {
 // node_modules/smol-toml/dist/stringify.js
 var HAS_WELLFORMED = !!"".isWellFormed;
 
+// src/policies/preview_comment.ts
+var PREVIEW_COMMENT_MARKER = "<!-- gherkin-glass-action preview -->";
+var REMOVED_PREVIEW_COMMENT = `${PREVIEW_COMMENT_MARKER}
+The preview of this pull request was removed when it closed.`;
+
 // src/policies/report_paths.ts
+var import_node_path3 = __toESM(require("node:path"), 1);
 function configFileOf(configInput) {
   return configInput === "" ? "ghg.toml" : configInput;
 }
@@ -22474,7 +22472,7 @@ async function publishVersion(ghg, request, ports) {
     served,
     {
       message: `Publish the site's version ${request.versionName}`,
-      apply: (checkout) => buildIntoBranch(ghg, request, { checkout, folder: request.folder }, [`--version-name=${request.versionName}`], ports)
+      apply: (checkout) => buildIntoBranch(ghg, request, { checkout, folder: request.folder }, versionArguments(request), ports)
     },
     ports
   );
@@ -22486,6 +22484,10 @@ async function publishVersion(ghg, request, ports) {
   const address = addressOf(served, import_node_path6.posix.join(request.folder, request.versionName));
   if (outcome === "pushed") ports.runner.log(`The site is published on ${request.branch}, at ${address}.`);
   ports.runner.setOutput("address", address);
+}
+function versionArguments(request) {
+  const title = request.title === "" ? [] : [`--title=${request.title}`];
+  return [...title, `--version-name=${request.versionName}`];
 }
 
 // src/services/reading_inputs.ts
@@ -22512,7 +22514,8 @@ function readSiteRequest(runner) {
   const inputOf = (name) => SITE_BUILD_INPUTS.includes(name) ? runner.input(name) : "";
   const passed = orStop(buildArguments(inputOf));
   const keepInOutput = runner.input("keep-in-output");
-  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput };
+  const title = runner.input("title");
+  return { ...site, install, token: runner.input("token"), build: buildRequestOf(passed, inputOf), keepInOutput, title };
 }
 
 // src/services/running_site_actions.ts
