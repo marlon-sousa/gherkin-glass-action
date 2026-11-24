@@ -1,6 +1,8 @@
 // Test support: WireMock, standing in for GitHub's API on the loopback address, as issue #16 agreed.
 
 import { spawn, type ChildProcess } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { freePort, waitUntil } from "./loopback.ts";
 import { ACCEPTANCE_TOOLS } from "./tools.ts";
@@ -14,6 +16,7 @@ export interface ReceivedRequest {
 
 export class WireMock {
   private process: ChildProcess | undefined;
+  private rootFolder: string | undefined;
   /** Such as http://127.0.0.1:51234, which the actions are given as GITHUB_API_URL. */
   address = "";
 
@@ -22,9 +25,24 @@ export class WireMock {
     this.address = `http://127.0.0.1:${port}`;
     const javaHome = process.env["JAVA_HOME"];
     const java = javaHome ? path.join(javaHome, "bin", "java") : "java";
+    // WireMock makes the folders mappings and __files in its root, the current folder unless
+    // --root-dir names another (WireMock 3.13.2, java -jar wiremock.jar --help), so a folder of
+    // its own keeps them out of the repository.
+    const rootFolder = mkdtempSync(path.join(tmpdir(), "wiremock-"));
+    this.rootFolder = rootFolder;
     const started = spawn(
       java,
-      ["-jar", ACCEPTANCE_TOOLS.wiremock, "--port", String(port), "--bind-address", "127.0.0.1", "--disable-banner"],
+      [
+        "-jar",
+        ACCEPTANCE_TOOLS.wiremock,
+        "--port",
+        String(port),
+        "--bind-address",
+        "127.0.0.1",
+        "--root-dir",
+        rootFolder,
+        "--disable-banner",
+      ],
       { stdio: "ignore" },
     );
     this.process = started;
@@ -36,6 +54,9 @@ export class WireMock {
 
   stop(): void {
     this.process?.kill();
+    // Windows may hold the folder a moment after Java is killed; Node retries on EBUSY and EPERM
+    // (Node's documentation, "fs.rmSync").
+    if (this.rootFolder !== undefined) rmSync(this.rootFolder, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
 
   /** Forgets every answer and request of the scenario before. */
