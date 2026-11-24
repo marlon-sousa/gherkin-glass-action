@@ -1,3 +1,6 @@
 /node_modules
 # The site the action's own checks build from the fixture.
 /test/fixtures/site/site/
+
+# The tools the acceptance tests download, act and WireMock.
+/.acceptance/

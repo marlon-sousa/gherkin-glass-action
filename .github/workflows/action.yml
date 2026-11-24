@@ -95,11 +95,40 @@ jobs:
       - name: Check the site was written
         run: test -f test/fixtures/site/site/index.html && test -f test/fixtures/site/site/shop/basket.html
 
+  acceptance:
+    # docs/BEHAVIOUR.md, "The action": the scenarios of features/, which run the
+    # three actions in workflows through act, against stand-ins for GitHub, on
+    # every platform of the job "the action on each platform" (issue #16).
+    name: the actions end to end (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      # WireMock 3 needs Java 11 or newer (wiremock.org, "Download and Installation"):
+      # the same Java on every runner, whatever its image carries.
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+      - run: npm run acceptance
+
   site-actions:
     # docs/BEHAVIOUR.md, rules 19 and 28: the bundles of the publish and preview
     # actions run, and stop at an input they cannot use, on any event. Publishing itself is checked
-    # against a repository on disk by the unit tests, since this repository's own
-    # Pages is not one to push to.
+    # by the unit tests, against a repository on disk, and by the job "the actions
+    # end to end", since this repository's own Pages is not one to push to.
     name: the publish and preview actions stopping
     runs-on: ubuntu-latest
     steps:
