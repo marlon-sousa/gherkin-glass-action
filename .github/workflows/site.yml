@@ -1,0 +1,64 @@
+name: Site
+
+# The action's own behaviour, the scenarios of features/, published as a ghg
+# site on GitHub Pages by the actions of this commit, ./publish and ./preview,
+# so that publishing itself is used as a person would use it (issue #19):
+# a version for main and for each release's tag, and a preview of each pull
+# request, removed when it closes.
+
+on:
+  push:
+    branches: [main]
+    # A release's own tag, such as v1.0.0 or v1.1.0-rc.1, never the major
+    # version's tag, v1, which the release workflow moves (docs/BEHAVIOUR.md, rule 17).
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  pull_request:
+    # docs/BEHAVIOUR.md, rule 26: the workflow lists closed, so that the
+    # preview is removed.
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run at a time for each branch, tag or pull request; the action starts
+  # again from the branch's newest commit when another reached it first
+  # (docs/BEHAVIOUR.md, rule 22).
+  group: site-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # docs/BEHAVIOUR.md, rules 20 and 22: reading how Pages is set, and pushing
+    # to the branch it serves.
+    name: publish the site
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./publish
+        with:
+          title: gherkin-glass-action's behaviour
+
+  preview:
+    # docs/BEHAVIOUR.md, rule 27: the comment that gives the preview's address
+    # needs pull-requests: write.
+    name: preview the site
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./preview
+        with:
+          title: gherkin-glass-action's behaviour

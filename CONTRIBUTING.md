@@ -69,10 +69,12 @@ Every pull request runs:
 - the issue check, the check that no closing keyword names another repository's issue, and the commit message check, from [itinera-dev/actions](https://github.com/itinera-dev/actions);
 - a check that fails while the description has an unticked checkbox, so that a manual check is finished before merging;
 - the action's own checks: the TypeScript type-checked, the unit tests, and the files of `dist/`, the bundles and their licences, built again and compared with the committed ones, which must not differ;
-- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use, since this repository's own Pages is not one to publish on. Their publishing itself is checked by the unit tests, against a repository on disk;
+- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use. Their publishing itself is checked by the unit tests, against a repository on disk, by the job below, and in use by `.github/workflows/site.yml`;
 - the three actions end to end, on every platform of the job above: the scenarios of `features/`, written in Gherkin, each running a workflow through act against stand-ins for GitHub's API and its git server, which check what a workflow sees, the branch Pages serves and the comments on a pull request included.
 
 AGENTS.md, "Building and testing", gives the command of each.
+
+`.github/workflows/site.yml` publishes the scenarios of `features/` as the action's own site on GitHub Pages, with the publish and preview actions of the commit it runs on: a version for `main` and for each release's tag, and a preview of each pull request, whose address a comment on it gives, removed when it closes.
 
 Every action a workflow uses is pinned to a commit, with its version in a comment beside it. Each week, `.github/workflows/weekly.yml` checks whether a newer `ghg` of the same major version has been released, and runs the action with it on every platform, so that a release of `ghg` the action does not follow yet is known.
 
