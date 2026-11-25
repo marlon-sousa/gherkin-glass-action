@@ -1,4 +1,4 @@
-// Service: the root action from its inputs to its end, as docs/BEHAVIOUR.md, "The action" and "Outputs", say.
+// Service: the root action from its inputs to its end.
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
@@ -13,14 +13,13 @@ import { readRequest } from "./reading_inputs.ts";
 
 export interface ActionPorts {
   readonly runner: Runner;
-  /** The releases of ghg, listed with the token the inputs give, if any. */
   readonly releasesWith: (token: string | undefined) => GhgReleases;
   readonly toolCache: GhgToolCache;
   readonly files: Files;
   readonly process: GhgProcess;
 }
 
-/** Reads the inputs, installs ghg, builds when asked, gives the outputs, then registers the problem matcher; fails the step when anything stops it. */
+/** Fails the step itself, so its promise never rejects. */
 export async function runAction(pairedMajor: number, ports: ActionPorts): Promise<void> {
   try {
     const { install, build } = readRequest(ports.runner);
@@ -29,11 +28,9 @@ export async function runAction(pairedMajor: number, ports: ActionPorts): Promis
       releases: ports.releasesWith(install.releasesToken),
     });
     ports.runner.setOutput("ghg-version", ghg.version);
-    // Registered after the build, so that the action's own annotations are not made twice.
+    // The problem matcher is registered after the build, or the action's own annotations would be made twice.
     try {
       const built = build === undefined ? undefined : await buildSite(ghg.program, build, ports);
-      // Rule 18: from the workspace, as the build's report gives it, and with / on every system,
-      // so that a later step's shell reads it alike everywhere.
       const site = built?.outcome === "built" ? path.normalize(built.output).split(path.sep).join("/") : "";
       ports.runner.setOutput("site", site);
     } finally {

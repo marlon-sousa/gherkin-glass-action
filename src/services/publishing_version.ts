@@ -1,19 +1,14 @@
-// Service: adds a version of the site to the branch Pages serves, as docs/BEHAVIOUR.md, rule 23, says.
+// Service: adds a version of the site to the branch Pages serves.
 
 import { posix } from "node:path";
 import { addressOf } from "../policies/pages_source.ts";
 import { buildIntoBranch, changeBranch, servedSiteOf, type PublishingPorts } from "./publishing.ts";
 import type { SiteRequest } from "./reading_site_inputs.ts";
 
-/** What publish is asked: the shared inputs, and the name of the version it adds. */
 export interface VersionRequest extends SiteRequest {
   readonly versionName: string;
 }
 
-/**
- * Builds the version into folder of the branch, as ghg adds a version beside the others, pushes
- * it, and gives its address; publishes nothing when ghg has nothing to build.
- */
 export async function publishVersion(ghg: string, request: VersionRequest, ports: PublishingPorts): Promise<void> {
   const served = await servedSiteOf(request, ports);
   const outcome = await changeBranch(
@@ -35,7 +30,6 @@ export async function publishVersion(ghg: string, request: VersionRequest, ports
   ports.runner.setOutput("address", address);
 }
 
-// The title as the input gives it, left out when empty as rule 8 says, and the version's name.
 function versionArguments(request: VersionRequest): readonly string[] {
   const title = request.title === "" ? [] : [`--title=${request.title}`];
   return [...title, `--version-name=${request.versionName}`];

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 26 to 29: preview publishes a pull request's preview, and removes it once closed.
+// Tests rules 26 to 29: preview publishes a pull request's preview, and removes it once closed.
 
 import assert from "node:assert/strict";
 import path from "node:path";

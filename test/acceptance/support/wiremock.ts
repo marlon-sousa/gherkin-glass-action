@@ -1,4 +1,4 @@
-// Test support: WireMock, standing in for GitHub's API on the loopback address, as issue #16 agreed.
+// Test support: WireMock, standing in for GitHub's API on the loopback address.
 
 import { spawn, type ChildProcess } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -7,7 +7,6 @@ import path from "node:path";
 import { freePort, waitUntil } from "./loopback.ts";
 import { ACCEPTANCE_TOOLS } from "./tools.ts";
 
-/** A request WireMock received: its method, its address without the server, and its body. */
 export interface ReceivedRequest {
   readonly method: string;
   readonly url: string;
@@ -17,7 +16,6 @@ export interface ReceivedRequest {
 export class WireMock {
   private process: ChildProcess | undefined;
   private rootFolder: string | undefined;
-  /** Such as http://127.0.0.1:51234, which the actions are given as GITHUB_API_URL. */
   address = "";
 
   async start(): Promise<void> {
@@ -25,9 +23,7 @@ export class WireMock {
     this.address = `http://127.0.0.1:${port}`;
     const javaHome = process.env["JAVA_HOME"];
     const java = javaHome ? path.join(javaHome, "bin", "java") : "java";
-    // WireMock makes the folders mappings and __files in its root, the current folder unless
-    // --root-dir names another (WireMock 3.13.2, java -jar wiremock.jar --help), so a folder of
-    // its own keeps them out of the repository.
+    // WireMock 3.13.2 makes the folders mappings and __files in its root, the current folder unless --root-dir names another.
     const rootFolder = mkdtempSync(path.join(tmpdir(), "wiremock-"));
     this.rootFolder = rootFolder;
     const started = spawn(
@@ -54,25 +50,20 @@ export class WireMock {
 
   stop(): void {
     this.process?.kill();
-    // Windows may hold the folder a moment after Java is killed; Node retries on EBUSY and EPERM
-    // (Node's documentation, "fs.rmSync").
+    // Windows may hold the folder a moment after Java is killed.
     if (this.rootFolder !== undefined) rmSync(this.rootFolder, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
   }
 
-  /** Forgets every answer and request of the scenario before. */
   async reset(): Promise<void> {
     await this.admin("POST", "/__admin/reset");
   }
 
-  /** Forgets the requests received so far, keeping the answers. */
+  /** Keeps the answers. */
   async forgetRequests(): Promise<void> {
     await this.admin("DELETE", "/__admin/requests");
   }
 
-  /**
-   * Answers a method and a path of the repository owner/repo, whatever the query, with a status and
-   * a JSON body. The newest answer to a request wins (WireMock, "Stubbing", "Stub priority").
-   */
+  /** Whatever the query; the newest answer to a request wins. */
   async answer(method: string, repositoryPath: string, status: number, body?: unknown): Promise<void> {
     await this.admin("POST", "/__admin/mappings", {
       request: { method, urlPath: `/repos/owner/repo${repositoryPath}` },
@@ -84,7 +75,7 @@ export class WireMock {
     });
   }
 
-  /** The requests received, oldest first. */
+  /** Oldest first. */
   async requests(): Promise<readonly ReceivedRequest[]> {
     const listed: { requests: { request: ReceivedRequest }[] } = await this.admin("GET", "/__admin/requests");
     return listed.requests.map(({ request }) => ({ method: request.method, url: request.url, body: request.body })).reverse();

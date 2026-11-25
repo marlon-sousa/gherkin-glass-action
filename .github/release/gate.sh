@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Refuses a tag that may not become a release, as docs/BEHAVIOUR.md,
-# "Releases", rule 13, says: the tag must be "v" and the version in
-# package.json, its commit must be on main, and CHANGELOG.md must have notes for
-# the version. Every reason is reported, not only the first.
+# Refuses a tag that may not become a release, reporting every reason, not
+# only the first.
 # Usage: gate.sh <tag> <commit>
 # Run from the repository's root, in a clone that has fetched main.
 set -euo pipefail

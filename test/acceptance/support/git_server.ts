@@ -1,19 +1,14 @@
-// Test support: a git server over HTTP on the loopback address, standing in for GitHub's, around
-// git http-backend, which serves the repositories under one folder (git-http-backend, "DESCRIPTION").
+// Test support: a git server over HTTP on the loopback address, standing in for GitHub's, around git http-backend.
 
 import { spawn } from "node:child_process";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 
-/** The token the workflows push with, as GitHub's own token would be. */
 export const TOKEN = "a-token";
 
 export class GitServer {
   private server: Server | undefined;
-  /** Such as http://127.0.0.1:51235, which the actions are given as GITHUB_SERVER_URL. */
   address = "";
-  /** The folder of the repositories, such as <root>/owner/repo.git. */
   root = "";
-  /** Whether pushes are refused, as they are to a token without the permission contents: write. */
   refusingPushes = false;
 
   async start(): Promise<void> {
@@ -29,8 +24,6 @@ export class GitServer {
     this.server?.close();
   }
 
-  // Only the token the action is given is let in, to fetch and to push, sent as GitHub expects it:
-  // basic, with the user x-access-token, as src/adapters/git_site_branch.ts sends it.
   private serve(request: IncomingMessage, response: ServerResponse): void {
     const expected = `basic ${Buffer.from(`x-access-token:${TOKEN}`).toString("base64")}`;
     if (request.headers.authorization?.toLowerCase() !== expected.toLowerCase()) {
@@ -38,12 +31,11 @@ export class GitServer {
       return;
     }
     const [pathInfo = "", query = ""] = (request.url ?? "").split("?");
-    // GitHub answers 403 to a push with a token that may only read.
     if (this.refusingPushes && `${pathInfo}?${query}`.includes("git-receive-pack")) {
       response.writeHead(403).end("Permission to owner/repo.git denied to github-actions[bot].");
       return;
     }
-    // git-http-backend, "ENVIRONMENT": REMOTE_USER lets it receive pushes.
+    // git http-backend receives pushes only when REMOTE_USER is set.
     const backend = spawn("git", ["http-backend"], {
       env: {
         ...process.env,
@@ -71,7 +63,6 @@ export class GitServer {
       const end = head.indexOf("\r\n\r\n");
       if (end === -1) return;
       headersSent = true;
-      // CGI headers: a Status line, when not 200, and the response's own headers.
       let status = 200;
       for (const line of head.subarray(0, end).toString("latin1").split("\r\n")) {
         const [name = "", ...value] = line.split(":");

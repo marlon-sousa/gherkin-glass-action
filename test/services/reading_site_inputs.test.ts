@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 19: the inputs the publish and preview actions share are checked before anything is downloaded.
+// Tests rule 19: the inputs the publish and preview actions share are checked before anything is downloaded.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

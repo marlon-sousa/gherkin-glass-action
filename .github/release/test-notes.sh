@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks cliff.toml against docs/BEHAVIOUR.md, "Releases", rule 15: the
+# Checks rule 15: cliff.toml. The
 # commits of test/fixtures/release are made into a throwaway repository,
 # before/ then the tag v0.1.0, since/ then the tag v0.2.0, then later/. The
 # section git-cliff writes for v0.2.0 must be notes.md, and the one it writes

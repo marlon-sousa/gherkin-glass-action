@@ -11,10 +11,8 @@ import { runWorkflow, type WorkflowRequest, type WorkflowResult } from "./workfl
 
 const wireMock = new WireMock();
 const gitServer = new GitServer();
-/** Where act keeps its jobs' folders and the runner's tool cache, for the whole run. */
 let actCache = "";
 
-// A scenario installs ghg, and may build and push: a few seconds, longer on a slow runner.
 setDefaultTimeout(180_000);
 
 BeforeAll(async () => {
@@ -29,13 +27,9 @@ AfterAll(() => {
 });
 
 export class ScenarioWorld extends World {
-  /** The files of the repository the workflow runs in, beyond the actions. */
   readonly files: Record<string, string> = {};
-  /** The repository the git server serves, made fresh for each scenario. */
   siteRepository!: SiteRepository;
-  /** The action a When step asks to run, which runs once a Then step needs what it did. */
   pending: Pick<WorkflowRequest, "action" | "inputs" | "event"> | undefined;
-  /** A command of a later step, if a When step asks for one. */
   laterStep: string | undefined;
   private result: WorkflowResult | undefined;
   serverRoot = "";
@@ -43,13 +37,11 @@ export class ScenarioWorld extends World {
   readonly wireMock = wireMock;
   readonly gitServer = gitServer;
 
-  /** What the run did, which runs before the first Then step. */
   get ran(): WorkflowResult {
     if (this.result === undefined) throw new Error("No When step asked for a workflow.");
     return this.result;
   }
 
-  /** Runs the workflow a When step asked for, once. */
   async runPending(): Promise<void> {
     if (this.result !== undefined || this.pending === undefined) return;
     this.result = await runWorkflow(
@@ -59,7 +51,6 @@ export class ScenarioWorld extends World {
     );
   }
 
-  /** Runs a workflow before the one the scenario checks, and forgets what it did. */
   async runBeforehand(request: Pick<WorkflowRequest, "action" | "inputs" | "event">): Promise<void> {
     const earlier = await runWorkflow(
       { ...request, files: this.files, laterStep: undefined },
@@ -70,7 +61,6 @@ export class ScenarioWorld extends World {
     if (!earlier.actionPassed) throw new Error(`The earlier run failed:\n${earlier.printed}`);
   }
 
-  /** The result of the run, if it ran. */
   get resultIfRun(): WorkflowResult | undefined {
     return this.result;
   }
@@ -86,13 +76,11 @@ Before(async function (this: ScenarioWorld) {
   this.siteRepository = new SiteRepository(this.serverRoot);
 });
 
-// The workflow runs once the When steps have said what it runs, before the first Then step.
 BeforeStep(async function (this: ScenarioWorld, { pickleStep }) {
   if (pickleStep.type === "Outcome") await this.runPending();
 });
 
 After(function (this: ScenarioWorld, { result }) {
-  // A failed scenario shows all act printed, so that its cause can be read in the log.
   const ran = this.resultIfRun;
   if (result?.status === "FAILED" && ran !== undefined) console.log(ran.printed);
   rmSync(this.serverRoot, { recursive: true, force: true });

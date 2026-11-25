@@ -1,11 +1,7 @@
 name: Release
 
-# docs/BEHAVIOUR.md, "Releases". Pushing a tag v<version> releases that
-# version: the gate, the release tools' own tests and every check of
-# action.yml run on the tagged commit, then the GitHub release is made, the
-# major version's tag moved to it, and its version of the action's own site
-# published. On a pull request that changes how
-# releases are made, the release tools' tests run, and nothing is released.
+# On a pull request that changes how releases are made, the release tools'
+# tests run, and nothing is released.
 
 on:
   push:
@@ -31,7 +27,6 @@ concurrency:
 
 jobs:
   gate:
-    # docs/BEHAVIOUR.md, rule 13.
     name: release gate
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -45,7 +40,6 @@ jobs:
         run: .github/release/gate.sh "$TAG" "$GITHUB_SHA"
 
   checks:
-    # docs/BEHAVIOUR.md, rule 14: dist/ against a fresh build among them.
     name: checks
     needs: gate
     uses: ./.github/workflows/action.yml
@@ -64,7 +58,6 @@ jobs:
       - run: .github/release/test-publish.sh
 
   release:
-    # docs/BEHAVIOUR.md, rules 15 and 16.
     name: GitHub release
     if: github.event_name == 'push'
     needs: [gate, checks, release-tools]
@@ -84,8 +77,6 @@ jobs:
         run: .github/release/publish.sh "$TAG"
 
   major-tag:
-    # docs/BEHAVIOUR.md, rule 17: uses: marlon-sousa/gherkin-glass-action@v1
-    # runs the newest 1.x release.
     name: the major version's tag
     needs: release
     runs-on: ubuntu-latest
@@ -112,9 +103,7 @@ jobs:
           echo "$major now names $TAG."
 
   site:
-    # Issue #25: the release's version of the action's own site, published
-    # only once the release is made, so that a refused tag never is. A called
-    # workflow's jobs may not ask for more than these permissions.
+    # A called workflow's jobs may not ask for more than these permissions.
     name: the action's own site
     if: github.event_name == 'push' && !cancelled() && needs.release.result == 'success'
     needs: release

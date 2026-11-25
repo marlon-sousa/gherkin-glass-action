@@ -1,4 +1,4 @@
-// Service: runs ghg build and annotates its report, as docs/BEHAVIOUR.md, "Building" and "Annotations", say.
+// Service: runs ghg build and annotates its report.
 
 import { ActionStop, orStop } from "../action_stop.ts";
 import { buildReportOf, NO_REPORT_PROBLEM, type BuildReport } from "../policies/build_report.ts";
@@ -15,13 +15,8 @@ export interface BuildingPorts {
   readonly files: Files;
 }
 
-/** What a build that passed did: wrote the site into that folder, or found nothing to build. */
 export type BuildOutcome = Exclude<BuildReport, { readonly outcome: "stopped" }>;
 
-/**
- * Runs ghg build in the workspace, with the report the action reads (rule 7), annotating each
- * problem that names a file and a line (rule 10), and gives what it did.
- */
 export async function buildSite(ghg: string, request: BuildRequest, ports: BuildingPorts): Promise<BuildOutcome> {
   const run = await ports.process.run(ghg, ["build", ...request.buildArguments, "--message-format=json"]);
   const report = buildReportOf(run.standardOutput);
@@ -34,7 +29,6 @@ export async function buildSite(ghg: string, request: BuildRequest, ports: Build
   }
   if (run.status !== 0) throw new ActionStop(`ghg build stopped with status ${run.status}.`);
   const passed = orStop(report);
-  // A build that passed and says it stopped is no report of how it ended either.
   if (passed.outcome === "stopped") throw new ActionStop(NO_REPORT_PROBLEM);
   return passed;
 }

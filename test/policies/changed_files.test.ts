@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 28 and 29: which files a pull request changes matter to its preview.
+// Tests rules 28 and 29: which files a pull request changes matter to its preview.
 
 import assert from "node:assert/strict";
 import path from "node:path";

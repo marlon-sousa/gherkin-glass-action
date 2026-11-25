@@ -1,6 +1,5 @@
-// Error: why the action stops, in the one sentence docs/BEHAVIOUR.md gives for it.
+// Error: why the action stops, , in the sentence a person reads.
 
-/** Thrown by a service when the action cannot go on; src/main.ts fails the step with its message. */
 export class ActionStop extends Error {
   override readonly name = "ActionStop";
 }

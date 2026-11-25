@@ -2,9 +2,8 @@ name: gherkin-glass preview
 description: Publishes a preview of a pull request's Gherkin feature files, built with ghg, on the branch GitHub Pages serves, and removes it when the pull request closes.
 author: marlon-sousa
 
-# docs/BEHAVIOUR.md, "Publishing" and "The preview action", says what this
-# action does. Its inputs are the shared ones of rule 19 and changed-only;
-# test/policies/site_inputs.test.ts fails when they differ.
+# The inputs are the ones publish and preview share, and changed-only; a test fails
+# when they differ.
 
 inputs:
   to:

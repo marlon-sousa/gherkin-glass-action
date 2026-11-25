@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks publish.sh against docs/BEHAVIOUR.md, "Releases", rule 16, in a
+# Checks rule 16: publish.sh, in a
 # throwaway repository with the changelog test/fixtures/release/changelogs/
 # with-notes.md and the tags each case lists, and with a stand-in for gh that
 # writes down the release it is asked to create, one argument a line.

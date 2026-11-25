@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 2, 19 and 23 to 25: the publish and preview actions from their inputs to their end.
+// Tests rules 2, 19 and 23 to 25: the publish and preview actions from their inputs to their end.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

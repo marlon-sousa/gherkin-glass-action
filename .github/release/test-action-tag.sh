@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Checks action-tag.sh against docs/BEHAVIOUR.md, "Releases",
-# rule 17, with the lists of tags below. Run from the repository's root.
+# Checks rule 17: action-tag.sh, with the lists of tags below.
+# Run from the repository's root.
 set -euo pipefail
 
 failures=0

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 7, 10 and 18: how ghg build ended, from the JSON object it prints.
+// Tests rules 7, 10 and 18: how ghg build ended, from the JSON object it prints.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

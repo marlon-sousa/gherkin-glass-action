@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 7 and 10: running ghg build, reading its report and annotating its problems.
+// Tests rules 7 and 10: running ghg build, reading its report and annotating its problems.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

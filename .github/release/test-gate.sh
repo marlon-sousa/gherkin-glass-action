@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks gate.sh against docs/BEHAVIOUR.md, "Releases", rule 13, with the
+# Checks rule 13: gate.sh, with the
 # changelogs of test/fixtures/release/changelogs, in a throwaway repository
 # whose package.json declares version 1.2.3 and whose main holds one commit.
 # Needs git and jq. Run from the repository's root.

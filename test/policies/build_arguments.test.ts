@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 7, 8 and 9: the arguments of ghg build, from every input of action.yml.
+// Tests rules 7, 8 and 9: the arguments of ghg build, from every input of action.yml.
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

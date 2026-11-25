@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 9: reading the options of ghg build from its help.
+// Tests rule 9: reading the options of ghg build from its help.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

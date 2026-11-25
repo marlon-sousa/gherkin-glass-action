@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Prints the tag of the GitHub Action's major version that the release of
-# <tag> moves, such as v1 for v1.2.0, or nothing when it moves none, as
-# docs/BEHAVIOUR.md, "Releases", rule 17, says. The repository's
-# tags, one per line, come on standard input.
+# Prints the major version's tag that the release of <tag> moves, such as v1
+# for v1.2.0, or nothing when it moves none. The repository's tags, one per
+# line, come on standard input.
 # Usage: action-tag.sh <tag> < tags
 set -euo pipefail
 

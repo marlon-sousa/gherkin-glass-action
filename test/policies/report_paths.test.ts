@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 10, 28 and 29: where the files ghg build reads are, found as ghg finds them.
+// Tests rules 10, 28 and 29: where the files ghg build reads are, found as ghg finds them.
 
 import assert from "node:assert/strict";
 import path from "node:path";

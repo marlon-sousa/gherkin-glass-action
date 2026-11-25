@@ -1,4 +1,4 @@
-// Tests the licence notices of the bundle, issue #1, decision 15.
+// Tests the licence notices of the bundle.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

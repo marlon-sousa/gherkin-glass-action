@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 20 and 22: the branch Pages serves, against a repository on disk.
+// Tests rules 20 and 22: the branch Pages serves, against a repository on disk.
 
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -26,7 +26,6 @@ before(() => {
   remote = path.join(root, "server", "owner", "repo.git");
   mkdirSync(remote, { recursive: true });
   execFileSync("git", ["init", "--quiet", "--bare", remote]);
-  // The server's address and the repository make the remote's, as GITHUB_SERVER_URL and GITHUB_REPOSITORY do.
   siteBranch = new GitSiteBranch(pathToFileURL(path.join(root, "server")).href, "owner/repo", "a-token", root);
 });
 

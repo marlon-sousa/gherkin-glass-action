@@ -1,14 +1,12 @@
-// Tool: the licence notices of the packages bundled into the actions in dist/, which their licences ask to go with every copy (issue #1, decision 15).
+// Tool: the licence notices of the packages bundled into the actions in dist/.
 
 import { posix } from "node:path";
 
-/** A licence file of a bundled package: its path from the repository, and its text. */
 export interface LicenseFile {
   readonly path: string;
   readonly text: string;
 }
 
-/** A package the bundle holds, with the licence its package.json names and the licence files of the folders bundled from it. */
 export interface BundledPackage {
   readonly name: string;
   readonly version: string;
@@ -16,13 +14,9 @@ export interface BundledPackage {
   readonly licenseFiles: readonly LicenseFile[];
 }
 
-/** What a package's package.json says of it, when it says all of it. */
 export type PackageFields = Pick<BundledPackage, "name" | "version" | "license">;
 
-/**
- * Code a package embeds without a licence file in its npm package, whose notice is kept in
- * tools/licenses/. It names the package's version, since another version may embed another release.
- */
+/** Code a package embeds without a licence file, whose notice tools/licenses/ keeps; another version of the package may embed another release. */
 export interface EmbeddedCode {
   readonly inputFolder: string;
   readonly packageName: string;
@@ -42,22 +36,17 @@ const EMBEDDED_CODE: readonly EmbeddedCode[] = [
 
 const LICENSE_FILE = /^(licen[cs]e|copying)(-[a-z0-9]+)?(\.(md|txt))?$/i;
 
-/** The folder of the package an input of esbuild's metafile comes from, such as `node_modules/@actions/core`, the innermost when packages nest. */
+/** The innermost when packages nest. */
 function packageFolderOf(inputPath: string): string | undefined {
   return /^(.*node_modules\/(?:@[^/]+\/)?[^/]+)\//.exec(inputPath)?.[1];
 }
 
-/** The folder of each package that esbuild's metafile lists an input of, once each and sorted. */
 export function packageFoldersOf(inputPaths: readonly string[]): string[] {
   const folders = inputPaths.map(packageFolderOf).filter((folder) => folder !== undefined);
   return [...new Set(folders)].sort();
 }
 
-/**
- * The folders that may hold a licence for the bundled inputs of a package: its own folder, and every
- * folder between it and an input, since a package may keep the licence of code it took from another
- * beside that code, as undici keeps `lib/web/fetch/LICENSE`.
- */
+/** Every folder between the package's and an input, since a package may keep a licence beside code it took, as undici keeps lib/web/fetch/LICENSE. */
 export function licenseFoldersOf(packageFolder: string, inputPaths: readonly string[]): string[] {
   const folders = new Set<string>([packageFolder]);
   for (const inputPath of inputPaths) {
@@ -69,12 +58,11 @@ export function licenseFoldersOf(packageFolder: string, inputPaths: readonly str
   return [...folders].sort();
 }
 
-/** The licence files among a folder's files, sorted. */
 export function licenseFilesOf(fileNames: readonly string[]): string[] {
   return fileNames.filter((fileName) => LICENSE_FILE.test(fileName)).sort();
 }
 
-/** The name, version and licence a parsed package.json gives, or undefined when one is missing. */
+/** Undefined when one of the fields is missing. */
 export function packageFieldsOf(packageJson: unknown): PackageFields | undefined {
   if (typeof packageJson !== "object" || packageJson === null) return undefined;
   if (!("name" in packageJson && "version" in packageJson && "license" in packageJson)) return undefined;
@@ -83,15 +71,10 @@ export function packageFieldsOf(packageJson: unknown): PackageFields | undefined
   return { name, version, license };
 }
 
-/** The embedded code that the bundled inputs include. */
 export function embeddedCodeOf(inputPaths: readonly string[]): EmbeddedCode[] {
   return EMBEDDED_CODE.filter((code) => inputPaths.some((inputPath) => inputPath.startsWith(code.inputFolder)));
 }
 
-/**
- * dist/licenses.txt: each package's name, version and licence, then its licence files; then the notices
- * of code embedded without a licence file; then the notices esbuild found in comments of the bundled code.
- */
 export function licensesText(
   bundledPackages: readonly BundledPackage[],
   embeddedNotices: readonly string[],

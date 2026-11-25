@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 5: the checksum SHA256SUMS lists for an archive.
+// Tests rule 5: the checksum SHA256SUMS lists for an archive.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

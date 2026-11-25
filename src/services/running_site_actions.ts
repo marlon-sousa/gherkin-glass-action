@@ -1,4 +1,4 @@
-// Service: the publish and preview actions from their inputs to their end, as docs/BEHAVIOUR.md, "Publishing", says.
+// Service: the publish and preview actions from their inputs to their end.
 
 import { ActionStop, orStop } from "../action_stop.ts";
 import { changedOnlyOf } from "../policies/site_inputs.ts";
@@ -14,15 +14,13 @@ import { readSiteRequest, type SiteRequest } from "./reading_site_inputs.ts";
 import type { ActionPorts } from "./running_action.ts";
 
 export interface SiteActionPorts extends ActionPorts {
-  /** The repository the workflow runs in, and the branch Pages serves, reached with the token the inputs give. */
   readonly repositoryWith: (token: string) => GitHubRepository;
   readonly siteBranchWith: (token: string) => SiteBranch;
 }
 
-/** What an action publishes, with ghg, which it installs only when it needs it. */
 type Publishing = (installedGhg: () => Promise<string>, ports: PublishingPorts) => Promise<void>;
 
-/** The publish action: adds a version of the site, named by version-name or by the tag or branch that ran. */
+/** Fails the step itself, so its promise never rejects. */
 export async function runPublish(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
   await runSiteAction(pairedMajor, ports, (request, runner) => {
     const versionName = versionNameOf(runner.input("version-name"), runner.workflowEvent().refName);
@@ -31,26 +29,22 @@ export async function runPublish(pairedMajor: number, ports: SiteActionPorts): P
   });
 }
 
-/** The preview action: publishes a pull request's preview, or removes it once closed; publishes nothing for a fork. */
+/** Fails the step itself, so its promise never rejects. */
 export async function runPreview(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
   await runSiteAction(pairedMajor, ports, (request, runner) => {
     const changedOnly = orStop(changedOnlyOf(runner.input("changed-only")));
     const event = orStop(previewEventOf(runner.workflowEvent()));
-    // Rule 25: a fork's token cannot push, so nothing is installed either.
     if (event.kind === "fork") {
       runner.notice("This pull request comes from a fork, whose token cannot push, so its preview is not published.");
       return undefined;
     }
-    // Rule 26: a removal builds nothing, so it installs nothing either.
     if (event.kind === "closed") return (_installedGhg, publishingPorts) => removePreview(event.pullRequest, request, publishingPorts);
     return async (installedGhg, publishingPorts) =>
       publishPreview(await installedGhg(), { ...request, changedOnly }, event, publishingPorts);
   });
 }
 
-// Reads the shared inputs, then the action's own through publishingOf, which gives undefined
-// when there is nothing to do; publishes, installing ghg when asked; fails the step when anything
-// stops it.
+// publishingOf gives undefined when there is nothing to do.
 async function runSiteAction(
   pairedMajor: number,
   ports: SiteActionPorts,

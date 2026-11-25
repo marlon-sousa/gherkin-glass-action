@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, "The action" and rules 3, 10 and 18: the root action from its inputs to its end.
+// Tests rules 3, 10 and 18: the root action from its inputs to its end.
 
 import assert from "node:assert/strict";
 import path from "node:path";

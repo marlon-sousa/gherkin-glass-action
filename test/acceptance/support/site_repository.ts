@@ -6,7 +6,6 @@ import os from "node:os";
 import path from "node:path";
 
 export class SiteRepository {
-  /** The bare repository, owner/repo.git under the git server's folder. */
   readonly bare: string;
 
   constructor(serverRoot: string) {
@@ -15,7 +14,6 @@ export class SiteRepository {
     execFileSync("git", ["init", "--quiet", "--bare", this.bare]);
   }
 
-  /** Makes the branch hold those files, and nothing else, in one commit. */
   giveBranch(branch: string, files: Readonly<Record<string, string>>): void {
     const work = mkdtempSync(path.join(os.tmpdir(), "branch-"));
     try {
@@ -34,28 +32,23 @@ export class SiteRepository {
     }
   }
 
-  /** Whether the branch exists. */
   hasBranch(branch: string): boolean {
     return this.git("branch", "--list", branch) !== "";
   }
 
-  /** The files the branch holds, with / between folders. */
   filesOf(branch: string): readonly string[] {
     const listed = this.git("ls-tree", "-r", "--name-only", branch);
     return listed === "" ? [] : listed.split("\n");
   }
 
-  /** The text of a file the branch holds, its path written with /. */
   textOf(branch: string, file: string): string {
     return this.git("show", `${branch}:${file}`);
   }
 
-  /** The subject of the branch's newest commit. */
   lastSubjectOf(branch: string): string {
     return this.git("log", "-1", "--format=%s", branch);
   }
 
-  /** How many commits the branch has. */
   commitsOf(branch: string): number {
     return Number(this.git("rev-list", "--count", branch));
   }

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 4: the archive of each runner's system and processor.
+// Tests rule 4: the archive of each runner's system and processor.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

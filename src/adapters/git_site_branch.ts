@@ -12,15 +12,10 @@ const AUTHOR_NAME = "github-actions[bot]";
 const AUTHOR_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com";
 
 export class GitSiteBranch implements SiteBranch {
-  /** Such as https://github.com/owner/repo.git. */
   private readonly remote: string;
-  /**
-   * Git's configuration for every command: the token, as an extra header for the server, as
-   * actions/checkout sends it (src/git-auth-helper.ts, lines 57 to 64, at v7.0.1).
-   */
+  /** The token goes as an extra header, as actions/checkout v7.0.1 sends it. */
   private readonly environment: Record<string, string>;
   private readonly temporaryRoot: string;
-  /** The repository of each checkout, kept beside it. */
   private readonly repositories = new Map<string, string>();
 
   /** serverAddress is GITHUB_SERVER_URL, such as https://github.com, and repository GITHUB_REPOSITORY, such as owner/repo. */
@@ -29,9 +24,7 @@ export class GitSiteBranch implements SiteBranch {
     this.temporaryRoot = temporaryRoot;
     const credentials = Buffer.from(`x-access-token:${token}`).toString("base64");
     core.setSecret(credentials);
-    // Given through the environment rather than as arguments, so that no process list shows it,
-    // and never written into a file (git-config, "GIT_CONFIG_COUNT", git 2.31 and later). It goes
-    // after the entries an earlier step may have given the same way, which stay.
+    // In the environment, which git 2.31 and later read and no process list shows, after the entries an earlier step gave there.
     const inherited = Object.fromEntries(
       Object.entries(process.env).flatMap(([name, value]) => (value === undefined ? [] : [[name, value]])),
     );
@@ -46,9 +39,7 @@ export class GitSiteBranch implements SiteBranch {
     };
   }
 
-  // Asked from an empty checkout, whose repository is named, rather than from the working folder,
-  // which is the workspace: actions/checkout leaves its own extra header in the workspace's
-  // repository, and git would send both.
+  // From an empty checkout, since in the workspace git would also send the extra header actions/checkout leaves there.
   async exists(branch: string): Promise<boolean> {
     const listed = await this.git(await this.emptyCheckout(), ["ls-remote", "--heads", this.remote, `refs/heads/${branch}`]);
     return listed.stdout.trim() !== "";
@@ -87,8 +78,7 @@ export class GitSiteBranch implements SiteBranch {
     return "refused";
   }
 
-  // A new work tree, whose repository is kept beside it rather than in a .git inside it, since
-  // ghg refuses an output folder that holds anything it did not write (gherkin-glass's rule 122).
+  // The repository is kept beside the work tree, since ghg refuses an output folder that holds anything it did not write.
   private async emptyCheckout(): Promise<string> {
     const root = await mkdtemp(path.join(this.temporaryRoot, "ghg-pages-"));
     const checkout = path.join(root, "site");
@@ -107,8 +97,7 @@ export class GitSiteBranch implements SiteBranch {
     return checkout;
   }
 
-  // Runs git on a checkout, or on none, in the temporary folder rather than in the workspace, whose
-  // repository's configuration it would read; a failure throws unless it is allowed.
+  // Never in the workspace, whose repository's configuration git would read; a failure throws unless it is allowed.
   private async git(checkout: string | undefined, gitArguments: readonly string[], failureAllowed = false) {
     const repository = checkout === undefined ? undefined : this.repositories.get(checkout);
     const located = repository === undefined ? [] : [`--git-dir=${repository}`, `--work-tree=${checkout}`];

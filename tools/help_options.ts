@@ -1,10 +1,6 @@
-// Tool: the options of ghg build that ghg build --help lists, for docs/BEHAVIOUR.md, rule 9.
+// Tool: the options of ghg build that ghg build --help lists.
 
-/**
- * The options, without their dashes, listed under "Options of ghg build" as ghg 1.x prints
- * its help: the section whose heading starts so, up to the next heading, one option a line,
- * such as "  --input <folder>: the folder of feature files to read".
- */
+/** ghg 1.1.0 lists them under a heading that starts "Options of ghg build", one a line, such as "  --input <folder>: the folder of feature files to read". */
 export function optionsOfHelp(help: string): readonly string[] {
   const options: string[] = [];
   let inside = false;

@@ -1,4 +1,4 @@
-// Service: reads and checks every input of the root action before anything is downloaded, as docs/BEHAVIOUR.md says.
+// Service: reads and checks every input of the root action before anything is downloaded.
 
 import { orStop } from "../action_stop.ts";
 import { buildArguments, buildAsked } from "../policies/build_arguments.ts";
@@ -7,34 +7,29 @@ import { namedVersion } from "../policies/versions.ts";
 import { platformOf, type Platform } from "../policies/targets.ts";
 import type { Runner } from "../ports/runner.ts";
 
-/** How ghg is installed, which every action asks for. */
 export interface InstallRequest {
-  /** The version ghg-version names, undefined when it is empty. */
+  /** Undefined when ghg-version is empty. */
   readonly version: string | undefined;
   readonly platform: Platform;
-  /** The token sent to GitHub's API, undefined when there is none, or when the workflow runs elsewhere than on github.com. */
+  /** Undefined when there is no token, or when the workflow runs elsewhere than on github.com. */
   readonly releasesToken: string | undefined;
 }
 
-/** What the root action is asked to do. */
 export interface ActionRequest {
   readonly install: InstallRequest;
-  /** The build to run, undefined when build is not true. */
+  /** Undefined when build is not true. */
   readonly build: BuildRequest | undefined;
 }
 
-/** The run of ghg build the action makes. */
 export interface BuildRequest {
-  /** The arguments after build. */
   readonly buildArguments: readonly string[];
-  /** The inputs input and front-page, empty when they are not given. */
+  /** Empty when the input is not given, as is frontPage. */
   readonly input: string;
   readonly frontPage: string;
-  /** The configuration file ghg build reads. */
   readonly configFile: string;
 }
 
-/** The request the root action's inputs make, or an ActionStop with the first problem among them. */
+/** Throws an ActionStop with the first problem among the inputs. */
 export function readRequest(runner: Runner): ActionRequest {
   const install = readInstallRequest(runner);
   const build = orStop(buildAsked(runner.input("build")));
@@ -42,7 +37,7 @@ export function readRequest(runner: Runner): ActionRequest {
   return { install, build: build ? buildRequestOf(passed, (name) => runner.input(name)) : undefined };
 }
 
-/** How the inputs ask ghg to be installed, or an ActionStop with the first problem among them. */
+/** Throws an ActionStop with the first problem among the inputs. */
 export function readInstallRequest(runner: Runner): InstallRequest {
   const versionInput = runner.input("ghg-version");
   const version = versionInput === "" ? undefined : orStop(namedVersion(versionInput));
@@ -51,7 +46,6 @@ export function readInstallRequest(runner: Runner): InstallRequest {
   return { version, platform, releasesToken };
 }
 
-/** The build of those arguments, with the inputs that say where ghg build finds its files. */
 export function buildRequestOf(passed: readonly string[], inputOf: (name: string) => string): BuildRequest {
   return {
     buildArguments: passed,

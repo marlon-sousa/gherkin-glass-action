@@ -2,9 +2,8 @@ name: gherkin-glass publish
 description: Builds a version of the site of Gherkin feature files with ghg, and publishes it on the branch GitHub Pages serves.
 author: marlon-sousa
 
-# docs/BEHAVIOUR.md, "Publishing" and "The publish action", says what this
-# action does. Its inputs are the shared ones of rule 19 and version-name;
-# test/policies/site_inputs.test.ts fails when they differ.
+# The inputs are the ones publish and preview share, and version-name; a test fails
+# when they differ.
 
 inputs:
   to:

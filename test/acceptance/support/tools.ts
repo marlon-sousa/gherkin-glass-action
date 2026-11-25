@@ -1,8 +1,7 @@
-// Test support: where the programs the acceptance tests run are, once tools/acceptance_tools.ts has downloaded them.
+// Test support: where the programs the acceptance tests run are, once downloaded.
 
 import path from "node:path";
 
-/** The folder the tools are downloaded into, in the repository's root. */
 export const TOOLS_FOLDER = ".acceptance";
 
 export const ACCEPTANCE_TOOLS = {

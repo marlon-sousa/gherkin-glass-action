@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 23 to 26 and 29: what the workflow's event asks the publish and preview actions to do.
+// Tests rules 23 to 26 and 29: what the workflow's event asks the publish and preview actions to do.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

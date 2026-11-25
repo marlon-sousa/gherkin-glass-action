@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 10: the annotation of each problem of ghg build's report.
+// Tests rule 10: the annotation of each problem of ghg build's report.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

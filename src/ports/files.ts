@@ -5,7 +5,6 @@ export interface Files {
   readText(file: string): Promise<string | undefined>;
   /** The file's SHA-256, in lower-case hexadecimal. */
   sha256Of(file: string): Promise<string>;
-  /** Whether there is a file there. */
   isFile(file: string): Promise<boolean>;
   /** Writes the text into a new file of the runner's temporary folder, and returns the file. */
   writeTemporary(name: string, text: string): Promise<string>;

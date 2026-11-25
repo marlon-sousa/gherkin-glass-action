@@ -1,8 +1,5 @@
 name: Weekly
 
-# docs/BEHAVIOUR.md, rule 12: fails while a newer stable ghg of the action's
-# major version than the paired one has been released, and runs the action's
-# checks, on every platform, with that newest ghg.
 
 on:
   schedule:
@@ -22,7 +19,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      # Without ghg-version, the action installs the newest stable ghg of its major version.
       - uses: ./
       - id: newest
         run: echo "version=$(ghg --version | sed 's/^ghg //')" >> "$GITHUB_OUTPUT"
@@ -43,7 +39,6 @@ jobs:
   with-newest:
     name: the action's checks with the newest ghg
     needs: newest
-    # Run even when the paired ghg is not the newest, which is when they matter.
     if: ${{ !cancelled() && needs.newest.outputs.version != '' }}
     uses: ./.github/workflows/action.yml
     with:

@@ -5,7 +5,6 @@ import { Given, Then, type DataTable } from "@cucumber/cucumber";
 import type { ScenarioWorld } from "../support/world.ts";
 import { HEAD } from "./publishing_steps.ts";
 
-/** The id of the action's comment, when the pull request already has one. */
 const COMMENT = 7;
 const MARKER = "<!-- gherkin-glass-action preview -->";
 
@@ -61,7 +60,7 @@ function lineBreaksOf(text: string): string {
   return text.replaceAll("\\n", "\n");
 }
 
-// The comments the action added or edited, oldest first: each request's method, address and body.
+// Oldest first.
 async function commentsWritten(world: ScenarioWorld): Promise<{ method: string; url: string; body: string }[]> {
   const requests = await world.wireMock.requests();
   return requests

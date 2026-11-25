@@ -1,4 +1,4 @@
-// Service: installs ghg on the runner, as docs/BEHAVIOUR.md, "Installing", says.
+// Service: installs ghg on the runner.
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
@@ -17,16 +17,12 @@ export interface InstallingPorts {
   readonly files: Files;
 }
 
-/** A ghg on the runner: its program's path, and its version. */
 export interface InstalledGhg {
   readonly program: string;
   readonly version: string;
 }
 
-/**
- * Installs ghg and puts its folder on the PATH, returning the ghg installed; a ghg to build with
- * must be one whose report the action reads (rule 2), which is checked before it is downloaded.
- */
+/** Puts ghg's folder on the PATH; a version too old to build with stops the action before anything is downloaded. */
 export async function installGhg(
   version: string | undefined,
   platform: Platform,
@@ -52,7 +48,6 @@ async function newestCompatible(major: number, releases: GhgReleases): Promise<s
   return newest;
 }
 
-// Downloads the archive, checks it against SHA256SUMS, and keeps what it holds in the tool cache.
 async function downloadGhg(version: string, platform: Platform, ports: InstallingPorts): Promise<string> {
   const archive = archiveName(version, platform);
   const archiveFile = await downloadOrStop(version, archive, ports.releases);

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 10: the problem matcher for the job's later steps.
+// Tests rule 10: the problem matcher for the job's later steps.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

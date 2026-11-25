@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 27 and 29: the comment that gives a pull request its preview's address.
+// Tests rules 27 and 29: the comment that gives a pull request its preview's address.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

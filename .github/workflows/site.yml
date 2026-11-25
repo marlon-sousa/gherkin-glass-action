@@ -1,11 +1,7 @@
 name: Site
 
-# The action's own behaviour, the scenarios of features/, published as a ghg
-# site on GitHub Pages by the publish action of this commit, ./publish, so
-# that publishing itself is used as a person would use it (issue #19): a
-# version for main, and one for each release, once release.yml has made it
-# (issue #25), so that a tag the release refuses is never published. The
-# previews of pull requests are preview.yml's.
+# The scenarios of features/, published by the publish action of this commit:
+# a version for main, and one for each release, once release.yml has made it.
 
 on:
   push:
@@ -21,17 +17,13 @@ permissions:
   contents: read
 
 concurrency:
-  # One run at a time for each branch or release; the action starts again
-  # from the branch's newest commit when another reached it first
-  # (docs/BEHAVIOUR.md, rule 22). A called workflow shares its caller's
-  # github.ref, the tag, whose own group, in release.yml, is named apart.
+  # A called workflow shares its caller's github.ref, the tag, whose own
+  # group, in release.yml, is named apart.
   group: site-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   publish:
-    # docs/BEHAVIOUR.md, rules 20 and 22: reading how Pages is set, and pushing
-    # to the branch it serves.
     name: publish the site
     runs-on: ubuntu-latest
     permissions:
@@ -44,6 +36,5 @@ jobs:
       - uses: ./publish
         with:
           title: gherkin-glass-action's behaviour
-          # Empty on a push to main, whose version the action names after the
-          # branch (docs/BEHAVIOUR.md, rule 23).
+          # Empty on a push to main, whose version the action names after the branch.
           version-name: ${{ inputs.version-name }}

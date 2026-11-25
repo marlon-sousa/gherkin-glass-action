@@ -4,7 +4,6 @@
 export type PushOutcome = "pushed" | "unchanged" | "behind" | "refused";
 
 export interface SiteBranch {
-  /** Whether the branch exists on the repository. */
   exists(branch: string): Promise<boolean>;
   /** Makes the branch, with one empty commit, and pushes it; false when the push is refused. */
   make(branch: string): Promise<boolean>;

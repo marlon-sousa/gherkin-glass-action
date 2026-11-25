@@ -1,4 +1,4 @@
-// Tool: bundles the actions into dist/index.cjs, dist/publish/index.cjs and dist/preview/index.cjs, and writes dist/licenses.txt with the licences of the packages it holds (issue #1, decision 15).
+// Tool: bundles the three actions into dist/, with dist/licenses.txt, the licences of the packages they hold.
 // Usage: npm run bundle
 
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -14,8 +14,6 @@ import {
   type BundledPackage,
 } from "./bundled_licenses.ts";
 
-// The root action's bundle, and those of the publish and preview actions, which their own
-// action.yml files name.
 const ENTRY_POINTS = {
   index: "src/main.ts",
   "publish/index": "src/publish_main.ts",
@@ -29,7 +27,6 @@ const bundleResult = await build({
   target: "node24",
   format: "cjs",
   charset: "utf8",
-  // The notices in the code's comments go to dist/licenses.txt, not into the bundles.
   legalComments: "external",
   outdir: "dist",
   outExtension: { ".js": ".cjs" },
@@ -40,8 +37,7 @@ const bundleResult = await build({
 
 const bundles = bundleResult.outputFiles.filter((outputFile) => outputFile.path.endsWith(".cjs"));
 if (bundles.length !== Object.keys(ENTRY_POINTS).length) throw new Error("esbuild did not write every bundle.");
-// Each bundle has its own file of legal comments; the bundles share their packages, so a file
-// that holds the same as another's is kept once.
+// The bundles share packages, so a file of legal comments that holds the same as another's is kept once.
 const legalComments = [
   ...new Set(bundleResult.outputFiles.filter((outputFile) => !bundles.includes(outputFile)).map((outputFile) => outputFile.text)),
 ].join("\n");
@@ -70,7 +66,7 @@ const embeddedNotices = embeddedCodeOf(inputPaths).map((code) => {
   return readFileSync(code.noticeFile, "utf8");
 });
 
-// dist/ is emptied first, so that a file the bundle no longer writes shows as deleted to the dist check.
+// A file the bundle no longer writes then shows as deleted to the dist check.
 rmSync("dist", { recursive: true, force: true });
 for (const bundle of bundles) {
   mkdirSync(path.dirname(bundle.path), { recursive: true });

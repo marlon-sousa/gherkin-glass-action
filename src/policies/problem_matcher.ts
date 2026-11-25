@@ -1,9 +1,7 @@
-// Policy: the problem matcher of ghg build's report, for later steps, as docs/BEHAVIOUR.md, rule 10, says.
+// Policy: the problem matcher of ghg build's report, for later steps.
 
-/** The matcher's owner, which the runner's remove-matcher command names. */
 export const PROBLEM_MATCHER_OWNER = "ghg";
 
-/** The matcher file the runner's add-matcher command reads, in the runner's format. */
 export const PROBLEM_MATCHER = {
   problemMatcher: [
     {

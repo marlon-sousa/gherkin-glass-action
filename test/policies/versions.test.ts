@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 2, 3 and 11: the release of ghg the action installs.
+// Tests rules 2, 3 and 11: the release of ghg the action installs.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

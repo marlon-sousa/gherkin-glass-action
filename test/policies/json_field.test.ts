@@ -1,4 +1,4 @@
-// Tests the field reader the policies use on what GitHub or ghg write, for docs/BEHAVIOUR.md, rules 7 and 24 to 29.
+// Tests the field reader the policies use on what GitHub or ghg write.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

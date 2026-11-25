@@ -4,7 +4,6 @@ import assert from "node:assert/strict";
 import { Then, When, type DataTable } from "@cucumber/cucumber";
 import type { ScenarioWorld } from "../support/world.ts";
 
-/** The event of a push of the branch main. */
 export const PUSH = { name: "push", payload: { ref: "refs/heads/main", repository: { full_name: "owner/repo" } } } as const;
 
 When("a push runs the action with:", function (this: ScenarioWorld, inputs: DataTable) {

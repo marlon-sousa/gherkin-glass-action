@@ -1,4 +1,4 @@
-// Service: changes the branch Pages serves once Pages is ready for it, as docs/BEHAVIOUR.md, rules 19 to 22, say.
+// Service: changes the branch Pages serves once Pages is ready for it.
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
@@ -21,26 +21,21 @@ export interface PublishingPorts extends BuildingPorts {
   readonly siteBranch: SiteBranch;
 }
 
-/** Where Pages serves the branch: the folder it serves, relative to the branch's root, and that folder's address. */
+/** servedFolder is relative to the branch's root. */
 export interface ServedSite {
   readonly servedFolder: string;
   readonly address: string;
 }
 
-/** A change to the branch: the message of its commit, and what it does to a checkout, false to leave the branch as it is. */
 export interface BranchChange {
   readonly message: string;
+  /** False leaves the branch as it is. */
   apply(checkout: string): Promise<boolean>;
 }
 
-// Rule 22: another push may reach the branch first; the action starts again, three times in all.
 const ATTEMPTS = 3;
 
-/**
- * Rule 20: where Pages serves the branch, or an ActionStop when it does not serve it with a
- * folder that holds folder. A branch that does not exist is made first, since Pages can be set
- * only to one that does.
- */
+/** Throws an ActionStop when Pages does not serve the branch with a folder that holds folder, after making a branch that does not exist. */
 export async function servedSiteOf(site: SiteInputs, ports: PublishingPorts): Promise<ServedSite> {
   const settings = await ports.repository.pagesSettings();
   if (settings === undefined) {
@@ -54,11 +49,7 @@ export async function servedSiteOf(site: SiteInputs, ports: PublishingPorts): Pr
   throw new ActionStop(notFromBranchProblem(site.branch, !exists));
 }
 
-/**
- * Checks out the branch's newest commit, applies the change, and commits and pushes what it
- * changed: left when the change left the branch as it is, unchanged when it changed nothing.
- * Stops before the change when Jekyll would leave pages out (rule 21).
- */
+/** "left" when the change left the branch as it is, "unchanged" when it changed nothing. */
 export async function changeBranch(
   branch: string,
   served: ServedSite,
@@ -84,11 +75,7 @@ function pushRefusedProblem(branch: string): string {
   return `The site cannot be pushed to ${branch}: the workflow needs the permission contents: write.`;
 }
 
-/**
- * Builds the site into a folder of the checked-out branch, relative to its root, keeping what
- * rule 19 keeps, with the arguments the action adds; true when ghg wrote it, false when it had
- * nothing to build (rule 7).
- */
+/** False when ghg had nothing to build. */
 export async function buildIntoBranch(
   ghg: string,
   request: SiteRequest,

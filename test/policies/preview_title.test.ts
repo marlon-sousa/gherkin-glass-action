@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 30: a preview's title names its pull request.
+// Tests rule 30: a preview's title names its pull request.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

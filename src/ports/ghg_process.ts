@@ -1,6 +1,5 @@
 // Port: a run of ghg, with its output in the step's log.
 
-/** How a run of ghg ended: its exit status, and what it printed on its standard output. */
 export interface GhgRun {
   readonly status: number;
   readonly standardOutput: string;

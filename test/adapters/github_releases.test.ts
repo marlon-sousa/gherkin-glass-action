@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 3: listing and downloading the releases of ghg, served on the loopback address.
+// Tests rule 3: listing and downloading the releases of ghg, served on the loopback address.
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";

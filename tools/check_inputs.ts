@@ -1,4 +1,4 @@
-// Tool: fails when the inputs and the options of ghg build differ, as docs/BEHAVIOUR.md, rule 9, says.
+// Tool: fails when the inputs and the options of ghg build differ.
 // Usage: ghg build --help | node tools/check_inputs.ts
 
 import { text } from "node:stream/consumers";

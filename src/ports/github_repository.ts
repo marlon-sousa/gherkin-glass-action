@@ -3,7 +3,6 @@
 import type { ChangedFile } from "../policies/changed_files.ts";
 import type { PagesSettings } from "../policies/pages_source.ts";
 
-/** A comment of a pull request. */
 export interface PullRequestComment {
   readonly id: number;
   readonly body: string;

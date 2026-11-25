@@ -3,7 +3,6 @@
 import { createServer } from "node:net";
 import { setTimeout as sleep } from "node:timers/promises";
 
-/** A port of the loopback address that nothing listens on now. */
 export function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const server = createServer();
@@ -15,7 +14,7 @@ export function freePort(): Promise<number> {
   });
 }
 
-/** Waits until the condition holds, for at most a minute, which a starting Java may need. */
+/** For at most a minute, which a starting Java may need. */
 export async function waitUntil(condition: () => Promise<boolean>): Promise<void> {
   for (let tries = 0; tries < 600; tries++) {
     if (await condition()) return;

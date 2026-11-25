@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, "The action": every input of the root action is checked before anything is downloaded.
+// Tests that every input of the root action is checked before anything is downloaded.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

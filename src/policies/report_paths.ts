@@ -1,38 +1,29 @@
-// Policy: where the files ghg build reads are, found as ghg finds them, for docs/BEHAVIOUR.md, rules 10, 28 and 29.
+// Policy: where the files ghg build reads are, found as ghg finds them.
 
 import path from "node:path";
 import { parse } from "smol-toml";
 
-/** Where ghg build's settings come from: its inputs, and the configuration file it reads. */
 export interface BuildSettings {
-  /** The input input, empty when it is not given. */
+  /** Empty when the input is not given. */
   readonly input: string;
-  /** The input front-page, empty when it is not given. */
+  /** Empty when the input is not given. */
   readonly frontPage: string;
-  /** The configuration file, as ghg build is given it or as it reads it by default. */
   readonly configFile: string;
-  /** The configuration file's text, undefined when there is none. */
+  /** Undefined when there is no configuration file. */
   readonly configText: string | undefined;
 }
 
-/** Where the paths of ghg build's report are relative to. */
 export interface ReportPaths {
-  /** The input folder, which a feature file's path is relative to. */
   readonly inputFolder: string;
-  /** The files ghg names by their path from the workspace: the configuration file and the front page. */
+  /** The configuration file and the front page, which the report names from the workspace. */
   readonly workspaceFiles: readonly string[];
 }
 
-/** The configuration file ghg build reads: the input config, or ghg.toml in the workspace. */
 export function configFileOf(configInput: string): string {
   return configInput === "" ? "ghg.toml" : configInput;
 }
 
-/**
- * The paths of the report. A setting the inputs give wins over the configuration file's
- * key, whose path is relative to the file's folder, as gherkin-glass's rules 24 and 183
- * say; without either, the input folder is features, beside the file or in the workspace.
- */
+/** An input wins over the configuration file's key, whose path is relative to the file's folder. */
 export function reportPathsOf(settings: BuildSettings): ReportPaths {
   const configured = configuredPaths(settings.configText);
   const besideConfig = besideConfigOf(settings.configFile);
@@ -45,8 +36,6 @@ export function reportPathsOf(settings: BuildSettings): ReportPaths {
   };
 }
 
-// The folder an input gives; else the configuration file's key, or its default, relative to the
-// file's folder; without a file, the default relative to the workspace.
 function folderOf(given: string, key: string | undefined, fallback: string, settings: BuildSettings): string {
   if (given !== "") return given;
   return settings.configText === undefined ? fallback : besideConfigOf(settings.configFile)(key ?? fallback);
@@ -56,8 +45,7 @@ function besideConfigOf(configFile: string): (key: string) => string {
   return (key) => (path.isAbsolute(key) ? key : path.join(path.dirname(configFile), key));
 }
 
-// The keys that take a path. A file ghg cannot read reports its own problem, and the action
-// then annotates with the defaults.
+// Empty for a file ghg reports as a problem itself.
 function configuredPaths(configText: string | undefined): {
   readonly input?: string;
   readonly frontPage?: string;

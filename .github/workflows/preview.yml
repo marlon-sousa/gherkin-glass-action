@@ -1,29 +1,23 @@
 name: Preview
 
-# A preview of the action's own site for each pull request, published by the
-# preview action of its commit, ./preview, and removed when it closes
-# (issue #19). It is a workflow apart from site.yml, which release.yml calls,
-# since a called workflow's jobs may not ask for more permissions than its
-# caller grants, and only this job needs pull-requests: write (issue #25).
+# A preview of the action's own site for each pull request, removed when it
+# closes. A called workflow's jobs may not ask for more permissions than its
+# caller grants, so this one, which needs pull-requests: write, stays apart
+# from site.yml, which release.yml calls.
 
 on:
   pull_request:
-    # docs/BEHAVIOUR.md, rule 26: the workflow lists closed, so that the
-    # preview is removed.
     types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
 
 concurrency:
-  # One run at a time for each pull request (docs/BEHAVIOUR.md, rule 22).
   group: preview-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 jobs:
   preview:
-    # docs/BEHAVIOUR.md, rule 27: the comment that gives the preview's address
-    # needs pull-requests: write.
     name: preview the site
     runs-on: ubuntu-latest
     permissions:
@@ -36,5 +30,5 @@ jobs:
           persist-credentials: false
       - uses: ./preview
         with:
-          # The action adds ", pull request #<number>" itself (docs/BEHAVIOUR.md, rule 30).
+          # The action adds ", pull request #<number>" itself.
           title: gherkin-glass-action's behaviour

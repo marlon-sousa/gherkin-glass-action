@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 20 to 22: the branch Pages serves, checked and changed, with fakes of the ports.
+// Tests rules 20 to 22: the branch Pages serves, checked and changed, with fakes of the ports.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

@@ -1,9 +1,7 @@
 name: Action
 
-# AGENTS.md, "Building and testing": the action's own checks, and the action
-# itself on each platform, as docs/BEHAVIOUR.md names these jobs, on every pull
-# request and every push to main, again on a release's tag through release.yml,
-# and each week with the newest ghg through weekly.yml.
+# The action's own checks, and the action itself on each platform, also called
+# by release.yml on a release's tag and by weekly.yml with the newest ghg.
 
 on:
   push:
@@ -58,7 +56,6 @@ jobs:
         run: echo "version=${GHG_VERSION:-$(jq -r .version paired-ghg.json)}" >> "$GITHUB_OUTPUT"
 
   platforms:
-    # docs/BEHAVIOUR.md, rules 1, 4, 7 and 18.
     name: the action on each platform (${{ matrix.runner }})
     needs: paired
     strategy:
@@ -96,9 +93,6 @@ jobs:
         run: test -f test/fixtures/site/site/index.html && test -f test/fixtures/site/site/shop/basket.html
 
   acceptance:
-    # docs/BEHAVIOUR.md, "The action": the scenarios of features/, which run the
-    # three actions in workflows through act, against stand-ins for GitHub, on
-    # every platform of the job "the action on each platform" (issue #16).
     name: the actions end to end (${{ matrix.runner }})
     strategy:
       fail-fast: false
@@ -115,8 +109,7 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-      # WireMock 3 needs Java 11 or newer (wiremock.org, "Download and Installation"):
-      # the same Java on every runner, whatever its image carries.
+      # The same Java on every runner, whatever its image carries.
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
@@ -125,10 +118,6 @@ jobs:
       - run: npm run acceptance
 
   site-actions:
-    # docs/BEHAVIOUR.md, rules 19 and 28: the bundles of the publish and preview
-    # actions run, and stop at an input they cannot use, on any event. Publishing itself is checked
-    # by the unit tests, against a repository on disk, by the job "the actions
-    # end to end", and in use by site.yml and preview.yml.
     name: the publish and preview actions stopping
     runs-on: ubuntu-latest
     steps:
@@ -167,7 +156,6 @@ jobs:
           grep -Fx "::error::changed-only must be true or false." <<< "$said"
 
   inputs:
-    # docs/BEHAVIOUR.md, rule 9.
     name: the inputs against ghg build
     needs: paired
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 1 to 6: installing ghg, through fakes of the ports.
+// Tests rules 1 to 6: installing ghg, through fakes of the ports.
 
 import assert from "node:assert/strict";
 import path from "node:path";

@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 7: the build's standard output, which holds its report, reaches the action whole.
+// Tests rule 7: the build's standard output, which holds its report, reaches the action whole.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

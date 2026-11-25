@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 19 and 28: the inputs the publish and preview actions share, and those of each action.yml.
+// Tests rules 19 and 28: the inputs the publish and preview actions share, and those of each action.yml.
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

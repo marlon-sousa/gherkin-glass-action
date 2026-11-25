@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 20 to 22: whether Pages serves the branch, and the address of a folder of it.
+// Tests rules 20 to 22: whether Pages serves the branch, and the address of a folder of it.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

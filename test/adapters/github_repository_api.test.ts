@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rules 20, 27 to 29: the repository through GitHub's API, served on the loopback address.
+// Tests rules 20, 27 to 29: the repository through GitHub's API, served on the loopback address.
 
 import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";

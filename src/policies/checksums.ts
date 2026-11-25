@@ -1,10 +1,6 @@
-// Policy: the checksum SHA256SUMS lists for an archive, as docs/BEHAVIOUR.md, rule 5, says.
+// Policy: the checksum SHA256SUMS lists for an archive.
 
-/**
- * The SHA-256 the file lists for the archive, in lower case, if it lists it. Each line is
- * written as sha256sum writes it, the checksum, two spaces and the name, or a space and
- * a star before a name read in binary mode.
- */
+/** In lower case, undefined when the archive is not listed; lines are as sha256sum writes them, in text or binary mode. */
 export function listedChecksum(sums: string, archive: string): string | undefined {
   return sums
     .split(/\r?\n/)

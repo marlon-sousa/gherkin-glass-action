@@ -1,5 +1,4 @@
-// Tool: downloads the programs the acceptance tests run, act and WireMock, at pinned versions,
-// checked against their SHA-256 checksums, into .acceptance/, as issue #16 agreed.
+// Tool: downloads act and WireMock, which the acceptance tests run, at pinned versions checked against their checksums, into .acceptance/.
 // Usage: node tools/acceptance_tools.ts
 
 import { createHash } from "node:crypto";
@@ -8,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import path from "node:path";
 import { ACCEPTANCE_TOOLS, TOOLS_FOLDER as FOLDER } from "../test/acceptance/support/tools.ts";
 
-// nektos/act v0.2.97, with the checksums of its release's checksums.txt.
+// The checksums of nektos/act v0.2.97's checksums.txt.
 const ACT_VERSION = "0.2.97";
 const ACT_ARCHIVES: Readonly<Record<string, { readonly name: string; readonly sha256: string }>> = {
   "linux/x64": { name: "act_Linux_x86_64.tar.gz", sha256: "67b4976a56f33ea7870b798912e738ec44eef38e7578ae7b532f2def1c73a5ad" },
@@ -19,7 +18,7 @@ const ACT_ARCHIVES: Readonly<Record<string, { readonly name: string; readonly sh
   "win32/arm64": { name: "act_Windows_arm64.zip", sha256: "88a5e8620699c97077b95bb1474ad162bb5687406a9cb4c6d7701bf46b585608" },
 };
 
-// WireMock's standalone jar 3.13.2, from Maven Central, with the SHA-256 of the jar whose SHA-1 its .sha1 file gives, 8bfbad28c85f7b4927694491f2c8030c898c72a9.
+// The SHA-256 of WireMock's standalone jar 3.13.2 on Maven Central, whose SHA-1 is 8bfbad28c85f7b4927694491f2c8030c898c72a9.
 const WIREMOCK = {
   address:
     "https://repo1.maven.org/maven2/org/wiremock/wiremock-standalone/3.13.2/wiremock-standalone-3.13.2.jar",
@@ -38,15 +37,12 @@ async function download(address: string, sha256: string, file: string): Promise<
 mkdirSync(FOLDER, { recursive: true });
 const stamp = path.join(FOLDER, "versions.txt");
 const versions = `act ${ACT_VERSION}\nwiremock ${WIREMOCK.sha256}\n`;
-// Downloaded once, and again only when a version changes.
 if (!existsSync(stamp) || readFileSync(stamp, "utf8") !== versions) {
   const archive = ACT_ARCHIVES[`${process.platform}/${process.arch}`];
   if (archive === undefined) throw new Error(`act has no build for ${process.platform} on ${process.arch}.`);
   const archiveFile = path.join(FOLDER, archive.name);
   await download(`https://github.com/nektos/act/releases/download/v${ACT_VERSION}/${archive.name}`, archive.sha256, archiveFile);
-  // Windows' own tar, in System32, is bsdtar, which reads the zip too; Git's GNU tar, ahead of it on
-  // the PATH of Git Bash, does not, so it is named whole, as @actions/cache names it
-  // (actions/toolkit, packages/cache/src/internal/tar.ts, the function getTarPath).
+  // Windows' own tar, bsdtar, reads a zip, and Git's GNU tar, ahead of it on Git Bash's PATH, does not.
   const tar = process.platform === "win32" ? path.join(process.env["SystemRoot"] ?? "C:\\Windows", "System32", "tar.exe") : "tar";
   execFileSync(tar, ["-xf", archive.name, path.basename(ACCEPTANCE_TOOLS.act)], { cwd: FOLDER });
   rmSync(archiveFile);

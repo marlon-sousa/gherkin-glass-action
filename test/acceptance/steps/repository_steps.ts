@@ -6,7 +6,6 @@ import path from "node:path";
 import { Given, Then } from "@cucumber/cucumber";
 import type { ScenarioWorld } from "../support/world.ts";
 
-/** A feature file ghg reads, with one scenario. */
 const FEATURE = "Feature: Basket\n\n  Scenario: Adding an item\n    Given an empty basket\n    When I add an apple\n    Then the basket holds an apple\n";
 
 Given("the repository holds the feature file {string}", function (this: ScenarioWorld, file: string) {

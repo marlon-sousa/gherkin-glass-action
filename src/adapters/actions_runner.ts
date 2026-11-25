@@ -36,7 +36,6 @@ export class ActionsRunner implements Runner {
     core.notice(line);
   }
 
-  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
   workflowEvent(): WorkflowEvent {
     const payloadFile = process.env["GITHUB_EVENT_PATH"];
     return {
@@ -50,8 +49,7 @@ export class ActionsRunner implements Runner {
     core.error(annotation.message, { file: annotation.file, startLine: annotation.line });
   }
 
-  // The runner reads a matcher from a file that the add-matcher command names, as
-  // actions/setup-node registers its own (src/main.ts, line 96, at v7.1.0).
+  // The runner reads a matcher from the file an add-matcher command names, as actions/setup-node v7.1.0 registers its own.
   async addProblemMatcher(): Promise<void> {
     const file = path.join(process.env["RUNNER_TEMP"] ?? os.tmpdir(), "ghg-problem-matcher.json");
     await writeFile(file, JSON.stringify(PROBLEM_MATCHER));

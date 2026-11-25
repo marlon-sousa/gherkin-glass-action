@@ -128,7 +128,7 @@ export class FakeToolCache implements GhgToolCache {
   }
 }
 
-/** The JSON object ghg build prints with --message-format=json (gherkin-glass's rule 231), with those keys changed. */
+/** The JSON object ghg build prints with --message-format=json, with those keys changed. */
 export function ghgReport(given: Record<string, unknown> = {}): string {
   const report = { outcome: "built", output: "site", version: null, features: 1, scenarios: 1, notes: [], errors: [], ...given };
   return `${JSON.stringify(report)}\n`;

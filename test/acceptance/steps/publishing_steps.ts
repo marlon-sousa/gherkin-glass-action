@@ -5,9 +5,7 @@ import { Given, Then, When, type DataTable } from "@cucumber/cucumber";
 import type { ScenarioWorld } from "../support/world.ts";
 import { PUSH } from "./action_steps.ts";
 
-/** The address Pages gives the repository's site. */
 const SITE = "https://owner.github.io/repo/";
-/** The commit at the head of the pull request the scenarios open. */
 export const HEAD = "b".repeat(40);
 
 Given("Pages deploys from the branch {string}, serving {string}", async function (this: ScenarioWorld, branch: string, folder: string) {

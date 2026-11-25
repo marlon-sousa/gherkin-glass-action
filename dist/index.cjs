@@ -23375,7 +23375,6 @@ var ActionsRunner = class {
   notice(line) {
     notice(line);
   }
-  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
   workflowEvent() {
     const payloadFile = process.env["GITHUB_EVENT_PATH"];
     return {
@@ -23387,8 +23386,7 @@ var ActionsRunner = class {
   annotate(annotation) {
     error(annotation.message, { file: annotation.file, startLine: annotation.line });
   }
-  // The runner reads a matcher from a file that the add-matcher command names, as
-  // actions/setup-node registers its own (src/main.ts, line 96, at v7.1.0).
+  // The runner reads a matcher from the file an add-matcher command names, as actions/setup-node v7.1.0 registers its own.
   async addProblemMatcher() {
     const file = import_node_path.default.join(process.env["RUNNER_TEMP"] ?? import_node_os.default.tmpdir(), "ghg-problem-matcher.json");
     await (0, import_promises.writeFile)(file, JSON.stringify(PROBLEM_MATCHER));
@@ -23873,7 +23871,7 @@ var PAGE_SIZE = 100;
 var GitHubGhgReleases = class {
   httpClient = new HttpClient("gherkin-glass-action");
   addresses;
-  /** Sent to GitHub's API, undefined when there is none to send. */
+  /** Undefined when there is none to send. */
   token;
   constructor(addresses, token) {
     this.addresses = addresses;

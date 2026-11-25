@@ -2,12 +2,8 @@ name: gherkin-glass
 description: Installs ghg, the accessible static viewer for Gherkin feature files, and builds a site with it when asked.
 author: marlon-sousa
 
-# docs/BEHAVIOUR.md says what this action does. Besides ghg-version, build and
-# token, every input is an option of ghg build of the same name, and every option
-# of ghg build that sets how a site is built is an input: src/policies/build_arguments.ts
-# lists them, its test fails when an input here is not passed, and the job "the
-# inputs against ghg build" of .github/workflows/action.yml fails when they differ
-# from the options of the paired ghg.
+# Besides ghg-version, build and token, every input is an option of ghg build of
+# the same name, and a check fails when they differ.
 
 branding:
   icon: book-open

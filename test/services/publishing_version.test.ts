@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 23: publish adds a version of the site to the branch Pages serves.
+// Tests rule 23: publish adds a version of the site to the branch Pages serves.
 
 import assert from "node:assert/strict";
 import path from "node:path";

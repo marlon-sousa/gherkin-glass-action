@@ -8,11 +8,8 @@ import { downloadTool } from "@actions/tool-cache";
 import type { ReleaseListing } from "../policies/versions.ts";
 import type { GhgReleases } from "../ports/ghg_releases.ts";
 
-/** Where gherkin-glass's releases are: GitHub's API and its downloads, which tests serve locally. */
 export interface ReleaseAddresses {
-  /** Such as https://api.github.com/repos/marlon-sousa/gherkin-glass. */
   readonly api: string;
-  /** Such as https://github.com/marlon-sousa/gherkin-glass/releases/download. */
   readonly downloads: string;
 }
 
@@ -27,7 +24,7 @@ const PAGE_SIZE = 100;
 export class GitHubGhgReleases implements GhgReleases {
   private readonly httpClient = new HttpClient("gherkin-glass-action");
   private readonly addresses: ReleaseAddresses;
-  /** Sent to GitHub's API, undefined when there is none to send. */
+  /** Undefined when there is none to send. */
   private readonly token: string | undefined;
 
   constructor(addresses: ReleaseAddresses, token: string | undefined) {
@@ -71,7 +68,7 @@ export class GitHubGhgReleases implements GhgReleases {
   }
 }
 
-// The releases of a page of GitHub's listing, or undefined when it is not one.
+// Undefined when the page is not GitHub's listing.
 function releaseListings(page: unknown): readonly ReleaseListing[] | undefined {
   if (!Array.isArray(page)) return undefined;
   const listings = page.flatMap((release: unknown) => {

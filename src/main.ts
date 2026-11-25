@@ -9,7 +9,6 @@ import { NodeFiles } from "./adapters/node_files.ts";
 import { majorOf } from "./policies/versions.ts";
 import { runAction } from "./services/running_action.ts";
 
-// runAction fails the step itself, so its promise never rejects.
 void runAction(majorOf(pairedGhg.version), {
   runner: new ActionsRunner(),
   releasesWith: (token) => new GitHubGhgReleases(GITHUB_RELEASES, token),

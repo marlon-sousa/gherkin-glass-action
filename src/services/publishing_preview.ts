@@ -1,4 +1,4 @@
-// Service: publishes a pull request's preview on the branch Pages serves, and removes it, as docs/BEHAVIOUR.md, rules 26 to 29, say.
+// Service: publishes a pull request's preview on the branch Pages serves, and removes it.
 
 import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
@@ -13,20 +13,17 @@ import type { PullRequestComment } from "../ports/github_repository.ts";
 import { buildIntoBranch, changeBranch, servedSiteOf, type PublishingPorts } from "./publishing.ts";
 import type { SiteRequest } from "./reading_site_inputs.ts";
 
-/** What preview is asked: the shared inputs, and whether the preview shows only the files the pull request changes. */
 export interface PreviewRequest extends SiteRequest {
   readonly changedOnly: boolean;
 }
 
-/** What the event asks of an open pull request that is not a fork's. */
 export type OpenPullRequest = Extract<PreviewEvent, { readonly kind: "open" }>;
 
 const COMMENT_PROBLEM = "The comment of the pull request's preview cannot be written.";
 
-// Rule 29: ghg marks the folder of a site without versions with this file (gherkin-glass's rule 38).
+// The file ghg marks the folder of a site without versions with.
 const SITE_MARKER = "ghg-site.json";
 
-/** Builds and pushes the preview of an open pull request, and comments its address. */
 export async function publishPreview(
   ghg: string,
   request: PreviewRequest,
@@ -61,7 +58,6 @@ export async function publishPreview(
     },
     ports,
   );
-  // Rule 26: an earlier preview and its comment are left as they are, as rule 28 leaves them.
   if (nothingToBuild) {
     ports.runner.log("ghg read no feature file, so no preview is published.");
     return;
@@ -75,7 +71,6 @@ export async function publishPreview(
   await writeComment(event.pullRequest, comment, previewCommentOf(address, event.headCommit), ports);
 }
 
-/** Removes the preview of a closed pull request, which needs no ghg, and says so in its comment. */
 export async function removePreview(pullRequest: number, request: SiteRequest, ports: PublishingPorts): Promise<void> {
   const served = await servedSiteOf(request, ports);
   const comment = await previewCommentOn(pullRequest, ports);
@@ -93,12 +88,10 @@ export async function removePreview(pullRequest: number, request: SiteRequest, p
     ports,
   );
   if (outcome === "pushed") ports.runner.log(`The preview of pull request #${pullRequest} is removed from ${request.branch}.`);
-  // A removal adds no comment where there was none.
   if (comment !== undefined) await writeComment(pullRequest, comment, REMOVED_PREVIEW_COMMENT, ports);
 }
 
-// Rule 28: the --only argument of the files the pull request changes inside the input folder,
-// or undefined when there is none.
+// Undefined when the pull request changes no file of the input folder.
 async function changedOnlyArguments(pullRequest: number, paths: ReportPaths, ports: PublishingPorts) {
   const changed = await ports.repository.listChangedFiles(pullRequest);
   if (changed === undefined) throw new ActionStop("The files the pull request changes cannot be listed.");
@@ -107,9 +100,7 @@ async function changedOnlyArguments(pullRequest: number, paths: ReportPaths, por
   return [`--only=${await ports.files.writeTemporary("changed-files.txt", files.map((file) => `${file}\n`).join(""))}`];
 }
 
-// Rule 29: whether the commits from the one the preview was built from to the pull request's head
-// change none of the preview's sources; false when either is not known or they cannot be
-// compared, so that the preview is built.
+// False when either commit is not known or they cannot be compared.
 async function keepsSources(
   builtFrom: string | undefined,
   headCommit: string | undefined,
@@ -121,14 +112,12 @@ async function keepsSources(
   return changed !== undefined && !changesPreviewSources(changed, paths, ports.runner.workspace);
 }
 
-// Rule 27: the action's comment on the pull request, if there is one.
 async function previewCommentOn(pullRequest: number, ports: PublishingPorts): Promise<PullRequestComment | undefined> {
   const comments = await ports.repository.listComments(pullRequest);
   if (comments === undefined) throw new ActionStop(COMMENT_PROBLEM);
   return previewCommentAmong(comments);
 }
 
-// Rule 27: one comment, edited on every later push rather than added again.
 async function writeComment(
   pullRequest: number,
   comment: PullRequestComment | undefined,

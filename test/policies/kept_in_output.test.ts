@@ -1,4 +1,4 @@
-// Tests docs/BEHAVIOUR.md, rule 19: what publish and preview keep in the folder the site goes into.
+// Tests rule 19: what publish and preview keep in the folder the site goes into.
 
 import assert from "node:assert/strict";
 import { test } from "node:test";

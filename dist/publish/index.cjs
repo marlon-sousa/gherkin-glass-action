@@ -25372,7 +25372,6 @@ var ActionsRunner = class {
   notice(line) {
     notice(line);
   }
-  // The runner writes the event's payload into the file GITHUB_EVENT_PATH names.
   workflowEvent() {
     const payloadFile = process.env["GITHUB_EVENT_PATH"];
     return {
@@ -25384,8 +25383,7 @@ var ActionsRunner = class {
   annotate(annotation) {
     error(annotation.message, { file: annotation.file, startLine: annotation.line });
   }
-  // The runner reads a matcher from a file that the add-matcher command names, as
-  // actions/setup-node registers its own (src/main.ts, line 96, at v7.1.0).
+  // The runner reads a matcher from the file an add-matcher command names, as actions/setup-node v7.1.0 registers its own.
   async addProblemMatcher() {
     const file = import_node_path7.default.join(process.env["RUNNER_TEMP"] ?? import_node_os.default.tmpdir(), "ghg-problem-matcher.json");
     await (0, import_promises.writeFile)(file, JSON.stringify(PROBLEM_MATCHER));
@@ -25865,15 +25863,10 @@ var import_node_path8 = __toESM(require("node:path"), 1);
 var AUTHOR_NAME = "github-actions[bot]";
 var AUTHOR_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com";
 var GitSiteBranch = class {
-  /** Such as https://github.com/owner/repo.git. */
   remote;
-  /**
-   * Git's configuration for every command: the token, as an extra header for the server, as
-   * actions/checkout sends it (src/git-auth-helper.ts, lines 57 to 64, at v7.0.1).
-   */
+  /** The token goes as an extra header, as actions/checkout v7.0.1 sends it. */
   environment;
   temporaryRoot;
-  /** The repository of each checkout, kept beside it. */
   repositories = /* @__PURE__ */ new Map();
   /** serverAddress is GITHUB_SERVER_URL, such as https://github.com, and repository GITHUB_REPOSITORY, such as owner/repo. */
   constructor(serverAddress, repository, token, temporaryRoot = import_node_os2.default.tmpdir()) {
@@ -25894,9 +25887,7 @@ var GitSiteBranch = class {
       GIT_TERMINAL_PROMPT: "0"
     };
   }
-  // Asked from an empty checkout, whose repository is named, rather than from the working folder,
-  // which is the workspace: actions/checkout leaves its own extra header in the workspace's
-  // repository, and git would send both.
+  // From an empty checkout, since in the workspace git would also send the extra header actions/checkout leaves there.
   async exists(branch) {
     const listed = await this.git(await this.emptyCheckout(), ["ls-remote", "--heads", this.remote, `refs/heads/${branch}`]);
     return listed.stdout.trim() !== "";
@@ -25929,8 +25920,7 @@ var GitSiteBranch = class {
     info(`git push failed: ${pushed.stderr.trim()}`);
     return "refused";
   }
-  // A new work tree, whose repository is kept beside it rather than in a .git inside it, since
-  // ghg refuses an output folder that holds anything it did not write (gherkin-glass's rule 122).
+  // The repository is kept beside the work tree, since ghg refuses an output folder that holds anything it did not write.
   async emptyCheckout() {
     const root = await (0, import_promises2.mkdtemp)(import_node_path8.default.join(this.temporaryRoot, "ghg-pages-"));
     const checkout = import_node_path8.default.join(root, "site");
@@ -25948,8 +25938,7 @@ var GitSiteBranch = class {
     }
     return checkout;
   }
-  // Runs git on a checkout, or on none, in the temporary folder rather than in the workspace, whose
-  // repository's configuration it would read; a failure throws unless it is allowed.
+  // Never in the workspace, whose repository's configuration git would read; a failure throws unless it is allowed.
   async git(checkout, gitArguments, failureAllowed = false) {
     const repository = checkout === void 0 ? void 0 : this.repositories.get(checkout);
     const located = repository === void 0 ? [] : [`--git-dir=${repository}`, `--work-tree=${checkout}`];
@@ -25978,7 +25967,7 @@ var PAGE_SIZE = 100;
 var GitHubGhgReleases = class {
   httpClient = new HttpClient("gherkin-glass-action");
   addresses;
-  /** Sent to GitHub's API, undefined when there is none to send. */
+  /** Undefined when there is none to send. */
   token;
   constructor(addresses, token) {
     this.addresses = addresses;
@@ -30186,8 +30175,7 @@ var GitHubRepositoryApi = class {
     this.owner = owner;
     this.repo = repo;
   }
-  // GET /repos/{owner}/{repo}/pages answers 404 when Pages is off (github/rest-api-description,
-  // api.github.com.json, the operation "Get a GitHub Pages site").
+  // GitHub answers 404 when Pages is off, as github/rest-api-description's api.github.com.json says.
   async pagesSettings() {
     try {
       const { data } = await this.client.rest.repos.getPages({ owner: this.owner, repo: this.repo });
@@ -30202,13 +30190,12 @@ var GitHubRepositoryApi = class {
       return fieldOf(error2, "status") === 404 ? "off" : void 0;
     }
   }
-  // Octokit's paginate follows the link header to every page, up to the 3000 files GitHub lists.
+  // GitHub lists at most 3000 files of a pull request.
   async listChangedFiles(pullRequest) {
     const request2 = { owner: this.owner, repo: this.repo, pull_number: pullRequest, per_page: PAGE_SIZE2 };
     return orUndefined(async () => changedFilesOf(await this.client.paginate(this.client.rest.pulls.listFiles, request2)));
   }
-  // The comparison gives its status, ahead when head follows base, and at most 300 files, so a
-  // list that may be cut short cannot tell that no file matters.
+  // Undefined when the list may be cut short at 300 files.
   async compareCommits(before, after) {
     const basehead = `${before}...${after}`;
     return orUndefined(async () => {
