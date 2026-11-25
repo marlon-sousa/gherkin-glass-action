@@ -1,7 +1,9 @@
 // Service: the root action from its inputs to its end.
 
 import path from "node:path";
-import { ActionStop } from "../action_stop.ts";
+import { stopSentencesOf } from "../action_stop.ts";
+import { ACTION_OPTIONS } from "../policies/build_arguments.ts";
+import { optionsOf, type GhgOptions } from "../policies/ghg_options.ts";
 import type { Files } from "../ports/files.ts";
 import type { GhgProcess } from "../ports/ghg_process.ts";
 import type { GhgReleases } from "../ports/ghg_releases.ts";
@@ -20,10 +22,11 @@ export interface ActionPorts {
 }
 
 /** Fails the step itself, so its promise never rejects. */
-export async function runAction(pairedMajor: number, ports: ActionPorts): Promise<void> {
+export async function runAction(options: GhgOptions, ports: ActionPorts): Promise<void> {
   try {
     const { install, build } = readRequest(ports.runner);
-    const ghg = await installGhg(install.version, install.platform, build !== undefined, pairedMajor, {
+    const passed = build === undefined ? undefined : { byInputs: optionsOf(build.buildArguments), byAction: ACTION_OPTIONS };
+    const ghg = await installGhg(install.version, install.platform, passed, options, {
       ...ports,
       releases: ports.releasesWith(install.releasesToken),
     });
@@ -37,6 +40,6 @@ export async function runAction(pairedMajor: number, ports: ActionPorts): Promis
       await ports.runner.addProblemMatcher();
     }
   } catch (error: unknown) {
-    ports.runner.fail(error instanceof ActionStop ? error.message : `The action failed unexpectedly: ${String(error)}`);
+    for (const sentence of stopSentencesOf(error)) ports.runner.fail(sentence);
   }
 }

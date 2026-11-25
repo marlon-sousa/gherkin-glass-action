@@ -1,6 +1,6 @@
 // Tool: the options of ghg build that ghg build --help lists.
 
-/** ghg 1.1.0 lists them under a heading that starts "Options of ghg build", one a line, such as "  --input <folder>: the folder of feature files to read". */
+/** ghg 1.0.0 and 1.1.0 list them under a heading that starts "Options of ghg build", one a line, such as "  --input <folder>: the folder of feature files to read". */
 export function optionsOfHelp(help: string): readonly string[] {
   const options: string[] = [];
   let inside = false;

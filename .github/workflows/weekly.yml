@@ -1,6 +1,7 @@
 name: Weekly
 
-# Fails while a newer stable ghg of the paired major version is out, and runs the checks with it.
+# Fails while the newest stable ghg of the action's major version has options
+# ghg-options.json does not name, and runs the checks with it.
 
 on:
   schedule:
@@ -12,7 +13,7 @@ permissions:
 
 jobs:
   newest:
-    name: the paired ghg is the newest
+    name: the newest ghg has no option the action lacks
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.newest.outputs.version }}
@@ -20,26 +21,19 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
       - uses: ./
       - id: newest
         run: echo "version=$(ghg --version | sed 's/^ghg //')" >> "$GITHUB_OUTPUT"
-      - name: Compare it with the paired ghg
-        env:
-          NEWEST: ${{ steps.newest.outputs.version }}
-        run: |
-          paired=$(jq -r .version paired-ghg.json)
-          # paired-ghg.json never names a pre-release, which sort -V would misorder.
-          newer=$(printf '%s\n%s\n' "$paired" "$NEWEST" | sort -V | tail -n 1)
-          if [ "$NEWEST" != "$paired" ] && [ "$newer" = "$NEWEST" ]; then
-            echo "::error::ghg $NEWEST is out, and the action is paired with ghg $paired. Pair it with ghg $NEWEST in paired-ghg.json, add an input for each option it adds, and release the action."
-            exit 1
-          fi
-          echo "The action is paired with ghg $paired, and the newest stable ghg is $NEWEST."
+      - name: Compare its options with ghg-options.json
+        run: ghg build --help | node tools/check_inputs.ts
 
   with-newest:
     name: the action's checks with the newest ghg
     needs: newest
-    # newest fails when a newer ghg is out, which is when this job must still run.
+    # newest fails when the newest ghg has an option the action lacks, which is when this job must still run.
     if: ${{ !cancelled() && needs.newest.outputs.version != '' }}
     uses: ./.github/workflows/action.yml
     with:

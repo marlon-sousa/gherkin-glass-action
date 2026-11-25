@@ -34,15 +34,11 @@ export function newestStable(releases: readonly ReleaseListing[], major: number)
     .at(-1);
 }
 
-// The first release of ghg with --message-format.
-const FIRST_BUILDING = [1, 1, 0];
-
-/** Undefined when the version is new enough. */
-export function buildingProblem(version: string): { readonly problem: string } | undefined {
+/** Whether the version comes before the release, which has no pre-release part, a pre-release coming before its release. */
+export function isOlder(version: string, release: string): boolean {
   const [numbers = "", preRelease] = version.split(/-(.*)/s);
   const [major = 0, minor = 0, patch = 0] = numbers.split(".").map(Number);
-  const [firstMajor = 0, firstMinor = 0, firstPatch = 0] = FIRST_BUILDING;
-  const order = major - firstMajor || minor - firstMinor || patch - firstPatch;
-  const older = order < 0 || (order === 0 && preRelease !== undefined);
-  return older ? { problem: `The action builds with ghg ${FIRST_BUILDING.join(".")} or newer, not ${version}.` } : undefined;
+  const [releaseMajor = 0, releaseMinor = 0, releasePatch = 0] = release.split(".").map(Number);
+  const order = major - releaseMajor || minor - releaseMinor || patch - releasePatch;
+  return order < 0 || (order === 0 && preRelease !== undefined);
 }

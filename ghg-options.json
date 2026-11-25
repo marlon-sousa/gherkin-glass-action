@@ -1,0 +1,15 @@
+{
+  "tested": "1.1.0",
+  "since": {
+    "config": "1.0.0",
+    "input": "1.0.0",
+    "output": "1.0.0",
+    "title": "1.0.0",
+    "version-name": "1.0.0",
+    "front-page": "1.0.0",
+    "only": "1.0.0",
+    "preview": "1.0.0",
+    "keep-in-output": "1.1.0",
+    "message-format": "1.1.0"
+  }
+}

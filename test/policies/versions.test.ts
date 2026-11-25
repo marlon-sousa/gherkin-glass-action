@@ -3,8 +3,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import packageJson from "../../package.json" with { type: "json" };
-import pairedGhg from "../../paired-ghg.json" with { type: "json" };
-import { buildingProblem, majorOf, namedVersion, newestStable, type ReleaseListing } from "../../src/policies/versions.ts";
+import ghgOptions from "../../ghg-options.json" with { type: "json" };
+import { isOlder, majorOf, namedVersion, newestStable, type ReleaseListing } from "../../src/policies/versions.ts";
 
 const PROBLEM = { problem: "ghg-version must be a version of ghg, such as 1.2.0." };
 
@@ -50,15 +50,12 @@ test("no release of the major version gives none", () => {
   assert.equal(newestStable([], 1), undefined);
 });
 
-test("the action's major version is that of its paired ghg", () => {
-  assert.ok(namedVersion(pairedGhg.version) === pairedGhg.version, "paired-ghg.json names a version");
-  assert.equal(majorOf(packageJson.version), majorOf(pairedGhg.version));
+test("the action's major version is that of the release its checks install", () => {
+  assert.equal(majorOf(packageJson.version), majorOf(ghgOptions.tested));
   assert.equal(majorOf("12.3.4"), 12);
 });
 
-test("the action builds with ghg 1.1.0 or newer, its pre-releases coming before it", () => {
-  for (const version of ["1.1.0", "1.1.1", "1.2.0", "2.0.0", "1.2.0-rc.1"]) assert.equal(buildingProblem(version), undefined, version);
-  for (const version of ["1.0.0", "1.0.9", "0.1.0-alpha.2", "1.1.0-rc.1"]) {
-    assert.deepEqual(buildingProblem(version), { problem: `The action builds with ghg 1.1.0 or newer, not ${version}.` }, version);
-  }
+test("a version is older than a release by its numbers, and a pre-release than its release", () => {
+  for (const version of ["1.0.0", "1.0.9", "0.1.0-alpha.2", "1.1.0-rc.1"]) assert.ok(isOlder(version, "1.1.0"), version);
+  for (const version of ["1.1.0", "1.1.1", "1.2.0", "2.0.0", "1.2.0-rc.1", "1.10.0"]) assert.ok(!isOlder(version, "1.1.0"), version);
 });

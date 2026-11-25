@@ -1,7 +1,9 @@
 // Service: the publish and preview actions from their inputs to their end.
 
-import { ActionStop, orStop } from "../action_stop.ts";
-import { changedOnlyOf } from "../policies/site_inputs.ts";
+import { orStop, stopSentencesOf } from "../action_stop.ts";
+import { linesOf } from "../policies/build_arguments.ts";
+import { optionsOf, type GhgOptions, type OptionsPassed } from "../policies/ghg_options.ts";
+import { changedOnlyOf, PREVIEW_OPTIONS, PUBLISH_OPTIONS } from "../policies/site_inputs.ts";
 import { previewEventOf, versionNameOf } from "../policies/workflow_event.ts";
 import type { GitHubRepository } from "../ports/github_repository.ts";
 import type { Runner } from "../ports/runner.ts";
@@ -20,16 +22,16 @@ export interface SiteActionPorts extends ActionPorts {
 
 type Publishing = (installedGhg: () => Promise<string>, ports: PublishingPorts) => Promise<void>;
 
-export async function runPublish(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
-  await runSiteAction(pairedMajor, ports, (request, runner) => {
+export async function runPublish(options: GhgOptions, ports: SiteActionPorts): Promise<void> {
+  await runSiteAction(options, PUBLISH_OPTIONS, ["version-name"], ports, (request, runner) => {
     const versionName = versionNameOf(runner.input("version-name"), runner.workflowEvent().refName);
     return async (installedGhg, publishingPorts) =>
       publishVersion(await installedGhg(), { ...request, versionName }, publishingPorts);
   });
 }
 
-export async function runPreview(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
-  await runSiteAction(pairedMajor, ports, (request, runner) => {
+export async function runPreview(options: GhgOptions, ports: SiteActionPorts): Promise<void> {
+  await runSiteAction(options, PREVIEW_OPTIONS, [], ports, (request, runner) => {
     const changedOnly = orStop(changedOnlyOf(runner.input("changed-only")));
     const event = orStop(previewEventOf(runner.workflowEvent()));
     if (event.kind === "fork") {
@@ -44,7 +46,9 @@ export async function runPreview(pairedMajor: number, ports: SiteActionPorts): P
 
 // Fails the step itself, so its promise never rejects; publishingOf gives undefined when there is nothing to do.
 async function runSiteAction(
-  pairedMajor: number,
+  options: GhgOptions,
+  byAction: readonly string[],
+  ownInputs: readonly string[],
   ports: SiteActionPorts,
   publishingOf: (request: SiteRequest, runner: Runner) => Publishing | undefined,
 ): Promise<void> {
@@ -53,7 +57,8 @@ async function runSiteAction(
     const publishing = publishingOf(request, ports.runner);
     if (publishing === undefined) return;
     const installedGhg = async () => {
-      const ghg = await installGhg(request.install.version, request.install.platform, true, pairedMajor, {
+      const passed = optionsPassed(request, byAction, ownInputs, ports.runner);
+      const ghg = await installGhg(request.install.version, request.install.platform, passed, options, {
         ...ports,
         releases: ports.releasesWith(request.install.releasesToken),
       });
@@ -65,6 +70,14 @@ async function runSiteAction(
       siteBranch: ports.siteBranchWith(request.token),
     });
   } catch (error: unknown) {
-    ports.runner.fail(error instanceof ActionStop ? error.message : `The action failed unexpectedly: ${String(error)}`);
+    for (const sentence of stopSentencesOf(error)) ports.runner.fail(sentence);
   }
+}
+
+// ownInputs are the inputs, besides those both actions share, that the action passes to ghg build.
+function optionsPassed(request: SiteRequest, byAction: readonly string[], ownInputs: readonly string[], runner: Runner): OptionsPassed {
+  const keepInOutput = linesOf(request.keepInOutput).length === 0 ? [] : ["keep-in-output"];
+  const title = request.title === "" ? [] : ["title"];
+  const own = ownInputs.filter((name) => runner.input(name) !== "");
+  return { byInputs: [...optionsOf(request.build.buildArguments), ...keepInOutput, ...title, ...own], byAction };
 }
