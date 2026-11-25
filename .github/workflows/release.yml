@@ -1,0 +1,113 @@
+name: Release
+
+# Releases the version a pushed tag names; on a pull request, runs only the release tools' tests.
+
+on:
+  push:
+    # A version's tag, never the major version's own, such as v1, which the
+    # workflow moves and a maintainer may move by hand.
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - .github/workflows/release.yml
+      - .github/release/**
+      - test/fixtures/release/**
+      - cliff.toml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  # A release, once started, is never cut short by another run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  gate:
+    name: release gate
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - env:
+          TAG: ${{ github.ref_name }}
+        run: .github/release/gate.sh "$TAG" "$GITHUB_SHA"
+
+  checks:
+    name: checks
+    needs: gate
+    uses: ./.github/workflows/action.yml
+
+  release-tools:
+    name: release tools, against their fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: pip install git-cliff==2.14.2
+      - run: .github/release/test-notes.sh
+      - run: .github/release/test-gate.sh
+      - run: .github/release/test-action-tag.sh
+      - run: .github/release/test-publish.sh
+
+  release:
+    name: GitHub release
+    if: github.event_name == 'push'
+    needs: [gate, checks, release-tools]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Every tag, so that publish.sh can tell whether this version is the newest.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Make the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: .github/release/publish.sh "$TAG"
+
+  major-tag:
+    name: the major version's tag
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Move the major version's tag to the release
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          major=$(git tag --list | .github/release/action-tag.sh "$TAG")
+          if [ -z "$major" ]; then
+            echo "$TAG moves no tag of the action."
+            exit 0
+          fi
+          git tag --force "$major" "$TAG^{commit}"
+          if ! git push --force origin "refs/tags/$major"; then
+            echo "::error::$major cannot be moved. Move it by hand with: git push --force origin $TAG^{commit}:refs/tags/$major"
+            exit 1
+          fi
+          echo "$major now names $TAG."
+
+  site:
+    # A called workflow's jobs may not ask for more than these permissions.
+    name: the action's own site
+    if: github.event_name == 'push' && !cancelled() && needs.release.result == 'success'
+    needs: release
+    permissions:
+      contents: write
+      pages: read
+    uses: ./.github/workflows/site.yml
+    with:
+      version-name: ${{ github.ref_name }}

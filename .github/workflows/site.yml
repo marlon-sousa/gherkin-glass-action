@@ -1,0 +1,40 @@
+name: Site
+
+# The scenarios of features/, published by the publish action of this commit:
+# a version for main, and one for each release, once release.yml has made it.
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      version-name:
+        description: The release's tag, such as v1.0.0, which names its version of the site.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # A called workflow shares its caller's github.ref, the tag, whose own
+  # group, in release.yml, is named apart.
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish the site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./publish
+        with:
+          title: gherkin-glass-action's behaviour
+          # Empty on a push to main, whose version the action names after the branch.
+          version-name: ${{ inputs.version-name }}

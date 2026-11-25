@@ -1,0 +1,171 @@
+name: Action
+
+# The action's own checks, and the action itself on each platform, also called
+# by release.yml on a release's tag and by weekly.yml with the newest ghg.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_call:
+    inputs:
+      ghg-version:
+        description: The ghg to run the action with, instead of the paired one.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: action-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: types, unit tests and the bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Check dist/ is the bundle of the sources
+        run: npm run check-dist
+
+  paired:
+    name: the ghg to check with
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: version
+        env:
+          # Given by weekly.yml; empty on a pull request.
+          GHG_VERSION: ${{ inputs.ghg-version }}
+        run: echo "version=${GHG_VERSION:-$(jq -r .version paired-ghg.json)}" >> "$GITHUB_OUTPUT"
+
+  platforms:
+    name: the action on each platform (${{ matrix.runner }})
+    needs: paired
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: action
+        uses: ./
+        with:
+          ghg-version: ${{ needs.paired.outputs.version }}
+          build: true
+          config: test/fixtures/site/ghg.toml
+      - name: Check the outputs
+        env:
+          VERSION: ${{ steps.action.outputs.ghg-version }}
+          EXPECTED_VERSION: ${{ needs.paired.outputs.version }}
+          SITE: ${{ steps.action.outputs.site }}
+        run: test "$VERSION" = "$EXPECTED_VERSION" && test "$SITE" = test/fixtures/site/site
+      - name: Check ghg is on the PATH of the next step
+        env:
+          EXPECTED: ghg ${{ needs.paired.outputs.version }}
+        run: |
+          actual=$(ghg --version)
+          echo "$actual"
+          test "$actual" = "$EXPECTED"
+      - name: Check the site was written
+        run: test -f test/fixtures/site/site/index.html && test -f test/fixtures/site/site/shop/basket.html
+
+  acceptance:
+    name: the actions end to end (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm, macos-26, macos-15-intel, windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      # The same Java on every runner, whatever its image carries.
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+      - run: npm run acceptance
+
+  site-actions:
+    name: the publish and preview actions stopping
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: publish
+        uses: ./publish
+        continue-on-error: true
+        with:
+          folder: ../site
+      - id: preview
+        uses: ./preview
+        continue-on-error: true
+        with:
+          changed-only: "yes"
+      - name: Check both stopped
+        env:
+          PUBLISH: ${{ steps.publish.outcome }}
+          PREVIEW: ${{ steps.preview.outcome }}
+        run: test "$PUBLISH" = failure && test "$PREVIEW" = failure
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - name: Check they say why
+        env:
+          # The runner gives an action its inputs so, with their defaults.
+          INPUT_TO: github-pages
+          INPUT_BRANCH: gh-pages
+        run: |
+          said=$( (INPUT_FOLDER=../site node dist/publish/index.cjs || true) | tr -d '\r')
+          echo "publish said: ${said#::}"
+          grep -Fx "::error::folder must be a folder of branch, such as features." <<< "$said"
+          said=$( (env INPUT_CHANGED-ONLY=yes node dist/preview/index.cjs || true) | tr -d '\r')
+          echo "preview said: ${said#::}"
+          grep -Fx "::error::changed-only must be true or false." <<< "$said"
+
+  inputs:
+    name: the inputs against ghg build
+    needs: paired
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - uses: ./
+        with:
+          ghg-version: ${{ needs.paired.outputs.version }}
+      - run: ghg build --help | node tools/check_inputs.ts
