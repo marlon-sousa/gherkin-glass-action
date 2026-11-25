@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gherkin-glass-action&#39;s behaviour</title>
+<script>try{var t=localStorage.getItem("gherkin-glass:theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ghg-background: #ffffff;
+  --ghg-surface: #f2f2f2;
+  --ghg-text: #1a1a1a;
+  --ghg-muted: #474747;
+  --ghg-border: #757575;
+  --ghg-accent: #0b4f9c;
+  --ghg-keyword: #6a1b9a;
+  --ghg-parameter: #14521a;
+  --ghg-number: #8a3000;
+  --ghg-placeholder: #00575e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ghg-background: #141414;
+    --ghg-surface: #222222;
+    --ghg-text: #ececec;
+    --ghg-muted: #c4c4c4;
+    --ghg-border: #8f8f8f;
+    --ghg-accent: #8cc4ff;
+    --ghg-keyword: #e1b3ff;
+    --ghg-parameter: #9fe0a8;
+    --ghg-number: #ffbf8a;
+    --ghg-placeholder: #7fdbe0;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ghg-background: #141414;
+  --ghg-surface: #222222;
+  --ghg-text: #ececec;
+  --ghg-muted: #c4c4c4;
+  --ghg-border: #8f8f8f;
+  --ghg-accent: #8cc4ff;
+  --ghg-keyword: #e1b3ff;
+  --ghg-parameter: #9fe0a8;
+  --ghg-number: #ffbf8a;
+  --ghg-placeholder: #7fdbe0;
+}
+</style>
+<link rel="stylesheet" href="assets/gherkin-glass.css">
+<link rel="icon" href="assets/gherkin-glass.svg" type="image/svg+xml">
+<script type="module" src="assets/gherkin-glass.js"></script>
+</head>
+<body>
+<dialog id="ghg_from_disk" class="ghg-from-disk" tabindex="-1" aria-labelledby="ghg_from_disk_title" aria-describedby="ghg_from_disk_text">
+<p id="ghg_from_disk_title" class="ghg-from-disk-title">Opened from disk</p>
+<p id="ghg_from_disk_text">This site is meant to be served, so its folder tree and search do not work when a page is opened from disk. Run ghg serve in the folder of your ghg.toml, or serve the site&#39;s folder with any web server, then open the address it gives.</p>
+<form method="dialog"><button>I agree</button></form>
+</dialog>
+<script>if(location.protocol==="file:"){let d=document.getElementById("ghg_from_disk");d.showModal();d.focus()}</script>
+<a class="ghg-skip" href="#ghg_main">Skip to content</a>
+<div class="ghg-options">
+<span class="ghg-option ghg-tree-choice"><input type="checkbox" id="ghg_show_tree" class="ghg-show-tree" aria-controls="ghg_tree" checked> <label for="ghg_show_tree">Show the folder tree</label></span>
+<button type="button" class="ghg-tree-button" aria-expanded="false" aria-controls="ghg_tree">Folder tree</button>
+<fieldset class="ghg-theme">
+<legend>Theme</legend>
+<label><input type="radio" name="ghg-theme" value="system" checked> System</label>
+<label><input type="radio" name="ghg-theme" value="light"> Light</label>
+<label><input type="radio" name="ghg-theme" value="dark"> Dark</label>
+</fieldset>
+</div>
+<div class="ghg-layout">
+<nav id="ghg_tree" class="ghg-tree" aria-label="Folder tree"></nav>
+<div class="ghg-page">
+<nav class="ghg-breadcrumb" aria-label="Breadcrumb">
+<ol>
+<li><a href="index.html" aria-current="page">gherkin-glass-action&#39;s behaviour</a></li>
+</ol>
+</nav>
+<form class="ghg-search" role="search" data-root="" data-shown="50" data-loading="Loading search." data-failed="Search could not be loaded." data-none="No results." data-count="Results: {count}." data-count-limited="Results: {count}. The first 50 are listed." data-no-name="no name" data-feature="{name}, feature" data-rule="{name}, rule in {feature}" data-scenario="{name}, scenario in {feature}" data-scenario-in-rule="{name}, scenario in {rule}, {feature}" data-scenario-outline="{name}, scenario outline in {feature}" data-scenario-outline-in-rule="{name}, scenario outline in {rule}, {feature}" data-background="{name}, background in {feature}" data-background-in-rule="{name}, background in {rule}, {feature}" data-examples="{name}, examples in {outline}, {feature}" data-examples-in-rule="{name}, examples in {outline}, {rule}, {feature}" data-numbered-examples="Examples {place}" data-all-results="All results for &#34;{words}&#34;">
+<label>Search features, rules and scenarios <input type="search" class="ghg-search-field" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ghg_search_results" autocomplete="off" spellcheck="false" enterkeyhint="search"></label>
+<a class="ghg-search-all" href="search.html" hidden></a>
+<p class="ghg-search-status" role="status"></p>
+<ol class="ghg-search-results" id="ghg_search_results" role="listbox" aria-label="Search results" hidden></ol>
+</form>
+<main id="ghg_main">
+<h1>gherkin-glass-action&#39;s behaviour</h1>
+<ul class="ghg-totals">
+<li>0 folders</li>
+<li>7 features</li>
+<li>0 rules</li>
+<li>41 scenarios</li>
+</ul>
+<p class="ghg-tag-index-link"><a href="tags/index.html">Tags</a></p>
+<p class="ghg-sentences"><a href="steps.html">Step sentences</a></p>
+<h2>Features</h2>
+<ul class="ghg-features">
+<li class="ghg-feature"><a href="annotations.html">Feature: <bdi lang="en">Annotations</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="2 scenarios of Feature: Annotations">2 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails">Scenario: <bdi lang="en">A feature file that cannot be read is annotated, and the step fails</bdi></a></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file">Scenario: <bdi lang="en">A problem of the configuration file is annotated on that file</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="building.html">Feature: <bdi lang="en">Building the site</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="6 scenarios of Feature: Building the site">6 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="building.html#the-site-is-built-into-the-folder-ghg-writes-by-default">Scenario: <bdi lang="en">The site is built into the folder ghg writes by default</bdi></a></li>
+<li><a href="building.html#each-input-is-an-option-of-ghg-build">Scenario: <bdi lang="en">Each input is an option of ghg build</bdi></a></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder">Scenario: <bdi lang="en">keep-in-output keeps what each of its lines names in the output folder</bdi></a></li>
+<li><a href="building.html#what-keep-in-output-does-not-name-stops-the-build-which-ghg-refuses">Scenario: <bdi lang="en">What keep-in-output does not name stops the build, which ghg refuses</bdi></a></li>
+<li><a href="building.html#an-input-that-holds-no-feature-file-builds-nothing-and-the-step-passes">Scenario: <bdi lang="en">An input that holds no feature file builds nothing, and the step passes</bdi></a></li>
+<li><a href="building.html#a-value-of-build-that-is-neither-true-nor-false-stops-the-action">Scenario: <bdi lang="en">A value of build that is neither true nor false stops the action</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="installing.html">Feature: <bdi lang="en">Installing ghg</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="4 scenarios of Feature: Installing ghg">4 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it">Scenario: <bdi lang="en">The release named is installed, and a later step runs it</bdi></a></li>
+<li><a href="installing.html#a-version-that-is-not-one-stops-the-action">Scenario: <bdi lang="en">A version that is not one stops the action</bdi></a></li>
+<li><a href="installing.html#building-with-a-ghg-older-than-1-1-0-stops-the-action-before-it-is-downloaded">Scenario: <bdi lang="en">Building with a ghg older than 1.1.0 stops the action before it is downloaded</bdi></a></li>
+<li><a href="installing.html#the-ghg-installed-is-kept-in-the-runners-tool-cache">Scenario: <bdi lang="en">The ghg installed is kept in the runner&#39;s tool cache</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="outputs.html">Feature: <bdi lang="en">Outputs</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="4 scenarios of Feature: Outputs">4 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="outputs.html#without-a-build-the-ghg-installed-is-given-and-no-folder">Scenario: <bdi lang="en">Without a build, the ghg installed is given, and no folder</bdi></a></li>
+<li><a href="outputs.html#the-folder-the-build-wrote-is-given-from-the-workspace">Scenario: <bdi lang="en">The folder the build wrote is given from the workspace</bdi></a></li>
+<li><a href="outputs.html#the-folder-ghg-builds-into-by-default-is-given-too">Scenario: <bdi lang="en">The folder ghg builds into by default is given too</bdi></a></li>
+<li><a href="outputs.html#a-build-with-nothing-to-build-gives-no-folder">Scenario: <bdi lang="en">A build with nothing to build gives no folder</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="preview_action.html">Feature: <bdi lang="en">Previewing a pull request&#39;s feature files on GitHub Pages</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="13 scenarios of Feature: Previewing a pull request&#39;s feature files on GitHub Pages">13 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="preview_action.html#a-push-is-not-a-pull-request">Scenario: <bdi lang="en">A push is not a pull request</bdi></a></li>
+<li><a href="preview_action.html#a-pull-request-from-a-fork-publishes-nothing-and-passes">Scenario: <bdi lang="en">A pull request from a fork publishes nothing, and passes</bdi></a></li>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address">Scenario: <bdi lang="en">An opened pull request gets its preview, and a comment with its address</bdi></a></li>
+<li><a href="preview_action.html#a-comment-that-cannot-be-written-stops-the-action">Scenario: <bdi lang="en">A comment that cannot be written stops the action</bdi></a></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so">Scenario: <bdi lang="en">A closed pull request&#39;s preview is removed, and its comment says so</bdi></a></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes">Scenario: <bdi lang="en">changed-only shows only the feature files the pull request changes</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing">Scenario: <bdi lang="en">changed-only with no file of the input folder changed publishes nothing</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is">Scenario: <bdi lang="en">changed-only with no feature file changed leaves the earlier preview as it is</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again">Scenario: <bdi lang="en">A preview whose sources have not changed is not built again</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again">Scenario: <bdi lang="en">A preview whose sources changed is built again</bdi></a></li>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request">Scenario: <bdi lang="en">A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></a></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files">Scenario: <bdi lang="en">The input title wins over the configuration file&#39;s</bdi></a></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request">Scenario: <bdi lang="en">Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="publish_action.html">Feature: <bdi lang="en">Publishing a version of the site</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="4 scenarios of Feature: Publishing a version of the site">4 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds">Scenario: <bdi lang="en">A version goes into its folder, beside what the branch already holds</bdi></a></li>
+<li><a href="publish_action.html#a-folder-that-holds-what-ghg-did-not-write-is-refused">Scenario: <bdi lang="en">A folder that holds what ghg did not write is refused</bdi></a></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing">Scenario: <bdi lang="en">Nothing to build publishes nothing</bdi></a></li>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with">Scenario: <bdi lang="en">A branch with / in its name is a version named with -</bdi></a></li>
+</ul>
+</div></li>
+<li class="ghg-feature"><a href="publishing.html">Feature: <bdi lang="en">Publishing on GitHub Pages</bdi></a>
+<button type="button" class="ghg-toggle" aria-expanded="false" aria-label="8 scenarios of Feature: Publishing on GitHub Pages">8 scenarios</button>
+<div class="ghg-content" hidden>
+<ul>
+<li><a href="publishing.html#pages-built-by-a-workflow-is-not-served-from-the-branch">Scenario: <bdi lang="en">Pages built by a workflow is not served from the branch</bdi></a></li>
+<li><a href="publishing.html#a-missing-branch-is-made-and-the-maintainer-is-told-how-to-set-pages-to-it">Scenario: <bdi lang="en">A missing branch is made, and the maintainer is told how to set Pages to it</bdi></a></li>
+<li><a href="publishing.html#pages-serving-another-folder-than-the-one-folder-names-is-refused">Scenario: <bdi lang="en">Pages serving another folder than the one folder names is refused</bdi></a></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads">Scenario: <bdi lang="en">A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></a></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder">Scenario: <bdi lang="en">keep-in-output keeps more files at the root of the output folder</bdi></a></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone">Scenario: <bdi lang="en">A branch without .nojekyll is left alone</bdi></a></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing">Scenario: <bdi lang="en">Publishing the same site again changes nothing</bdi></a></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so">Scenario: <bdi lang="en">A token that may not push is told so</bdi></a></li>
+</ul>
+</div></li>
+</ul>
+</main>
+<footer class="ghg-footer">
+<p>Built with <a href="https://github.com/marlon-sousa/gherkin-glass">gherkin-glass</a> 1.1.0</p>
+</footer>
+</div>
+</div>
+</body>
+</html>
