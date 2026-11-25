@@ -44,9 +44,27 @@ These hold the code to that shape:
 4. **Messages are the specification's.** Every sentence the action stops with or reports is the one docs/BEHAVIOUR.md gives, word for word, and a test checks it.
 5. **Errors are values until the root.** A policy returns what failed; a service throws an `ActionStop` with the sentence a person reads; only `src/main.ts` turns it into the step's failure.
 6. **No escape hatches.** No `any`, no `as` casts and no non-null assertions, `!`, outside tests; a value that may be missing is checked.
-7. **Comments say why.** A comment says what the code cannot: the reason, the rule of docs/BEHAVIOUR.md it follows, or the source of a library's behaviour it relies on. It never repeats what the code says.
+7. **Comments say only what the code cannot.** "Comments" below says which.
 
 The dependencies are pinned to exact versions in `package.json`, and installed with `npm ci` from the committed lockfile.
+
+## Comments
+
+A comment says only what the code cannot:
+
+- the module's role line;
+- a measured fact, with what it was measured against, such as "Chromium, through Playwright 1.63.0, fails a `fetch` from a `file://` page";
+- an invariant or a hazard the code does not enforce itself;
+- what an absent value, an error or a rejection carries.
+
+One sentence, where it applies, once. Why a decision was taken, what else was considered and what came before belong in the issue and the pull request, which keep them, not in the code. A field, a function or a test whose name already says what it is gets no doc comment.
+
+Four more rules apply to every comment:
+
+- A measured fact names the program and its version, never a date.
+- A fact appears once in the repository. A second document that needs it says "see" with a path, and code that needs it relies on it without repeating it.
+- No `TODO` comments, and no bold.
+- Code never cites an issue, a pull request or a document, with one exception: a test cites the rule of docs/BEHAVIOUR.md it checks by its number, such as `// Rule 110: the parts are the step's text.`, so that each rule leads to its test.
 
 ## Reviewing a change
 
@@ -57,7 +75,7 @@ Every pull request is reviewed by an independent reviewer before it is opened, o
 3. Every sentence the action stops with or reports, against docs/BEHAVIOUR.md, word for word, and against "How the code is organised", rule 4.
 4. Every file the change adds or makes longer, against "How the code is organised": its role, its folder, its name, and its length against rule 1 there.
 5. Every test the change adds or moves, against "How the code is organised", rule 3: where it is, and that it reaches no network.
-6. Every comment, against "How the code is organised", rule 7.
+6. Every comment, against "Comments".
 7. Every `any`, cast, non-null assertion, `throw` and `catch`, against "How the code is organised", rules 5 and 6; every helper, naming what already provides it, if anything, in this repository or in a package; and every line that changes nothing.
 8. Every piece of code that does something general, against rule 10 above: what already does it, in this repository, in an official `@actions/*` package or in a maintained package, and, when none is used, that the change says why, with its source.
 9. Every service and adapter, against the roles: a service that imports an adapter or an `@actions/*` package, and a policy that reads or writes anything, are findings.
