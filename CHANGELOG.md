@@ -2,6 +2,12 @@
 
 Every release of gherkin-glass-action, the GitHub Action that installs `ghg` and builds a site with it. Each section is written before its release, from the changelog entries its commits carry, as [CONTRIBUTING.md](CONTRIBUTING.md), "Releases", describes, and becomes the notes of its [GitHub release](https://github.com/marlon-sousa/gherkin-glass-action/releases). Versions follow [Semantic Versioning](https://semver.org/), and the major version is that of the `ghg` the action installs.
 
+## [1.1.0]
+
+### Added
+
+- When `ghg-version` names a ghg too old for an input given, the action stops before downloading it, with one error for each such input, such as `keep-in-output needs ghg 1.1.0 or newer, not 1.0.0.`
+
 ## [1.0.0]
 
 ### Added
