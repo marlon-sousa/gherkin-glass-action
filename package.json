@@ -1,6 +1,6 @@
 {
   "name": "gherkin-glass-action",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "The GitHub Action that installs ghg, the accessible static viewer for Gherkin feature files, and builds a site with it.",
   "license": "MIT OR Apache-2.0",
