@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Step sentences, gherkin-glass-action&#39;s behaviour, pull request #30</title>
+<meta name="robots" content="noindex">
+<script>try{var t=localStorage.getItem("gherkin-glass:theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --ghg-background: #ffffff;
+  --ghg-surface: #f2f2f2;
+  --ghg-text: #1a1a1a;
+  --ghg-muted: #474747;
+  --ghg-border: #757575;
+  --ghg-accent: #0b4f9c;
+  --ghg-keyword: #6a1b9a;
+  --ghg-parameter: #14521a;
+  --ghg-number: #8a3000;
+  --ghg-placeholder: #00575e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ghg-background: #141414;
+    --ghg-surface: #222222;
+    --ghg-text: #ececec;
+    --ghg-muted: #c4c4c4;
+    --ghg-border: #8f8f8f;
+    --ghg-accent: #8cc4ff;
+    --ghg-keyword: #e1b3ff;
+    --ghg-parameter: #9fe0a8;
+    --ghg-number: #ffbf8a;
+    --ghg-placeholder: #7fdbe0;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ghg-background: #141414;
+  --ghg-surface: #222222;
+  --ghg-text: #ececec;
+  --ghg-muted: #c4c4c4;
+  --ghg-border: #8f8f8f;
+  --ghg-accent: #8cc4ff;
+  --ghg-keyword: #e1b3ff;
+  --ghg-parameter: #9fe0a8;
+  --ghg-number: #ffbf8a;
+  --ghg-placeholder: #7fdbe0;
+}
+</style>
+<link rel="stylesheet" href="assets/gherkin-glass.css">
+<link rel="icon" href="assets/gherkin-glass.svg" type="image/svg+xml">
+<script type="module" src="assets/gherkin-glass.js"></script>
+</head>
+<body>
+<dialog id="ghg_from_disk" class="ghg-from-disk" tabindex="-1" aria-labelledby="ghg_from_disk_title" aria-describedby="ghg_from_disk_text">
+<p id="ghg_from_disk_title" class="ghg-from-disk-title">Opened from disk</p>
+<p id="ghg_from_disk_text">This site is meant to be served, so its folder tree and search do not work when a page is opened from disk. Run ghg serve in the folder of your ghg.toml, or serve the site&#39;s folder with any web server, then open the address it gives.</p>
+<form method="dialog"><button>I agree</button></form>
+</dialog>
+<script>if(location.protocol==="file:"){let d=document.getElementById("ghg_from_disk");d.showModal();d.focus()}</script>
+<a class="ghg-skip" href="#ghg_main">Skip to content</a>
+<div class="ghg-options">
+<span class="ghg-option ghg-tree-choice"><input type="checkbox" id="ghg_show_tree" class="ghg-show-tree" aria-controls="ghg_tree" checked> <label for="ghg_show_tree">Show the folder tree</label></span>
+<button type="button" class="ghg-tree-button" aria-expanded="false" aria-controls="ghg_tree">Folder tree</button>
+<fieldset class="ghg-theme">
+<legend>Theme</legend>
+<label><input type="radio" name="ghg-theme" value="system" checked> System</label>
+<label><input type="radio" name="ghg-theme" value="light"> Light</label>
+<label><input type="radio" name="ghg-theme" value="dark"> Dark</label>
+</fieldset>
+</div>
+<div class="ghg-layout">
+<nav id="ghg_tree" class="ghg-tree" aria-label="Folder tree"></nav>
+<div class="ghg-page">
+<nav class="ghg-breadcrumb" aria-label="Breadcrumb">
+<ol>
+<li><a href="index.html">gherkin-glass-action&#39;s behaviour, pull request #30</a></li>
+<li><a href="steps.html" aria-current="page">Step sentences</a></li>
+</ol>
+</nav>
+<form class="ghg-search" role="search" data-root="" data-shown="50" data-loading="Loading search." data-failed="Search could not be loaded." data-none="No results." data-count="Results: {count}." data-count-limited="Results: {count}. The first 50 are listed." data-no-name="no name" data-feature="{name}, feature" data-rule="{name}, rule in {feature}" data-scenario="{name}, scenario in {feature}" data-scenario-in-rule="{name}, scenario in {rule}, {feature}" data-scenario-outline="{name}, scenario outline in {feature}" data-scenario-outline-in-rule="{name}, scenario outline in {rule}, {feature}" data-background="{name}, background in {feature}" data-background-in-rule="{name}, background in {rule}, {feature}" data-examples="{name}, examples in {outline}, {feature}" data-examples-in-rule="{name}, examples in {outline}, {rule}, {feature}" data-numbered-examples="Examples {place}" data-all-results="All results for &#34;{words}&#34;">
+<label>Search features, rules and scenarios <input type="search" class="ghg-search-field" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ghg_search_results" autocomplete="off" spellcheck="false" enterkeyhint="search"></label>
+<a class="ghg-search-all" href="search.html" hidden></a>
+<p class="ghg-search-status" role="status"></p>
+<ol class="ghg-search-results" id="ghg_search_results" role="listbox" aria-label="Search results" hidden></ol>
+</form>
+<main id="ghg_main">
+<h1>Step sentences</h1>
+<h2>Given</h2>
+<h3>a push has published the site</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+</ul>
+<h3>Pages deploys from the branch &#34;…&#34;, serving &#34;…&#34;</h3>
+<p>Used 8 times.</p>
+<ul>
+<li><a href="preview_action.html#background"><bdi>Background</bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publish_action.html#background"><bdi>Background</bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publishing.html#pages-serving-another-folder-than-the-one-folder-names-is-refused"><bdi>Scenario: <bdi>Pages serving another folder than the one folder names is refused</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/docs&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone"><bdi>Scenario: <bdi>A branch without .nojekyll is left alone</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;/&#34;</bdi></li>
+</ul>
+<h3>Pages deploys with a workflow</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="publishing.html#pages-built-by-a-workflow-is-not-served-from-the-branch"><bdi>Scenario: <bdi>Pages built by a workflow is not served from the branch</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#a-missing-branch-is-made-and-the-maintainer-is-told-how-to-set-pages-to-it"><bdi>Scenario: <bdi>A missing branch is made, and the maintainer is told how to set Pages to it</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 changes:</h3>
+<p>Used 3 times.</p>
+<ul>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 has its preview on the branch</h3>
+<p>Used 4 times.</p>
+<ul>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 has no comment</h3>
+<p>Used 5 times.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><bdi>Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 has no comment, and none may be written</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-comment-that-cannot-be-written-stops-the-action"><bdi>Scenario: <bdi>A comment that cannot be written stops the action</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 has the preview&#39;s comment, built from &#34;…&#34;</h3>
+<p>Used 4 times.</p>
+<ul>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+</ul>
+<h3>the branch &#34;…&#34; holds:</h3>
+<p>Used 22 times.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-comment-that-cannot-be-written-stops-the-action"><bdi>Scenario: <bdi>A comment that cannot be written stops the action</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><bdi>Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#a-folder-that-holds-what-ghg-did-not-write-is-refused"><bdi>Scenario: <bdi>A folder that holds what ghg did not write is refused</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with"><bdi>Scenario: <bdi>A branch with / in its name is a version named with -</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#pages-built-by-a-workflow-is-not-served-from-the-branch"><bdi>Scenario: <bdi>Pages built by a workflow is not served from the branch</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#pages-serving-another-folder-than-the-one-folder-names-is-refused"><bdi>Scenario: <bdi>Pages serving another folder than the one folder names is refused</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone"><bdi>Scenario: <bdi>A branch without .nojekyll is left alone</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+</ul>
+<h3>the commits since &#34;…&#34; change:</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&#34;</bdi></li>
+</ul>
+<h3>the repository holds the feature file &#34;…&#34;</h3>
+<p>Used 9 times.</p>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails"><bdi>Scenario: <bdi>A feature file that cannot be read is annotated, and the step fails</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;specs/shop/basket.feature&#34;</bdi></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file"><bdi>Scenario: <bdi>A problem of the configuration file is annotated on that file</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;features/basket.feature&#34;</bdi></li>
+<li><a href="building.html#background"><bdi>Background</bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;features/shop/basket.feature&#34;</bdi></li>
+<li><a href="outputs.html#background"><bdi>Background</bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;features/shop/basket.feature&#34;</bdi></li>
+<li><a href="preview_action.html#background"><bdi>Background</bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;features/shop/basket.feature&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;features/shop/checkout.feature&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;features/shop/checkout.feature&#34;</bdi></li>
+<li><a href="publish_action.html#background"><bdi>Background</bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;features/shop/basket.feature&#34;</bdi></li>
+<li><a href="publishing.html#background"><bdi>Background</bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;features/shop/basket.feature&#34;</bdi></li>
+</ul>
+<h3>the repository holds the file &#34;…&#34; with &#34;…&#34;</h3>
+<p>Used 9 times.</p>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails"><bdi>Scenario: <bdi>A feature file that cannot be read is annotated, and the step fails</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;specs/shop/broken.feature&#34;</bdi>, <bdi>&#34;Feature without a colon&#34;</bdi></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file"><bdi>Scenario: <bdi>A problem of the configuration file is annotated on that file</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;docs/ghg.toml&#34;</bdi>, <bdi>&#34;colour = 1&#34;</bdi></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/notes.txt&#34;</bdi>, <bdi>&#34;kept&#34;</bdi></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/robots.txt&#34;</bdi>, <bdi>&#34;kept too&#34;</bdi></li>
+<li><a href="building.html#what-keep-in-output-does-not-name-stops-the-build-which-ghg-refuses"><bdi>Scenario: <bdi>What keep-in-output does not name stops the build, which ghg refuses</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/notes.txt&#34;</bdi>, <bdi>&#34;not kept&#34;</bdi></li>
+<li><a href="building.html#an-input-that-holds-no-feature-file-builds-nothing-and-the-step-passes"><bdi>Scenario: <bdi>An input that holds no feature file builds nothing, and the step passes</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;docs/notes.md&#34;</bdi>, <bdi>&#34;Not a feature file.&#34;</bdi></li>
+<li><a href="outputs.html#a-build-with-nothing-to-build-gives-no-folder"><bdi>Scenario: <bdi>A build with nothing to build gives no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;docs/notes.md&#34;</bdi>, <bdi>&#34;Not a feature file.&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;features/shop/notes.md&#34;</bdi>, <bdi>&#34;Not a feature file.&#34;</bdi></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;docs/notes.md&#34;</bdi>, <bdi>&#34;Not a feature file.&#34;</bdi></li>
+</ul>
+<h3>the repository holds the file &#34;…&#34; with &#39;title = &#34;…&#34;&#39;</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;ghg.toml&#34;</bdi>, <bdi>&#34;Shop&#34;</bdi></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;ghg.toml&#34;</bdi>, <bdi>&#34;Shop&#34;</bdi></li>
+</ul>
+<h3>the token may not push</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+</ul>
+<h2>When</h2>
+<h3>a later step runs &#34;…&#34;</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it"><bdi>Scenario: <bdi>The release named is installed, and a later step runs it</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg --version&#34;</bdi></li>
+<li><a href="installing.html#the-ghg-installed-is-kept-in-the-runners-tool-cache"><bdi>Scenario: <bdi>The ghg installed is kept in the runner&#39;s tool cache</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;test -n \&#34;$(ls \&#34;$RUNNER_TOOL_CACHE\&#34;/ghg/1.1.0/*/)\&#34; &#38;&#38; echo ghg is in the tool cache&#34;</bdi></li>
+</ul>
+<h3>a push of the branch &#34;…&#34; runs the publish action with:</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with"><bdi>Scenario: <bdi>A branch with / in its name is a version named with -</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;feature/login&#34;</bdi></li>
+</ul>
+<h3>a push runs the action with:</h3>
+<p>Used 16 times.</p>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails"><bdi>Scenario: <bdi>A feature file that cannot be read is annotated, and the step fails</bdi></bdi>, <bdi>annotations.feature</bdi></a></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file"><bdi>Scenario: <bdi>A problem of the configuration file is annotated on that file</bdi></bdi>, <bdi>annotations.feature</bdi></a></li>
+<li><a href="building.html#the-site-is-built-into-the-folder-ghg-writes-by-default"><bdi>Scenario: <bdi>The site is built into the folder ghg writes by default</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#each-input-is-an-option-of-ghg-build"><bdi>Scenario: <bdi>Each input is an option of ghg build</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#what-keep-in-output-does-not-name-stops-the-build-which-ghg-refuses"><bdi>Scenario: <bdi>What keep-in-output does not name stops the build, which ghg refuses</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#an-input-that-holds-no-feature-file-builds-nothing-and-the-step-passes"><bdi>Scenario: <bdi>An input that holds no feature file builds nothing, and the step passes</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#a-value-of-build-that-is-neither-true-nor-false-stops-the-action"><bdi>Scenario: <bdi>A value of build that is neither true nor false stops the action</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it"><bdi>Scenario: <bdi>The release named is installed, and a later step runs it</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="installing.html#a-version-that-is-not-one-stops-the-action"><bdi>Scenario: <bdi>A version that is not one stops the action</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="installing.html#building-with-a-ghg-older-than-1-1-0-stops-the-action-before-it-is-downloaded"><bdi>Scenario: <bdi>Building with a ghg older than 1.1.0 stops the action before it is downloaded</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="installing.html#the-ghg-installed-is-kept-in-the-runners-tool-cache"><bdi>Scenario: <bdi>The ghg installed is kept in the runner&#39;s tool cache</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="outputs.html#without-a-build-the-ghg-installed-is-given-and-no-folder"><bdi>Scenario: <bdi>Without a build, the ghg installed is given, and no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#the-folder-the-build-wrote-is-given-from-the-workspace"><bdi>Scenario: <bdi>The folder the build wrote is given from the workspace</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#the-folder-ghg-builds-into-by-default-is-given-too"><bdi>Scenario: <bdi>The folder ghg builds into by default is given too</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#a-build-with-nothing-to-build-gives-no-folder"><bdi>Scenario: <bdi>A build with nothing to build gives no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+</ul>
+<h3>a push runs the preview action with:</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-push-is-not-a-pull-request"><bdi>Scenario: <bdi>A push is not a pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>a push runs the publish action with:</h3>
+<p>Used 11 times.</p>
+<ul>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publish_action.html#a-folder-that-holds-what-ghg-did-not-write-is-refused"><bdi>Scenario: <bdi>A folder that holds what ghg did not write is refused</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publishing.html#pages-built-by-a-workflow-is-not-served-from-the-branch"><bdi>Scenario: <bdi>Pages built by a workflow is not served from the branch</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#a-missing-branch-is-made-and-the-maintainer-is-told-how-to-set-pages-to-it"><bdi>Scenario: <bdi>A missing branch is made, and the maintainer is told how to set Pages to it</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#pages-serving-another-folder-than-the-one-folder-names-is-refused"><bdi>Scenario: <bdi>Pages serving another folder than the one folder names is refused</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone"><bdi>Scenario: <bdi>A branch without .nojekyll is left alone</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 from a fork runs the preview action</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-pull-request-from-a-fork-publishes-nothing-and-passes"><bdi>Scenario: <bdi>A pull request from a fork publishes nothing, and passes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 is closed, and runs the preview action with:</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 is opened, and runs the preview action with:</h3>
+<p>Used 6 times.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-comment-that-cannot-be-written-stops-the-action"><bdi>Scenario: <bdi>A comment that cannot be written stops the action</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><bdi>Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>pull request #12 is synchronize, and runs the preview action with:</h3>
+<p>Used 4 times.</p>
+<ul>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h2>Then</h2>
+<h3>a comment is added saying &#34;…&#34;</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;&#60;!-- gherkin-glass-action preview --&#62;\n&#60;!-- built from bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb --&#62;\nThe preview of this pull request&#39;s feature files is at https://owner.github.io/repo/previews/pr-12/.&#34;</bdi></li>
+</ul>
+<h3>no comment is written</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+</ul>
+<h3>the action fails with &#34;…&#34;</h3>
+<p>Used 14 times.</p>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails"><bdi>Scenario: <bdi>A feature file that cannot be read is annotated, and the step fails</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;ghg build stopped with status 1.&#34;</bdi></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file"><bdi>Scenario: <bdi>A problem of the configuration file is annotated on that file</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;ghg build stopped with status 1.&#34;</bdi></li>
+<li><a href="building.html#what-keep-in-output-does-not-name-stops-the-build-which-ghg-refuses"><bdi>Scenario: <bdi>What keep-in-output does not name stops the build, which ghg refuses</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;ghg build stopped with status 1.&#34;</bdi></li>
+<li><a href="building.html#a-value-of-build-that-is-neither-true-nor-false-stops-the-action"><bdi>Scenario: <bdi>A value of build that is neither true nor false stops the action</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;build must be true or false.&#34;</bdi></li>
+<li><a href="installing.html#a-version-that-is-not-one-stops-the-action"><bdi>Scenario: <bdi>A version that is not one stops the action</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg-version must be a version of ghg, such as 1.2.0.&#34;</bdi></li>
+<li><a href="installing.html#building-with-a-ghg-older-than-1-1-0-stops-the-action-before-it-is-downloaded"><bdi>Scenario: <bdi>Building with a ghg older than 1.1.0 stops the action before it is downloaded</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;The action builds with ghg 1.1.0 or newer, not 1.0.0.&#34;</bdi></li>
+<li><a href="preview_action.html#a-push-is-not-a-pull-request"><bdi>Scenario: <bdi>A push is not a pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;preview acts on a pull request, not on push.&#34;</bdi></li>
+<li><a href="preview_action.html#a-comment-that-cannot-be-written-stops-the-action"><bdi>Scenario: <bdi>A comment that cannot be written stops the action</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;The comment of the pull request&#39;s preview cannot be written.&#34;</bdi></li>
+<li><a href="publish_action.html#a-folder-that-holds-what-ghg-did-not-write-is-refused"><bdi>Scenario: <bdi>A folder that holds what ghg did not write is refused</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;ghg build stopped with status 1.&#34;</bdi></li>
+<li><a href="publishing.html#pages-built-by-a-workflow-is-not-served-from-the-branch"><bdi>Scenario: <bdi>Pages built by a workflow is not served from the branch</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;Pages does not deploy from the branch gh-pages: in the repository&#39;s Settings, under Pages, set the source to \&#34;Deploy from a branch\&#34; and choose gh-pages.&#34;</bdi></li>
+<li><a href="publishing.html#a-missing-branch-is-made-and-the-maintainer-is-told-how-to-set-pages-to-it"><bdi>Scenario: <bdi>A missing branch is made, and the maintainer is told how to set Pages to it</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;The branch gh-pages is made: in the repository&#39;s Settings, under Pages, set the source to \&#34;Deploy from a branch\&#34; and choose gh-pages, and add an empty .nojekyll file at its root.&#34;</bdi></li>
+<li><a href="publishing.html#pages-serving-another-folder-than-the-one-folder-names-is-refused"><bdi>Scenario: <bdi>Pages serving another folder than the one folder names is refused</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;Pages serves the folder /docs of gh-pages, so folder must be in it.&#34;</bdi></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone"><bdi>Scenario: <bdi>A branch without .nojekyll is left alone</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;Pages runs Jekyll on gh-pages, which leaves out pages whose names start with _: add an empty .nojekyll file to the folder / of gh-pages.&#34;</bdi></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;The site cannot be pushed to gh-pages: the workflow needs the permission contents: write.&#34;</bdi></li>
+</ul>
+<h3>the action passes</h3>
+<p>Used 27 times.</p>
+<ul>
+<li><a href="building.html#the-site-is-built-into-the-folder-ghg-writes-by-default"><bdi>Scenario: <bdi>The site is built into the folder ghg writes by default</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#each-input-is-an-option-of-ghg-build"><bdi>Scenario: <bdi>Each input is an option of ghg build</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="building.html#an-input-that-holds-no-feature-file-builds-nothing-and-the-step-passes"><bdi>Scenario: <bdi>An input that holds no feature file builds nothing, and the step passes</bdi></bdi>, <bdi>building.feature</bdi></a></li>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it"><bdi>Scenario: <bdi>The release named is installed, and a later step runs it</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="installing.html#the-ghg-installed-is-kept-in-the-runners-tool-cache"><bdi>Scenario: <bdi>The ghg installed is kept in the runner&#39;s tool cache</bdi></bdi>, <bdi>installing.feature</bdi></a></li>
+<li><a href="outputs.html#without-a-build-the-ghg-installed-is-given-and-no-folder"><bdi>Scenario: <bdi>Without a build, the ghg installed is given, and no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#the-folder-the-build-wrote-is-given-from-the-workspace"><bdi>Scenario: <bdi>The folder the build wrote is given from the workspace</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#the-folder-ghg-builds-into-by-default-is-given-too"><bdi>Scenario: <bdi>The folder ghg builds into by default is given too</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="outputs.html#a-build-with-nothing-to-build-gives-no-folder"><bdi>Scenario: <bdi>A build with nothing to build gives no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a></li>
+<li><a href="preview_action.html#a-pull-request-from-a-fork-publishes-nothing-and-passes"><bdi>Scenario: <bdi>A pull request from a fork publishes nothing, and passes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><bdi>Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with"><bdi>Scenario: <bdi>A branch with / in its name is a version named with -</bdi></bdi>, <bdi>publish_action.feature</bdi></a></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a></li>
+</ul>
+<h3>the branch &#34;…&#34; does not hold &#34;…&#34;</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12/shop/basket.html&#34;</bdi></li>
+</ul>
+<h3>the branch &#34;…&#34; has 1 commit</h3>
+<p>Used 6 times.</p>
+<ul>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#a-folder-that-holds-what-ghg-did-not-write-is-refused"><bdi>Scenario: <bdi>A folder that holds what ghg did not write is refused</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-missing-branch-is-made-and-the-maintainer-is-told-how-to-set-pages-to-it"><bdi>Scenario: <bdi>A missing branch is made, and the maintainer is told how to set Pages to it</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-branch-without-nojekyll-is-left-alone"><bdi>Scenario: <bdi>A branch without .nojekyll is left alone</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#a-token-that-may-not-push-is-told-so"><bdi>Scenario: <bdi>A token that may not push is told so</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+</ul>
+<h3>the branch &#34;…&#34; has 2 commits</h3>
+<p>Used 3 times.</p>
+<ul>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+</ul>
+<h3>the branch &#34;…&#34; has 3 commits</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi></li>
+</ul>
+<h3>the branch &#34;…&#34; holds &#34;…&#34;</h3>
+<p>Used 12 times.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12/index.html&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-shows-only-the-feature-files-the-pull-request-changes"><bdi>Scenario: <bdi>changed-only shows only the feature files the pull request changes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12/shop/checkout.html&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12/index.html&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;previews/pr-12/shop/checkout.html&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;features/main/index.html&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;index.html&#34;</bdi></li>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with"><bdi>Scenario: <bdi>A branch with / in its name is a version named with -</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;feature-login/index.html&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;v1.0.0/index.html&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;.nojekyll&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;CNAME&#34;</bdi></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;README.md&#34;</bdi></li>
+<li><a href="publishing.html#keep-in-output-keeps-more-files-at-the-root-of-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps more files at the root of the output folder</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;main/index.html&#34;</bdi></li>
+</ul>
+<h3>the log does not say &#34;…&#34;</h3>
+<p>Used 3 times.</p>
+<ul>
+<li><a href="installing.html#building-with-a-ghg-older-than-1-1-0-stops-the-action-before-it-is-downloaded"><bdi>Scenario: <bdi>Building with a ghg older than 1.1.0 stops the action before it is downloaded</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg 1.0.0 is installed.&#34;</bdi></li>
+<li><a href="preview_action.html#a-pull-request-from-a-fork-publishes-nothing-and-passes"><bdi>Scenario: <bdi>A pull request from a fork publishes nothing, and passes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;ghg 1.1.0 is installed.&#34;</bdi></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;ghg 1.1.0 is installed.&#34;</bdi></li>
+</ul>
+<h3>the log says &#34;…&#34;</h3>
+<p>Used 11 times.</p>
+<ul>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it"><bdi>Scenario: <bdi>The release named is installed, and a later step runs it</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg 1.1.0 is installed.&#34;</bdi></li>
+<li><a href="installing.html#the-release-named-is-installed-and-a-later-step-runs-it"><bdi>Scenario: <bdi>The release named is installed, and a later step runs it</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg 1.1.0&#34;</bdi></li>
+<li><a href="installing.html#the-ghg-installed-is-kept-in-the-runners-tool-cache"><bdi>Scenario: <bdi>The ghg installed is kept in the runner&#39;s tool cache</bdi></bdi>, <bdi>installing.feature</bdi></a>, with <bdi>&#34;ghg is in the tool cache&#34;</bdi></li>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;The site is published on gh-pages, at https://owner.github.io/repo/previews/pr-12/.&#34;</bdi></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;The preview of pull request #12 is removed from gh-pages.&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-file-of-the-input-folder-changed-publishes-nothing"><bdi>Scenario: <bdi>changed-only with no file of the input folder changed publishes nothing</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;This pull request changes no file of the input folder, so no preview is published.&#34;</bdi></li>
+<li><a href="preview_action.html#changed-only-with-no-feature-file-changed-leaves-the-earlier-preview-as-it-is"><bdi>Scenario: <bdi>changed-only with no feature file changed leaves the earlier preview as it is</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;ghg read no feature file, so no preview is published.&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;The commits since the preview was built change no file it is built from, so the preview is left as it is.&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;The site is published on gh-pages, at https://owner.github.io/repo/features/main/.&#34;</bdi></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;ghg read no feature file, so nothing is published.&#34;</bdi></li>
+<li><a href="publishing.html#publishing-the-same-site-again-changes-nothing"><bdi>Scenario: <bdi>Publishing the same site again changes nothing</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;The site on gh-pages is already up to date.&#34;</bdi></li>
+</ul>
+<h3>the newest commit of &#34;…&#34; says &#34;…&#34;</h3>
+<p>Used 5 times.</p>
+<ul>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;Publish the preview of pull request #12&#34;</bdi></li>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;Remove the preview of pull request #12&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;Publish the preview of pull request #12&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;Publish the site&#39;s version main&#34;</bdi></li>
+<li><a href="publish_action.html#a-branch-with-in-its-name-is-a-version-named-with"><bdi>Scenario: <bdi>A branch with / in its name is a version named with -</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;Publish the site&#39;s version feature-login&#34;</bdi></li>
+</ul>
+<h3>the output &#34;…&#34; is &#34;…&#34;</h3>
+<p>Used 9 times.</p>
+<ul>
+<li><a href="outputs.html#without-a-build-the-ghg-installed-is-given-and-no-folder"><bdi>Scenario: <bdi>Without a build, the ghg installed is given, and no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;ghg-version&#34;</bdi>, <bdi>&#34;1.1.0&#34;</bdi></li>
+<li><a href="outputs.html#without-a-build-the-ghg-installed-is-given-and-no-folder"><bdi>Scenario: <bdi>Without a build, the ghg installed is given, and no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;site&#34;</bdi>, <bdi>&#34;&#34;</bdi></li>
+<li><a href="outputs.html#the-folder-the-build-wrote-is-given-from-the-workspace"><bdi>Scenario: <bdi>The folder the build wrote is given from the workspace</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;site&#34;</bdi>, <bdi>&#34;public/features&#34;</bdi></li>
+<li><a href="outputs.html#the-folder-ghg-builds-into-by-default-is-given-too"><bdi>Scenario: <bdi>The folder ghg builds into by default is given too</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;site&#34;</bdi>, <bdi>&#34;site&#34;</bdi></li>
+<li><a href="outputs.html#a-build-with-nothing-to-build-gives-no-folder"><bdi>Scenario: <bdi>A build with nothing to build gives no folder</bdi></bdi>, <bdi>outputs.feature</bdi></a>, with <bdi>&#34;site&#34;</bdi>, <bdi>&#34;&#34;</bdi></li>
+<li><a href="preview_action.html#an-opened-pull-request-gets-its-preview-and-a-comment-with-its-address"><bdi>Scenario: <bdi>An opened pull request gets its preview, and a comment with its address</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;address&#34;</bdi>, <bdi>&#34;https://owner.github.io/repo/previews/pr-12/&#34;</bdi></li>
+<li><a href="publish_action.html#a-version-goes-into-its-folder-beside-what-the-branch-already-holds"><bdi>Scenario: <bdi>A version goes into its folder, beside what the branch already holds</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;address&#34;</bdi>, <bdi>&#34;https://owner.github.io/repo/features/main/&#34;</bdi></li>
+<li><a href="publish_action.html#nothing-to-build-publishes-nothing"><bdi>Scenario: <bdi>Nothing to build publishes nothing</bdi></bdi>, <bdi>publish_action.feature</bdi></a>, with <bdi>&#34;address&#34;</bdi>, <bdi>&#34;&#34;</bdi></li>
+<li><a href="publishing.html#a-version-goes-into-the-branchs-root-which-keeps-the-files-pages-reads"><bdi>Scenario: <bdi>A version goes into the branch&#39;s root, which keeps the files Pages reads</bdi></bdi>, <bdi>publishing.feature</bdi></a>, with <bdi>&#34;address&#34;</bdi>, <bdi>&#34;https://owner.github.io/repo/v1.0.0/&#34;</bdi></li>
+</ul>
+<h3>the page &#34;…&#34; of the branch &#34;…&#34; says &#34;…&#34;</h3>
+<p>Used 3 times.</p>
+<ul>
+<li><a href="preview_action.html#a-previews-title-is-the-configuration-files-naming-the-pull-request"><bdi>Scenario: <bdi>A preview&#39;s title is the configuration file&#39;s, naming the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;previews/pr-12/index.html&#34;</bdi>, <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;&#60;title&#62;Shop, pull request #12&#60;/title&#62;&#34;</bdi></li>
+<li><a href="preview_action.html#the-input-title-wins-over-the-configuration-files"><bdi>Scenario: <bdi>The input title wins over the configuration file&#39;s</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;previews/pr-12/index.html&#34;</bdi>, <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;&#60;title&#62;Our shop, pull request #12&#60;/title&#62;&#34;</bdi></li>
+<li><a href="preview_action.html#without-a-title-or-a-configuration-file-ghgs-own-title-names-the-pull-request"><bdi>Scenario: <bdi>Without a title or a configuration file, ghg&#39;s own title names the pull request</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;previews/pr-12/index.html&#34;</bdi>, <bdi>&#34;gh-pages&#34;</bdi>, <bdi>&#34;&#60;title&#62;Feature files, pull request #12&#60;/title&#62;&#34;</bdi></li>
+</ul>
+<h3>the page &#34;…&#34; says &#34;…&#34;</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="building.html#each-input-is-an-option-of-ghg-build"><bdi>Scenario: <bdi>Each input is an option of ghg build</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/features/index.html&#34;</bdi>, <bdi>&#34;Our features&#34;</bdi></li>
+</ul>
+<h3>the preview&#39;s comment is edited to say &#34;…&#34;</h3>
+<p>Used 3 times.</p>
+<ul>
+<li><a href="preview_action.html#a-closed-pull-requests-preview-is-removed-and-its-comment-says-so"><bdi>Scenario: <bdi>A closed pull request&#39;s preview is removed, and its comment says so</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;&#60;!-- gherkin-glass-action preview --&#62;\nThe preview of this pull request was removed when it closed.&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-have-not-changed-is-not-built-again"><bdi>Scenario: <bdi>A preview whose sources have not changed is not built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;&#60;!-- built from bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb --&#62;&#34;</bdi></li>
+<li><a href="preview_action.html#a-preview-whose-sources-changed-is-built-again"><bdi>Scenario: <bdi>A preview whose sources changed is built again</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;&#60;!-- built from bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb --&#62;&#34;</bdi></li>
+</ul>
+<h3>the workspace does not hold &#34;…&#34;</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="building.html#an-input-that-holds-no-feature-file-builds-nothing-and-the-step-passes"><bdi>Scenario: <bdi>An input that holds no feature file builds nothing, and the step passes</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;site&#34;</bdi></li>
+</ul>
+<h3>the workspace holds &#34;…&#34;</h3>
+<p>Used 5 times.</p>
+<ul>
+<li><a href="building.html#the-site-is-built-into-the-folder-ghg-writes-by-default"><bdi>Scenario: <bdi>The site is built into the folder ghg writes by default</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;site/index.html&#34;</bdi></li>
+<li><a href="building.html#each-input-is-an-option-of-ghg-build"><bdi>Scenario: <bdi>Each input is an option of ghg build</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/features/index.html&#34;</bdi></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/index.html&#34;</bdi></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/notes.txt&#34;</bdi></li>
+<li><a href="building.html#keep-in-output-keeps-what-each-of-its-lines-names-in-the-output-folder"><bdi>Scenario: <bdi>keep-in-output keeps what each of its lines names in the output folder</bdi></bdi>, <bdi>building.feature</bdi></a>, with <bdi>&#34;public/robots.txt&#34;</bdi></li>
+</ul>
+<h3>there is a notice saying &#34;…&#34;</h3>
+<p>Used once.</p>
+<ul>
+<li><a href="preview_action.html#a-pull-request-from-a-fork-publishes-nothing-and-passes"><bdi>Scenario: <bdi>A pull request from a fork publishes nothing, and passes</bdi></bdi>, <bdi>preview_action.feature</bdi></a>, with <bdi>&#34;This pull request comes from a fork, whose token cannot push, so its preview is not published.&#34;</bdi></li>
+</ul>
+<h3>there is an error annotation on &#34;…&#34;, line 1, saying &#34;…&#34;</h3>
+<p>Used 2 times.</p>
+<ul>
+<li><a href="annotations.html#a-feature-file-that-cannot-be-read-is-annotated-and-the-step-fails"><bdi>Scenario: <bdi>A feature file that cannot be read is annotated, and the step fails</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;specs/shop/broken.feature&#34;</bdi>, <bdi>&#34;Syntax error.&#34;</bdi></li>
+<li><a href="annotations.html#a-problem-of-the-configuration-file-is-annotated-on-that-file"><bdi>Scenario: <bdi>A problem of the configuration file is annotated on that file</bdi></bdi>, <bdi>annotations.feature</bdi></a>, with <bdi>&#34;docs/ghg.toml&#34;</bdi>, <bdi>&#34;ghg has no setting named colour.&#34;</bdi></li>
+</ul>
+</main>
+<footer class="ghg-footer">
+<p>Built with <a href="https://github.com/marlon-sousa/gherkin-glass">gherkin-glass</a> 1.1.0</p>
+</footer>
+</div>
+</div>
+</body>
+</html>
