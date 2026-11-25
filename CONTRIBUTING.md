@@ -70,12 +70,12 @@ Every pull request runs:
 - the issue check, the check that no closing keyword names another repository's issue, and the commit message check, from [itinera-dev/actions](https://github.com/itinera-dev/actions);
 - a check that fails while the description has an unticked checkbox, so that a manual check is finished before merging;
 - the action's own checks: the TypeScript type-checked, the unit tests, and the files of `dist/`, the bundles and their licences, built again and compared with the committed ones, which must not differ;
-- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use. Their publishing itself is checked by the unit tests, against a repository on disk, by the job below, and in use by `.github/workflows/site.yml`;
+- the action itself, run with `uses: ./` on a runner of each platform `ghg` is built for, as [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) describes, and its inputs compared with the options of the `ghg` release it is paired with; and the publish and preview actions, run with `uses: ./publish` and `uses: ./preview` until they stop at an input they cannot use. Their publishing itself is checked by the unit tests, against a repository on disk, by the job below, and in use by `.github/workflows/site.yml` and `.github/workflows/preview.yml`;
 - the three actions end to end, on every platform of the job above: the scenarios of `features/`, written in Gherkin, each running a workflow through act against stand-ins for GitHub's API and its git server, which check what a workflow sees, the branch Pages serves and the comments on a pull request included.
 
 AGENTS.md, "Building and testing", gives the command of each.
 
-`.github/workflows/site.yml` publishes the scenarios of `features/` as the action's own site on GitHub Pages, with the publish and preview actions of the commit it runs on: a version for `main` and for each release's tag, and a preview of each pull request, whose address a comment on it gives, removed when it closes.
+`.github/workflows/site.yml` publishes the scenarios of `features/` as the action's own site on GitHub Pages, with the publish action of the commit it runs on: a version for `main`, and one for each release, which the release workflow calls it for once the release is made, so that a tag it refuses is never published. `.github/workflows/preview.yml` publishes, with the preview action, a preview of each pull request, whose address a comment on it gives, removed when it closes.
 
 Every action a workflow uses is pinned to a commit, with its version in a comment beside it. Each week, `.github/workflows/weekly.yml` checks whether a newer `ghg` of the same major version has been released, and runs the action with it on every platform, so that a release of `ghg` the action does not follow yet is known.
 
@@ -103,6 +103,7 @@ The release workflow, `.github/workflows/release.yml`, then:
 2. runs every check of `.github/workflows/action.yml` again on the tagged commit, the files of `dist/`, the bundle and its licences, against a fresh build among them, since their run on `main` after a merge blocks nothing;
 3. creates the GitHub release with `.github/release/publish.sh`, titled with the tag and with the version's section of `CHANGELOG.md` as its notes, and no files, since a workflow runs the action from the tagged commit;
 4. moves the major version's tag, such as `v1`, to the release, when it is the newest release of that major version, as docs/BEHAVIOUR.md, "Versions", says.
+5. publishes the release's version of the action's own site, with `.github/workflows/site.yml`.
 
 ### Publishing to the Marketplace
 

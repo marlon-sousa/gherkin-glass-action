@@ -128,7 +128,7 @@ jobs:
     # docs/BEHAVIOUR.md, rules 19 and 28: the bundles of the publish and preview
     # actions run, and stop at an input they cannot use, on any event. Publishing itself is checked
     # by the unit tests, against a repository on disk, by the job "the actions
-    # end to end", and in use by site.yml.
+    # end to end", and in use by site.yml and preview.yml.
     name: the publish and preview actions stopping
     runs-on: ubuntu-latest
     steps:

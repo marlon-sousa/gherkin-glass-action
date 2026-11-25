@@ -2,8 +2,9 @@ name: Release
 
 # docs/BEHAVIOUR.md, "Releases". Pushing a tag v<version> releases that
 # version: the gate, the release tools' own tests and every check of
-# action.yml run on the tagged commit, then the GitHub release is made and
-# the major version's tag moved to it. On a pull request that changes how
+# action.yml run on the tagged commit, then the GitHub release is made, the
+# major version's tag moved to it, and its version of the action's own site
+# published. On a pull request that changes how
 # releases are made, the release tools' tests run, and nothing is released.
 
 on:
@@ -109,3 +110,17 @@ jobs:
             exit 1
           fi
           echo "$major now names $TAG."
+
+  site:
+    # Issue #25: the release's version of the action's own site, published
+    # only once the release is made, so that a refused tag never is. A called
+    # workflow's jobs may not ask for more than these permissions.
+    name: the action's own site
+    if: github.event_name == 'push' && !cancelled() && needs.release.result == 'success'
+    needs: release
+    permissions:
+      contents: write
+      pages: read
+    uses: ./.github/workflows/site.yml
+    with:
+      version-name: ${{ github.ref_name }}
