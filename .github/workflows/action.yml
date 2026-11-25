@@ -11,7 +11,7 @@ on:
   workflow_call:
     inputs:
       ghg-version:
-        description: The ghg to run the action with, instead of the paired one.
+        description: The ghg to run the action with, instead of the one ghg-options.json names as tested.
         type: string
         default: ""
 
@@ -39,11 +39,12 @@ jobs:
       - name: Check dist/ is the bundle of the sources
         run: npm run check-dist
 
-  paired:
+  tested:
     name: the ghg to check with
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      releases: ${{ steps.releases.outputs.releases }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -52,11 +53,13 @@ jobs:
         env:
           # Given by weekly.yml; empty on a pull request.
           GHG_VERSION: ${{ inputs.ghg-version }}
-        run: echo "version=${GHG_VERSION:-$(jq -r .version paired-ghg.json)}" >> "$GITHUB_OUTPUT"
+        run: echo "version=${GHG_VERSION:-$(jq -r .tested ghg-options.json)}" >> "$GITHUB_OUTPUT"
+      - id: releases
+        run: echo "releases=$(jq -c '[.since[]] | unique' ghg-options.json)" >> "$GITHUB_OUTPUT"
 
   platforms:
     name: the action on each platform (${{ matrix.runner }})
-    needs: paired
+    needs: tested
     strategy:
       fail-fast: false
       matrix:
@@ -72,18 +75,18 @@ jobs:
       - id: action
         uses: ./
         with:
-          ghg-version: ${{ needs.paired.outputs.version }}
+          ghg-version: ${{ needs.tested.outputs.version }}
           build: true
           config: test/fixtures/site/ghg.toml
       - name: Check the outputs
         env:
           VERSION: ${{ steps.action.outputs.ghg-version }}
-          EXPECTED_VERSION: ${{ needs.paired.outputs.version }}
+          EXPECTED_VERSION: ${{ needs.tested.outputs.version }}
           SITE: ${{ steps.action.outputs.site }}
         run: test "$VERSION" = "$EXPECTED_VERSION" && test "$SITE" = test/fixtures/site/site
       - name: Check ghg is on the PATH of the next step
         env:
-          EXPECTED: ghg ${{ needs.paired.outputs.version }}
+          EXPECTED: ghg ${{ needs.tested.outputs.version }}
         run: |
           actual=$(ghg --version)
           echo "$actual"
@@ -156,7 +159,7 @@ jobs:
 
   inputs:
     name: the inputs against ghg build
-    needs: paired
+    needs: tested
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -167,5 +170,27 @@ jobs:
           node-version-file: .node-version
       - uses: ./
         with:
-          ghg-version: ${{ needs.paired.outputs.version }}
+          ghg-version: ${{ needs.tested.outputs.version }}
       - run: ghg build --help | node tools/check_inputs.ts
+
+  since:
+    name: the options against each release of ghg (${{ matrix.release }})
+    needs: tested
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ${{ fromJSON(needs.tested.outputs.releases) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+      - uses: ./
+        with:
+          ghg-version: ${{ matrix.release }}
+      - env:
+          RELEASE: ${{ matrix.release }}
+        run: ghg build --help | node tools/check_since.ts "$RELEASE"

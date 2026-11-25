@@ -1,8 +1,10 @@
-// Tests rule 23: publish adds a version of the site to the branch Pages serves.
+// Tests rules 2 and 23: publish adds a version of the site to the branch Pages serves.
 
 import assert from "node:assert/strict";
 import path from "node:path";
 import { test } from "node:test";
+import { optionsOf } from "../../src/policies/ghg_options.ts";
+import { PUBLISH_OPTIONS } from "../../src/policies/site_inputs.ts";
 import type { PushOutcome } from "../../src/ports/site_branch.ts";
 import { publishVersion } from "../../src/services/publishing_version.ts";
 import { FakeGhgProcess, ghgReport } from "../support/fakes.ts";
@@ -69,4 +71,12 @@ test("nothing to build publishes nothing, and says so", async () => {
   assert.deepEqual(used.siteBranch.steps, ["check out"]);
   assert.deepEqual(used.runner.logged, ["ghg read no feature file, so nothing is published."]);
   assert.equal(used.runner.outputs.get("address"), "");
+});
+
+// Rule 2: every option publish passes, but those of its inputs, is one it gives itself.
+test("every option of the build is the publish action's own or one of its inputs", async () => {
+  const { used, run } = publishing();
+  await run();
+  const own = [...PUBLISH_OPTIONS, "title"];
+  assert.deepEqual(optionsOf(used.process.runs[0]?.slice(2) ?? []).filter((option) => !own.includes(option)), []);
 });

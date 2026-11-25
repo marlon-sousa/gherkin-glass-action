@@ -1,6 +1,7 @@
 // Policy: the inputs the publish and preview actions share.
 
 import { posix } from "node:path";
+import { ACTION_OPTIONS } from "./build_arguments.ts";
 
 export interface SiteInputs {
   readonly branch: string;
@@ -10,6 +11,12 @@ export interface SiteInputs {
 
 /** The options of ghg build the publish and preview actions pass from their inputs unchanged. */
 export const SITE_BUILD_INPUTS: readonly string[] = ["config", "input", "front-page"];
+
+/** The options of ghg build the publish action gives itself. */
+export const PUBLISH_OPTIONS: readonly string[] = [...ACTION_OPTIONS, "output", "keep-in-output", "version-name"];
+
+/** The options of ghg build the preview action gives itself. */
+export const PREVIEW_OPTIONS: readonly string[] = [...ACTION_OPTIONS, "output", "keep-in-output", "title", "preview", "only"];
 
 /** Or the sentence the action stops with. */
 export function siteInputsOf(inputOf: (name: string) => string): SiteInputs | { readonly problem: string } {

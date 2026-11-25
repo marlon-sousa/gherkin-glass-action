@@ -22129,8 +22129,79 @@ var require_lib = __commonJS({
   }
 });
 
-// paired-ghg.json
-var paired_ghg_default = { version: "1.1.0" };
+// ghg-options.json
+var ghg_options_default = {
+  tested: "1.1.0",
+  since: {
+    config: "1.0.0",
+    input: "1.0.0",
+    output: "1.0.0",
+    title: "1.0.0",
+    "version-name": "1.0.0",
+    "front-page": "1.0.0",
+    only: "1.0.0",
+    preview: "1.0.0",
+    "keep-in-output": "1.1.0",
+    "message-format": "1.1.0"
+  }
+};
+
+// src/action_stop.ts
+var ActionStop = class extends Error {
+  name = "ActionStop";
+  sentences;
+  constructor(...sentences) {
+    super(sentences.join(" "));
+    this.sentences = sentences;
+  }
+};
+function orStop(result) {
+  if (typeof result === "object" && result !== null && "problem" in result) throw new ActionStop(result.problem);
+  return result;
+}
+function stopSentencesOf(error2) {
+  return error2 instanceof ActionStop ? error2.sentences : [`The action failed unexpectedly: ${String(error2)}`];
+}
+
+// src/policies/build_arguments.ts
+var BUILD_OPTIONS = [
+  { name: "config", takes: "value" },
+  { name: "input", takes: "value" },
+  { name: "output", takes: "value" },
+  { name: "title", takes: "value" },
+  { name: "version-name", takes: "value" },
+  { name: "front-page", takes: "value" },
+  { name: "only", takes: "value" },
+  { name: "preview", takes: "nothing" },
+  { name: "keep-in-output", takes: "lines" }
+];
+var ACTION_OPTIONS = ["message-format"];
+function buildArguments(inputOf) {
+  const passed = [];
+  for (const option of BUILD_OPTIONS) {
+    const value = inputOf(option.name);
+    if (option.takes === "value") {
+      if (value !== "") passed.push(`--${option.name}=${value}`);
+      continue;
+    }
+    if (option.takes === "lines") {
+      passed.push(...linesOf(value).map((line) => `--${option.name}=${line}`));
+      continue;
+    }
+    const given = trueOrFalse(option.name, value);
+    if (typeof given !== "boolean") return given;
+    if (given) passed.push(`--${option.name}`);
+  }
+  return passed;
+}
+function trueOrFalse(name, input) {
+  if (input === "true") return true;
+  if (input === "false" || input === "") return false;
+  return { problem: `${name} must be true or false.` };
+}
+function linesOf(input) {
+  return input.split(/\r?\n/).filter((line) => line.trim() !== "");
+}
 
 // src/policies/versions.ts
 var IDENTIFIER = String.raw`(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)`;
@@ -22147,27 +22218,33 @@ function majorOf(version) {
 function newestStable(releases, major) {
   return releases.filter((release) => !release.draft && !release.prerelease).map((release) => STABLE_TAG.exec(release.tag)).flatMap((match) => match ? [[match[1], match[2], match[3]].map(Number)] : []).filter(([releaseMajor]) => releaseMajor === major).sort(([, aMinor = 0, aPatch = 0], [, bMinor = 0, bPatch = 0]) => aMinor - bMinor || aPatch - bPatch).map((numbers) => numbers.join(".")).at(-1);
 }
-var FIRST_BUILDING = [1, 1, 0];
-function buildingProblem(version) {
+function isOlder(version, release) {
   const [numbers = "", preRelease] = version.split(/-(.*)/s);
   const [major = 0, minor = 0, patch = 0] = numbers.split(".").map(Number);
-  const [firstMajor = 0, firstMinor = 0, firstPatch = 0] = FIRST_BUILDING;
-  const order = major - firstMajor || minor - firstMinor || patch - firstPatch;
-  const older = order < 0 || order === 0 && preRelease !== void 0;
-  return older ? { problem: `The action builds with ghg ${FIRST_BUILDING.join(".")} or newer, not ${version}.` } : void 0;
+  const [releaseMajor = 0, releaseMinor = 0, releasePatch = 0] = release.split(".").map(Number);
+  const order = major - releaseMajor || minor - releaseMinor || patch - releasePatch;
+  return order < 0 || order === 0 && preRelease !== void 0;
 }
 
-// src/action_stop.ts
-var ActionStop = class extends Error {
-  name = "ActionStop";
-};
-function orStop(result) {
-  if (typeof result === "object" && result !== null && "problem" in result) throw new ActionStop(result.problem);
-  return result;
+// src/policies/ghg_options.ts
+function tooOldFor(version, passed, options) {
+  const tooNew = (option) => {
+    const release = options.since[option];
+    return release !== void 0 && isOlder(version, release) ? [{ option, release }] : [];
+  };
+  const newestOfAction = passed.byAction.flatMap(tooNew).map(({ release }) => release).reduce((newest, release) => newest === void 0 || isOlder(newest, release) ? release : newest, void 0);
+  const ofAction = newestOfAction === void 0 ? [] : [`The action builds with ghg ${newestOfAction} or newer, not ${version}.`];
+  const ofInputs = passed.byInputs.flatMap(tooNew).map(({ option, release }) => `${option} needs ghg ${release} or newer, not ${version}.`);
+  return [...ofAction, ...ofInputs];
+}
+function optionsOf(buildArguments2) {
+  return [...new Set(buildArguments2.flatMap((argument) => /^--([a-z][a-z-]*)/.exec(argument)?.[1] ?? []))];
 }
 
 // src/policies/site_inputs.ts
 var SITE_BUILD_INPUTS = ["config", "input", "front-page"];
+var PUBLISH_OPTIONS = [...ACTION_OPTIONS, "output", "keep-in-output", "version-name"];
+var PREVIEW_OPTIONS = [...ACTION_OPTIONS, "output", "keep-in-output", "title", "preview", "only"];
 function siteInputsOf(inputOf) {
   if (inputOf("to") !== "github-pages") return { problem: "to must be github-pages." };
   const branch = inputOf("branch");
@@ -22220,10 +22297,10 @@ function archiveName(version, platform2) {
 }
 
 // src/services/installing.ts
-async function installGhg(version, platform2, building, pairedMajor, ports) {
-  const installedVersion = version ?? await newestCompatible(pairedMajor, ports.releases);
-  const tooOld = building ? buildingProblem(installedVersion) : void 0;
-  if (tooOld !== void 0) throw new ActionStop(tooOld.problem);
+async function installGhg(version, platform2, passed, options, ports) {
+  const installedVersion = version ?? await newestCompatible(majorOf(options.tested), ports.releases);
+  const [tooOld, ...alsoTooOld] = passed === void 0 ? [] : tooOldFor(installedVersion, passed, options);
+  if (tooOld !== void 0) throw new ActionStop(tooOld, ...alsoTooOld);
   const folder = ports.toolCache.find(installedVersion) ?? await downloadGhg(installedVersion, platform2, ports);
   ports.runner.addToPath(folder);
   ports.runner.log(`ghg ${installedVersion} is installed.`);
@@ -23089,45 +23166,6 @@ function configuredPaths(configText) {
 // src/services/publishing.ts
 var import_node_path5 = __toESM(require("node:path"), 1);
 
-// src/policies/build_arguments.ts
-var BUILD_OPTIONS = [
-  { name: "config", takes: "value" },
-  { name: "input", takes: "value" },
-  { name: "output", takes: "value" },
-  { name: "title", takes: "value" },
-  { name: "version-name", takes: "value" },
-  { name: "front-page", takes: "value" },
-  { name: "only", takes: "value" },
-  { name: "preview", takes: "nothing" },
-  { name: "keep-in-output", takes: "lines" }
-];
-function buildArguments(inputOf) {
-  const passed = [];
-  for (const option of BUILD_OPTIONS) {
-    const value = inputOf(option.name);
-    if (option.takes === "value") {
-      if (value !== "") passed.push(`--${option.name}=${value}`);
-      continue;
-    }
-    if (option.takes === "lines") {
-      passed.push(...linesOf(value).map((line) => `--${option.name}=${line}`));
-      continue;
-    }
-    const given = trueOrFalse(option.name, value);
-    if (typeof given !== "boolean") return given;
-    if (given) passed.push(`--${option.name}`);
-  }
-  return passed;
-}
-function trueOrFalse(name, input) {
-  if (input === "true") return true;
-  if (input === "false" || input === "") return false;
-  return { problem: `${name} must be true or false.` };
-}
-function linesOf(input) {
-  return input.split(/\r?\n/).filter((line) => line.trim() !== "");
-}
-
 // src/policies/kept_in_output.ts
 var PAGES_FILES = ["/.nojekyll", "/CNAME"];
 function keptInOutputArguments(keepInOutput, configText) {
@@ -23291,19 +23329,20 @@ function readSiteRequest(runner) {
 }
 
 // src/services/running_site_actions.ts
-async function runPublish(pairedMajor, ports) {
-  await runSiteAction(pairedMajor, ports, (request2, runner) => {
+async function runPublish(options, ports) {
+  await runSiteAction(options, PUBLISH_OPTIONS, ["version-name"], ports, (request2, runner) => {
     const versionName = versionNameOf(runner.input("version-name"), runner.workflowEvent().refName);
     return async (installedGhg, publishingPorts) => publishVersion(await installedGhg(), { ...request2, versionName }, publishingPorts);
   });
 }
-async function runSiteAction(pairedMajor, ports, publishingOf) {
+async function runSiteAction(options, byAction, ownInputs, ports, publishingOf) {
   try {
     const request2 = readSiteRequest(ports.runner);
     const publishing = publishingOf(request2, ports.runner);
     if (publishing === void 0) return;
     const installedGhg = async () => {
-      const ghg = await installGhg(request2.install.version, request2.install.platform, true, pairedMajor, {
+      const passed = optionsPassed(request2, byAction, ownInputs, ports.runner);
+      const ghg = await installGhg(request2.install.version, request2.install.platform, passed, options, {
         ...ports,
         releases: ports.releasesWith(request2.install.releasesToken)
       });
@@ -23315,8 +23354,14 @@ async function runSiteAction(pairedMajor, ports, publishingOf) {
       siteBranch: ports.siteBranchWith(request2.token)
     });
   } catch (error2) {
-    ports.runner.fail(error2 instanceof ActionStop ? error2.message : `The action failed unexpectedly: ${String(error2)}`);
+    for (const sentence of stopSentencesOf(error2)) ports.runner.fail(sentence);
   }
+}
+function optionsPassed(request2, byAction, ownInputs, runner) {
+  const keepInOutput = linesOf(request2.keepInOutput).length === 0 ? [] : ["keep-in-output"];
+  const title = request2.title === "" ? [] : ["title"];
+  const own = ownInputs.filter((name) => runner.input(name) !== "");
+  return { byInputs: [...optionsOf(request2.build.buildArguments), ...keepInOutput, ...title, ...own], byAction };
 }
 
 // src/adapters/actions_runner.ts
@@ -30290,4 +30335,4 @@ function siteActionPorts() {
 }
 
 // src/publish_main.ts
-void runPublish(majorOf(paired_ghg_default.version), siteActionPorts());
+void runPublish(ghg_options_default, siteActionPorts());

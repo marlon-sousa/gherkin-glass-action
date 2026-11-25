@@ -153,7 +153,7 @@ Each gives the output `address`, the address of the version or the preview it pu
 
 ## Versions
 
-The three actions are released together, under one version, which shares its major version with `ghg`: v1 installs `ghg` 1.x, and never a 2.x. The minor and patch numbers are the actions' own. `@v1` always names the newest 1.x release, and a full version, such as `@v1.0.0`, never changes. A new input, for an option a newer `ghg` adds, comes in a minor release of the action.
+The three actions are released together, under one version, which shares its major version with `ghg`: v1 installs `ghg` 1.x, and never a 2.x. The minor and patch numbers are the actions' own. `@v1` always names the newest 1.x release, and a full version, such as `@v1.0.0`, never changes. A new input, for an option a newer `ghg` adds, comes in a minor release of the action; a release of `ghg` that adds no option needs none. The actions work with any `ghg` of their major version that has the options they pass: `ghg-options.json` names the first release of `ghg` with each option, and when `ghg-version` names an older one, the action stops before downloading it, naming each input that needs a newer `ghg`, such as `keep-in-output needs ghg 1.1.0 or newer, not 1.0.0.`
 
 [docs/BEHAVIOUR.md](docs/BEHAVIOUR.md) says everything the actions promise, the messages they stop with among them.
 

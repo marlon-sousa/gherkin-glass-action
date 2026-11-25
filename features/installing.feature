@@ -25,6 +25,17 @@ Feature: Installing ghg
     Then the action fails with "The action builds with ghg 1.1.0 or newer, not 1.0.0."
     And the log does not say "ghg 1.0.0 is installed."
 
+  @rule-2
+  Scenario: Every option the ghg named is too old for is reported before it is downloaded
+    When a push runs the action with:
+      | ghg-version    | 1.0.0  |
+      | build          | true   |
+      | keep-in-output | /CNAME |
+    Then the action fails with:
+      | The action builds with ghg 1.1.0 or newer, not 1.0.0. |
+      | keep-in-output needs ghg 1.1.0 or newer, not 1.0.0.   |
+    And the log does not say "ghg 1.0.0 is installed."
+
   @rule-6
   Scenario: The ghg installed is kept in the runner's tool cache
     When a push runs the action with:

@@ -24,6 +24,12 @@ Then("the action fails with {string}", function (this: ScenarioWorld, sentence: 
   assert.deepEqual(errors.map((error) => error.message), [sentence]);
 });
 
+Then("the action fails with:", function (this: ScenarioWorld, sentences: DataTable) {
+  assert.ok(!this.ran.actionPassed, "The action's step passed.");
+  const errors = this.ran.annotations.filter((annotation) => annotation.kind === "error" && annotation.file === undefined);
+  assert.deepEqual(errors.map((error) => error.message), sentences.raw().map(([sentence]) => sentence));
+});
+
 Then("the log says {string}", function (this: ScenarioWorld, line: string) {
   assert.ok(this.ran.log.includes(line), `The log does not say: ${line}`);
 });

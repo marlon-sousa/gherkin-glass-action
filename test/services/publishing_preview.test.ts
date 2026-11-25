@@ -1,9 +1,11 @@
-// Tests rules 26 to 29: preview publishes a pull request's preview, and removes it once closed.
+// Tests rules 2 and 26 to 29: preview publishes a pull request's preview, and removes it once closed.
 
 import assert from "node:assert/strict";
 import path from "node:path";
 import { test } from "node:test";
 import { ActionStop } from "../../src/action_stop.ts";
+import { optionsOf } from "../../src/policies/ghg_options.ts";
+import { PREVIEW_OPTIONS } from "../../src/policies/site_inputs.ts";
 import type { PushOutcome } from "../../src/ports/site_branch.ts";
 import { publishPreview, removePreview, type OpenPullRequest } from "../../src/services/publishing_preview.ts";
 import { FakeGhgProcess, ghgReport } from "../support/fakes.ts";
@@ -123,6 +125,8 @@ test("changed-only gives ghg the changed files of the input folder, or publishes
   const narrowed = previewing(OPENED, { repository, changedOnly: true });
   await narrowed.run();
   assert.deepEqual(narrowed.used.process.runs[0]?.slice(-2, -1), ["--only=temporary/changed-files.txt"]);
+  // Rule 2: every option preview passes is one it gives itself.
+  assert.deepEqual(optionsOf(narrowed.used.process.runs[0]?.slice(2) ?? []).filter((option) => !PREVIEW_OPTIONS.includes(option)), []);
   assert.equal(narrowed.used.files.texts.get("temporary/changed-files.txt"), "features/a.feature\n");
   repository.changedFiles = [{ path: "features/a.feature", removed: true }];
   const none = previewing(OPENED, { repository, changedOnly: true });

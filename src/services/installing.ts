@@ -4,7 +4,8 @@ import path from "node:path";
 import { ActionStop } from "../action_stop.ts";
 import { listedChecksum } from "../policies/checksums.ts";
 import { archiveName, type Platform } from "../policies/targets.ts";
-import { buildingProblem, newestStable } from "../policies/versions.ts";
+import { tooOldFor, type GhgOptions, type OptionsPassed } from "../policies/ghg_options.ts";
+import { majorOf, newestStable } from "../policies/versions.ts";
 import type { Files } from "../ports/files.ts";
 import type { GhgReleases } from "../ports/ghg_releases.ts";
 import type { GhgToolCache } from "../ports/ghg_tool_cache.ts";
@@ -22,17 +23,18 @@ export interface InstalledGhg {
   readonly version: string;
 }
 
-/** Puts ghg's folder on the PATH; a version too old to build with stops the action before anything is downloaded. */
+/** Puts ghg's folder on the PATH; a version without an option passed stops the action before anything is downloaded. */
 export async function installGhg(
   version: string | undefined,
   platform: Platform,
-  building: boolean,
-  pairedMajor: number,
+  /** Undefined when the action does not build. */
+  passed: OptionsPassed | undefined,
+  options: GhgOptions,
   ports: InstallingPorts,
 ): Promise<InstalledGhg> {
-  const installedVersion = version ?? (await newestCompatible(pairedMajor, ports.releases));
-  const tooOld = building ? buildingProblem(installedVersion) : undefined;
-  if (tooOld !== undefined) throw new ActionStop(tooOld.problem);
+  const installedVersion = version ?? (await newestCompatible(majorOf(options.tested), ports.releases));
+  const [tooOld, ...alsoTooOld] = passed === undefined ? [] : tooOldFor(installedVersion, passed, options);
+  if (tooOld !== undefined) throw new ActionStop(tooOld, ...alsoTooOld);
   const folder =
     ports.toolCache.find(installedVersion) ?? (await downloadGhg(installedVersion, platform, ports));
   ports.runner.addToPath(folder);
