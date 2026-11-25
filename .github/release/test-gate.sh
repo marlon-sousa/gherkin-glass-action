@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Checks rule 13: gate.sh, with the
-# changelogs of test/fixtures/release/changelogs, in a throwaway repository
-# whose package.json declares version 1.2.3 and whose main holds one commit.
+# Checks rule 13: gate.sh, with the changelogs of test/fixtures/release/changelogs,
+# in a throwaway repository whose package.json declares version 1.2.3 and whose main holds one commit.
 # Needs git and jq. Run from the repository's root.
 set -euo pipefail
 

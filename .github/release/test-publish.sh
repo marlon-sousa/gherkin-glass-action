@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# Checks rule 16: publish.sh, in a
-# throwaway repository with the changelog test/fixtures/release/changelogs/
-# with-notes.md and the tags each case lists, and with a stand-in for gh that
-# writes down the release it is asked to create, one argument a line.
+# Checks rule 16: publish.sh, in a throwaway repository with the tags each case lists and a stand-in for gh.
 # Run from the repository's root.
 set -euo pipefail
 

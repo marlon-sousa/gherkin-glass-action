@@ -59,8 +59,7 @@ before(async () => {
 
 after(() => server.close());
 
-// Node's own fetch, rather than the runner's proxy that @actions/github would set up, reaches the
-// loopback address wherever the tests run.
+// Node's own fetch reaches the loopback address, where a proxy @actions/github 9.1.1 sets up from the environment may not.
 function repositoryOf(repository: string): GitHubRepositoryApi {
   return new GitHubRepositoryApi(getOctokit("a-token", { baseUrl: api, request: { fetch } }), repository);
 }

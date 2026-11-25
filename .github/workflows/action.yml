@@ -7,7 +7,6 @@ on:
   push:
     branches: [main]
   pull_request:
-    # Not on "edited": ticking a checkbox runs again only pull-request.yml.
     types: [opened, synchronize, reopened]
   workflow_call:
     inputs:

@@ -6,7 +6,7 @@ import { linesOf } from "./build_arguments.ts";
 // The files Pages reads at the root of the folder it serves.
 const PAGES_FILES = ["/.nojekyll", "/CNAME"];
 
-/** The configuration file's patterns are passed when the input gives none, since ghg reads the key only when the command line gives no pattern. */
+/** The configuration file's patterns are passed only when the input gives none. */
 export function keptInOutputArguments(keepInOutput: string, configText: string | undefined): readonly string[] {
   const given = linesOf(keepInOutput);
   const patterns = given.length > 0 ? given : configuredPatterns(configText);
@@ -18,6 +18,7 @@ function configuredPatterns(configText: string | undefined): readonly string[] {
   if (configText === undefined) return [];
   try {
     const { keep_in_output: patterns } = parse(configText);
+    // An empty pattern on the command line would stop the build.
     const texts = Array.isArray(patterns) && patterns.every((pattern) => typeof pattern === "string");
     return texts ? patterns.filter((pattern) => pattern !== "") : [];
   } catch {

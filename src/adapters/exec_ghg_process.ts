@@ -9,7 +9,7 @@ export class ExecGhgProcess implements GhgProcess {
     // A character may be cut between two chunks, which the decoder joins again.
     const decoder = new StringDecoder("utf8");
     let standardOutput = "";
-    // @actions/exec 3.0.0 gives the listener every chunk and still writes both streams, and the command line alone, to the log.
+    // @actions/exec 3.0.0 gives the listener every chunk and still writes both streams to the log, and the command line to the log only.
     const status = await exec(program, [...commandArguments], {
       ignoreReturnCode: true,
       listeners: { stdout: (data: Buffer) => (standardOutput += decoder.write(data)) },

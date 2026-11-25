@@ -1,5 +1,6 @@
 name: Weekly
 
+# Fails while a newer stable ghg of the paired major version is out, and runs the checks with it.
 
 on:
   schedule:
@@ -27,8 +28,7 @@ jobs:
           NEWEST: ${{ steps.newest.outputs.version }}
         run: |
           paired=$(jq -r .version paired-ghg.json)
-          # sort -V orders plain versions as Semantic Versioning does; both are
-          # plain unless paired-ghg.json names a pre-release, which it never should.
+          # paired-ghg.json never names a pre-release, which sort -V would misorder.
           newer=$(printf '%s\n%s\n' "$paired" "$NEWEST" | sort -V | tail -n 1)
           if [ "$NEWEST" != "$paired" ] && [ "$newer" = "$NEWEST" ]; then
             echo "::error::ghg $NEWEST is out, and the action is paired with ghg $paired. Pair it with ghg $NEWEST in paired-ghg.json, add an input for each option it adds, and release the action."
@@ -39,6 +39,7 @@ jobs:
   with-newest:
     name: the action's checks with the newest ghg
     needs: newest
+    # newest fails when a newer ghg is out, which is when this job must still run.
     if: ${{ !cancelled() && needs.newest.outputs.version != '' }}
     uses: ./.github/workflows/action.yml
     with:

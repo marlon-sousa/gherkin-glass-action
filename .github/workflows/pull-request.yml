@@ -1,9 +1,6 @@
 name: Pull request
 
-# The checks of the process: every pull request names an issue, closes none
-# of another repository, and has no unticked checkbox in its description, and
-# every commit message keeps the convention. They run on every pull request,
-# whatever its base, so each layer of a stack is checked.
+# The checks of the process, on every pull request whatever its base, so that each layer of a stack is checked.
 
 on:
   pull_request:
@@ -38,17 +35,13 @@ jobs:
       - uses: itinera-dev/actions/no-cross-repo-closing@d49d88f6b15f4d4c344503e9e3304a449ee3ebe8 # v1.11.0
 
   checkboxes:
-    # A manual check is a list of checkboxes in the description, so the pull
-    # request cannot merge while one is unticked. "edited" runs it again when a
-    # box is ticked; the other workflows leave "edited" out, so that a tick runs
-    # again only this one.
+    # Only this workflow runs on "edited", so that ticking a box runs only this check again.
     name: no unticked checkbox in the description
     runs-on: ubuntu-latest
     steps:
       - name: Fail on an unticked checkbox
         env:
-          # Passed in the environment, never written into the script, so that
-          # the description cannot run as shell.
+          # Never written into the script, where the description would run as shell.
           BODY: ${{ github.event.pull_request.body }}
         run: |
           if printf '%s\n' "$BODY" | grep -En '^[[:space:]]*[-*+] \[ \]'; then

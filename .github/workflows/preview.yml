@@ -1,9 +1,6 @@
 name: Preview
 
-# A preview of the action's own site for each pull request, removed when it
-# closes. A called workflow's jobs may not ask for more permissions than its
-# caller grants, so this one, which needs pull-requests: write, stays apart
-# from site.yml, which release.yml calls.
+# A preview of the action's own site for each pull request, removed when it closes.
 
 on:
   pull_request:

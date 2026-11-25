@@ -18,7 +18,6 @@ export const GITHUB_RELEASES: ReleaseAddresses = {
   downloads: "https://github.com/marlon-sousa/gherkin-glass/releases/download",
 };
 
-// GitHub's API lists at most 100 releases a page.
 const PAGE_SIZE = 100;
 
 export class GitHubGhgReleases implements GhgReleases {

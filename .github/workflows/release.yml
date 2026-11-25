@@ -1,7 +1,6 @@
 name: Release
 
-# On a pull request that changes how releases are made, the release tools'
-# tests run, and nothing is released.
+# Releases the version a pushed tag names; on a pull request, runs only the release tools' tests.
 
 on:
   push:
@@ -9,7 +8,6 @@ on:
     # workflow moves and a maintainer may move by hand.
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
   pull_request:
-    # Not on "edited": ticking a checkbox runs again only pull-request.yml.
     types: [opened, synchronize, reopened]
     paths:
       - .github/workflows/release.yml

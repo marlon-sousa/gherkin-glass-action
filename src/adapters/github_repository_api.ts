@@ -8,7 +8,7 @@ import type { GitHubRepository, PullRequestComment } from "../ports/github_repos
 
 export type GitHubClient = InstanceType<typeof GitHub>;
 
-// GitHub's API lists at most 100 items a page, and 300 files of a comparison, as github/rest-api-description's api.github.com.json says.
+// GitHub's API lists at most 100 items a page, and 300 files of a comparison.
 const PAGE_SIZE = 100;
 const COMPARED_FILES = 300;
 const USER_AGENT = "gherkin-glass-action";
@@ -32,7 +32,7 @@ export class GitHubRepositoryApi implements GitHubRepository {
     this.repo = repo;
   }
 
-  // GitHub answers 404 when Pages is off, as github/rest-api-description's api.github.com.json says.
+  // GitHub answers 404 when Pages is off.
   async pagesSettings(): Promise<PagesSettings | "off" | undefined> {
     try {
       const { data } = await this.client.rest.repos.getPages({ owner: this.owner, repo: this.repo });
@@ -48,13 +48,12 @@ export class GitHubRepositoryApi implements GitHubRepository {
     }
   }
 
-  // GitHub lists at most 3000 files of a pull request.
   async listChangedFiles(pullRequest: number): Promise<readonly ChangedFile[] | undefined> {
     const request = { owner: this.owner, repo: this.repo, pull_number: pullRequest, per_page: PAGE_SIZE };
     return orUndefined(async () => changedFilesOf(await this.client.paginate(this.client.rest.pulls.listFiles, request)));
   }
 
-  // Undefined when the list may be cut short at 300 files.
+  // Undefined when the list may be cut short.
   async compareCommits(before: string, after: string): Promise<readonly ChangedFile[] | undefined> {
     const basehead = `${before}...${after}`;
     return orUndefined(async () => {

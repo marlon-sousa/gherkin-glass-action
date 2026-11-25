@@ -23,8 +23,9 @@ export interface ActionRequest {
 
 export interface BuildRequest {
   readonly buildArguments: readonly string[];
-  /** Empty when the input is not given, as is frontPage. */
+  /** Empty when the input is not given. */
   readonly input: string;
+  /** Empty when the input is not given. */
   readonly frontPage: string;
   readonly configFile: string;
 }

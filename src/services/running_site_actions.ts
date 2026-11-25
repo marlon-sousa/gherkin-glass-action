@@ -20,7 +20,6 @@ export interface SiteActionPorts extends ActionPorts {
 
 type Publishing = (installedGhg: () => Promise<string>, ports: PublishingPorts) => Promise<void>;
 
-/** Fails the step itself, so its promise never rejects. */
 export async function runPublish(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
   await runSiteAction(pairedMajor, ports, (request, runner) => {
     const versionName = versionNameOf(runner.input("version-name"), runner.workflowEvent().refName);
@@ -29,7 +28,6 @@ export async function runPublish(pairedMajor: number, ports: SiteActionPorts): P
   });
 }
 
-/** Fails the step itself, so its promise never rejects. */
 export async function runPreview(pairedMajor: number, ports: SiteActionPorts): Promise<void> {
   await runSiteAction(pairedMajor, ports, (request, runner) => {
     const changedOnly = orStop(changedOnlyOf(runner.input("changed-only")));
@@ -44,7 +42,7 @@ export async function runPreview(pairedMajor: number, ports: SiteActionPorts): P
   });
 }
 
-// publishingOf gives undefined when there is nothing to do.
+// Fails the step itself, so its promise never rejects; publishingOf gives undefined when there is nothing to do.
 async function runSiteAction(
   pairedMajor: number,
   ports: SiteActionPorts,

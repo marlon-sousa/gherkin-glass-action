@@ -30306,7 +30306,7 @@ var GitHubRepositoryApi = class {
     this.owner = owner;
     this.repo = repo;
   }
-  // GitHub answers 404 when Pages is off, as github/rest-api-description's api.github.com.json says.
+  // GitHub answers 404 when Pages is off.
   async pagesSettings() {
     try {
       const { data } = await this.client.rest.repos.getPages({ owner: this.owner, repo: this.repo });
@@ -30321,12 +30321,11 @@ var GitHubRepositoryApi = class {
       return fieldOf(error2, "status") === 404 ? "off" : void 0;
     }
   }
-  // GitHub lists at most 3000 files of a pull request.
   async listChangedFiles(pullRequest) {
     const request2 = { owner: this.owner, repo: this.repo, pull_number: pullRequest, per_page: PAGE_SIZE2 };
     return orUndefined(async () => changedFilesOf(await this.client.paginate(this.client.rest.pulls.listFiles, request2)));
   }
-  // Undefined when the list may be cut short at 300 files.
+  // Undefined when the list may be cut short.
   async compareCommits(before, after) {
     const basehead = `${before}...${after}`;
     return orUndefined(async () => {

@@ -1,4 +1,4 @@
-// Error: why the action stops, , in the sentence a person reads.
+// Error: why the action stops, in the sentence a person reads.
 
 export class ActionStop extends Error {
   override readonly name = "ActionStop";

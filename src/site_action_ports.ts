@@ -1,3 +1,4 @@
+// Composition root: the adapters the publish and preview actions share.
 
 import { ActionsRunner } from "./adapters/actions_runner.ts";
 import { ActionsToolCache } from "./adapters/actions_tool_cache.ts";

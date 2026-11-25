@@ -68,7 +68,6 @@ export class FakeSiteBranch implements SiteBranch {
   async exists(): Promise<boolean> {
     return this.branchExists;
   }
-  /** Whether make's push is accepted. */
   makeAccepted = true;
   async make(): Promise<boolean> {
     this.steps.push("make");
